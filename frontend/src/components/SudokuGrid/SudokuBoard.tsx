@@ -1,20 +1,20 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
+import { IoPlayCircle } from 'react-icons/io5';
 
-import { GRID_SIZE } from './constants';
-import { SudokuBox } from './SudokuBox';
-import { SudokuGrid } from './SudokuGrid';
-import { Cell, SudokuDigit } from './types';
 import { Icon, SimpleGridProps } from '@chakra-ui/react';
-import { LuCirclePlay } from 'react-icons/lu';
-import { generateCells } from '../../modules/game-generator';
 
-type Direction = {
-  dr: number;
-  dc: number;
-};
+import { GRID_SIZE } from '@/components/SudokuGrid/constants';
+import { SudokuBox } from '@/components/SudokuGrid/SudokuBox';
+import { SudokuGrid } from '@/components/SudokuGrid/SudokuGrid';
+import { generateCellsPerBox } from '@/components/SudokuGrid/helpers';
+import { Cell, CellPosition, SudokuDigit } from '@/components/SudokuGrid/types';
 
+/** types */
+type Direction = { dr: number; dc: number };
+
+/** constants */
 const directions: Partial<Record<string, Direction>> = {
   ArrowLeft: { dr: 0, dc: -1 },
   ArrowRight: { dr: 0, dc: 1 },
@@ -22,6 +22,9 @@ const directions: Partial<Record<string, Direction>> = {
   ArrowDown: { dr: 1, dc: 0 },
 };
 
+/**
+ * This components renders the sudoku board and manages board-level interactions like cell selection, keyboard nav, and resume
+ */
 export const SudokuBoard = ({
   puzzle,
   isPaused,
@@ -35,56 +38,56 @@ export const SudokuBoard = ({
   isPaused?: boolean;
   clearCell: (digit: SudokuDigit | null) => void;
   fillCell: (digit: SudokuDigit) => void;
-  onCellSelect: (cell: Cell) => void;
+  onCellSelect: (pos: CellPosition) => void;
   resume: VoidFunction;
 } & SimpleGridProps) => {
-  const [selectedCell, setSelectedCell] = useState<Cell | undefined>();
-  const cellsPerBox = generateCells(puzzle);
+  const [selectedPosition, setSelectedPosition] = useState<CellPosition>();
+  
+  const cellsPerBox = useMemo(() => generateCellsPerBox(puzzle), [puzzle]);
+  const selectedCell = selectedPosition
+    ? puzzle[selectedPosition.row][selectedPosition.col]
+    : undefined;
 
   /** handlers */
-  const handleCellSelect = (cell: Cell) => {
-    setSelectedCell(cell);
-    onCellSelect(cell);
-  };
+  const handleCellSelect = useCallback(
+    (pos: CellPosition) => {
+      setSelectedPosition(pos);
+      onCellSelect(pos);
+    },
+    [onCellSelect],
+  );
 
   const handleArrowKey = useCallback(
-    (e: KeyboardEvent) => {
-      if (!selectedCell) return;
+    (e: React.KeyboardEvent) => {
+      if (!selectedPosition || isPaused) return;
 
       const direction = directions[e.key];
       if (!direction) return;
+
       e.preventDefault();
 
-      const nextRow = (selectedCell.row + direction.dr + GRID_SIZE) % GRID_SIZE;
-      const nextCol = (selectedCell.col + direction.dc + GRID_SIZE) % GRID_SIZE;
-      setSelectedCell(puzzle[nextRow][nextCol]);
+      const nextRow =
+        (selectedPosition.row + direction.dr + GRID_SIZE) % GRID_SIZE;
+      const nextCol =
+        (selectedPosition.col + direction.dc + GRID_SIZE) % GRID_SIZE;
+
+      const pos = puzzle[nextRow][nextCol];
+      handleCellSelect({ row: pos.row, col: pos.col });
     },
-    [selectedCell, puzzle],
+    [isPaused, puzzle, selectedPosition, handleCellSelect],
   );
-
-  const handleCellFill = (cell: Cell, value: SudokuDigit) => fillCell(value);
-  const handleCellClear = (cell: Cell) => {
-    console.log('helloooo');
-    clearCell(cell.value);
-  };
-
-  /** effects */
-  useEffect(() => {
-    document.addEventListener('keydown', handleArrowKey);
-    return () => document.removeEventListener('keydown', handleArrowKey);
-  }, [handleArrowKey]);
 
   /** render */
   return (
-    <SudokuGrid {...props}>
+    <SudokuGrid onKeyDown={handleArrowKey} {...props}>
       {Array.from({ length: GRID_SIZE }).map((_, boxIndex) => (
         <SudokuBox
           key={boxIndex}
           cells={cellsPerBox[boxIndex]}
-          selected={selectedCell}
+          selectedCell={selectedCell}
           paused={isPaused}
-          onCellClear={handleCellClear}
-          onCellFill={handleCellFill}
+          onCellClear={clearCell}
+          onCellFill={fillCell}
           onCellSelect={handleCellSelect}
         />
       ))}
@@ -94,12 +97,11 @@ export const SudokuBoard = ({
           top="50%"
           left="50%"
           transform="translate(-50%, -50%)"
-          size="2xl"
-          color="fg.info"
+          boxSize={12}
           cursor="pointer"
           onClick={resume}
         >
-          <LuCirclePlay />
+          <IoPlayCircle />
         </Icon>
       )}
     </SudokuGrid>

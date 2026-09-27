@@ -1,7 +1,8 @@
-import { Flex, HStack, IconButton, Text } from '@chakra-ui/react';
-import { LuPlay, LuPause } from 'react-icons/lu';
+import { IoPause, IoPlay } from "react-icons/io5";
 
-/** 
+import { Flex, HStack, IconButton, Text } from '@chakra-ui/react';
+
+/**
  * This component displays the game timer and error count, with controls for pausing and resuming the game.
  */
 export const SettingsBar = ({
@@ -19,7 +20,7 @@ export const SettingsBar = ({
   pause: VoidFunction;
   resume: VoidFunction;
 }) => {
-  /** callback */
+  /** callbacks */
   const toggleGame = () => (isPaused ? resume() : pause());
 
   /** render */
@@ -30,7 +31,6 @@ export const SettingsBar = ({
           {`Time: ${time}`}
         </Text>
         <IconButton
-          color="fg.info"
           minW="6"
           size="xs"
           variant="ghost"
@@ -38,7 +38,7 @@ export const SettingsBar = ({
           cursor="pointer"
           aria-label="Toggle game"
         >
-          {hidePauseToggle ? undefined : isPaused ? <LuPlay /> : <LuPause />}
+          {hidePauseToggle ? undefined : isPaused ? <IoPlay /> : <IoPause />}
         </IconButton>
       </Flex>
       <Text fontSize="sm">{`Errors: ${errors}`}</Text>

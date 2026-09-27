@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
-import { Provider } from '../components/ui/provider';
-import { geistMono, geistSans } from '../utils/theme';
+import { Provider } from '@/components/ui/provider';
 
 /** browser metadata */
 export const metadata: Metadata = {
@@ -15,11 +14,7 @@ export default function RootLayout(props: { children: React.ReactNode }) {
   const { children } = props;
 
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable}`}
-      suppressHydrationWarning
-    >
+    <html lang="en" suppressHydrationWarning>
       <body>
         <Provider>{children}</Provider>
       </body>

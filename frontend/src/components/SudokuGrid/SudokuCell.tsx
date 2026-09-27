@@ -2,8 +2,9 @@
 import { useCallback, useEffect, useMemo } from 'react';
 
 import { BoxProps, Center, Text } from '@chakra-ui/react';
-import { Cell, SudokuDigit } from './types';
-import { CANDIDATE_POSITION } from './constants';
+
+import { getCandidatePlacement } from '@/components/SudokuGrid/helpers';
+import { Cell, SudokuDigit } from '@/components/SudokuGrid/types';
 
 interface SudokuCellProps {
   cell: Cell;
@@ -11,12 +12,12 @@ interface SudokuCellProps {
   identical?: boolean;
   paused?: boolean;
   selected: boolean;
-  onCellClear: (cell: Cell) => void;
-  onCellFill: (cell: Cell, digit: SudokuDigit) => void;
+  onCellClear: (digit: SudokuDigit | null) => void;
+  onCellFill: (digit: SudokuDigit) => void;
 }
 /**
- * This component renders an individual Sudoku grid cell. It manages visual highlights (selection, errors, candidates) 
- * and binds keyboard listeners (1–9 to fill, Backspace/Delete to clear) when selected.
+ * This component renders an individual Sudoku grid cell. It manages visual highlights (selection, errors, candidates)
+ * and binds keyboard listeners when selected.
  */
 export const SudokuCell = ({
   cell,
@@ -29,8 +30,7 @@ export const SudokuCell = ({
   ...props
 }: SudokuCellProps & BoxProps) => {
   const { given, actual, value, candidates } = cell;
-
-  /** styling */
+  /** cell styling */
   const color = useMemo(() => {
     if (given) return 'fg';
     if (value !== null && value !== actual) return 'fg.error';
@@ -60,13 +60,13 @@ export const SudokuCell = ({
 
       if (e.key >= '1' && e.key <= '9') {
         e.preventDefault();
-        onCellFill(cell, Number(e.key) as SudokuDigit);
+        onCellFill(Number(e.key) as SudokuDigit);
       } else if (e.key === 'Backspace' || e.key === 'Delete') {
         e.preventDefault();
-        onCellClear(cell);
+        onCellClear(value);
       }
     },
-    [cell, given, paused, selected, onCellClear, onCellFill],
+    [given, paused, selected, value, onCellClear, onCellFill],
   );
 
   /** effects */
@@ -77,6 +77,7 @@ export const SudokuCell = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [selected, handleKeyDown]);
 
+  /** render */
   return (
     <Center
       w="full"
@@ -86,23 +87,22 @@ export const SudokuCell = ({
       aspectRatio="1/1"
       cursor="pointer"
       userSelect="none"
-      border={selected && !paused ? '3px solid' : undefined}
-      borderColor="border.info"
+      border="3px solid"
+      borderColor={selected && !paused ? 'border.info' : 'transparent'}
       color={color}
       {...props}
     >
       {paused || !value ? (
-        // candidates (only rendered when not paused and value is absent)
+        // candidates
         !paused &&
         candidates?.map((candidate) => (
           <Text
             key={candidate}
             position="absolute"
-            color="fg.muted"
             fontSize="xs"
-            fontWeight="300"
             fontVariantNumeric="tabular-nums"
-            {...CANDIDATE_POSITION(1, 0)[Number(candidate) as SudokuDigit]}
+            color="gray.500"
+            {...getCandidatePlacement(Number(candidate) as SudokuDigit, 1, 0)}
           >
             {candidate}
           </Text>

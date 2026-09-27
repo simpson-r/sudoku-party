@@ -1,59 +1,51 @@
 'use client';
 
-import { SimpleGrid, SimpleGridProps } from '@chakra-ui/react';
-import { SudokuCell } from './SudokuCell';
-import { Cell, SudokuDigit } from './types';
+import { SimpleGrid } from '@chakra-ui/react';
+
+import { SudokuCell } from '@/components/SudokuGrid/SudokuCell';
+import { Cell, CellPosition, SudokuDigit } from '@/components/SudokuGrid/types';
 
 interface SudokuBoxProps {
   cells: Cell[];
   paused?: boolean;
-  selected?: Cell;
-  onCellClear: (cell: Cell) => void;
-  onCellFill: (cell: Cell, digit: SudokuDigit) => void;
-  onCellSelect: (cell: Cell) => void;
+  selectedCell?: Cell;
+  onCellClear: (digit: SudokuDigit | null) => void;
+  onCellFill: (digit: SudokuDigit) => void;
+  onCellSelect: (pos: CellPosition) => void;
 }
 
-/** This component...
- * @todo
+/**
+ * This component renders a 3×3 sudoku box and highlights cells based on the current selection
  */
 export const SudokuBox = ({
   cells,
-  selected,
-  paused,
+  selectedCell,
   onCellSelect,
-  onCellFill,
-  onCellClear,
   ...props
-}: React.PropsWithChildren<SimpleGridProps & SudokuBoxProps>) => {
-  const withinBox = cells.some(
-    (cell) => cell.row === selected?.row && cell.col === selected?.col,
+}: React.PropsWithChildren<SudokuBoxProps>) => {
+  const selectedWithinBox = cells.some(
+    (cell) => cell.row === selectedCell?.row && cell.col === selectedCell?.col,
   );
 
-  /** render */
   return (
-    <SimpleGrid
-      w="full"
-      h="full"
-      bg="gray.border"
-      columns={3}
-      gap="1px"
-      {...props}
-    >
+    <SimpleGrid columns={3} w="full" h="full" gap={0.5} bg="gray.border">
       {cells.map((cell) => (
         <SudokuCell
           key={`${cell.row}-${cell.col}`}
           cell={cell}
-          paused={paused}
-          selected={selected?.row === cell.row && selected?.col === cell.col}
-          highlighted={
-            selected?.row === cell.row ||
-            selected?.col === cell.col ||
-            withinBox
+          selected={
+            selectedCell?.row === cell.row && selectedCell?.col === cell.col
           }
-          identical={!!selected?.value && cell.value === selected?.value}
-          onClick={() => onCellSelect(cell)}
-          onCellFill={onCellFill}
-          onCellClear={onCellClear}
+          highlighted={
+            selectedCell?.row === cell.row ||
+            selectedCell?.col === cell.col ||
+            selectedWithinBox
+          }
+          identical={
+            !!selectedCell?.value && cell.value === selectedCell?.value
+          }
+          onClick={() => onCellSelect({ row: cell.row, col: cell.col })}
+          {...props}
         />
       ))}
     </SimpleGrid>

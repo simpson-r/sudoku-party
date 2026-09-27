@@ -2,7 +2,7 @@ import { useEffect, useReducer, useState } from 'react';
 
 import { Cell, CellPayload, SudokuDigit } from '../components/SudokuGrid/types';
 import { GRID_SIZE, ONE_SEC } from '../components/SudokuGrid/constants';
-import { generateSudokuGame } from '../modules/game-generator';
+import { generateSudokuGame } from '../modules/sudoku-generator';
 import { formatSeconds } from '../utils/helpers';
 
 /** helpers */
@@ -82,7 +82,7 @@ export function reducer(state: SudokuState, action: Action): SudokuState {
     case 'FILL_DIGIT': {
       const { row, col, value } = action.payload;
       const prevCell = state.board[row][col];
-      
+
       const { board, cell } = updateBoard(state.board, row, col, { value });
 
       return {
@@ -228,7 +228,7 @@ export const useSudokuGame = () => {
 
   const resume = () => dispatch({ type: 'RESUME' });
 
-  const reset = () => {
+  const newGame = () => {
     const newPuzzle = generateSudokuGame().puzzle;
     const newRemaining = buildRemainingCounts(newPuzzle);
 
@@ -250,7 +250,7 @@ export const useSudokuGame = () => {
       clearCell,
       fillCell,
       pause,
-      reset,
+      newGame,
       resume,
       restart,
       addCandidate,

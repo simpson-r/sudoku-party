@@ -1,36 +1,25 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
-import {
-  Box,
-  Button,
-  Container,
-  Flex,
-  HStack,
-  useDisclosure,
-  VStack,
-} from '@chakra-ui/react';
+import { Box, Container, Flex, useDisclosure, VStack } from '@chakra-ui/react';
 
-import { CountsGrid } from '../components/CountsGrid';
-import { SettingsBar } from '../components/SettingsBar';
-import { CompletionModal } from '../components/modals/CompletionModal';
-import { ConfirmationModal } from '../components/modals/ConfirmationModal';
-import { SudokuBoard } from '../components/SudokuGrid/SudokuBoard';
-import { useSudokuGame } from '../hooks/use-sudoku-game';
+import { SettingsBar } from '@/components/SettingsBar';
+import { CompletionModal } from '@/components/modals/CompletionModal';
+import { ConfirmationModal } from '@/components/modals/ConfirmationModal';
+import { SudokuBoard } from '@/components/SudokuGrid/SudokuBoard';
+import { useSudokuGame } from '@/hooks/use-sudoku-game';
 import {
-  Cell,
-  CellFillMode,
+  CellFill,
   CellPosition,
+  GameAction,
   SudokuDigit,
-} from '../components/SudokuGrid/types';
-
-/** types */
-type GameAction = 'reset' | 'restart';
+} from '@/components/SudokuGrid/types';
+import { ControlsSidebar } from '@/components/ControlsSidebar';
 
 /** constants */
 const CONFIRM_CONFIG = {
-  reset: {
+  newGame: {
     heading: 'Start a new game?',
     body: 'This will end the current session for everyone.',
     confirmText: 'New Game',
@@ -51,7 +40,7 @@ export const LandingPage = () => {
     clearCell,
     fillCell,
     pause,
-    reset,
+    newGame,
     resume,
     restart,
     addCandidate,
@@ -61,13 +50,23 @@ export const LandingPage = () => {
   const confirmationModal = useDisclosure();
   const completionModal = useDisclosure();
 
-  const [confirmationMode, setConfirmationMode] = useState<GameAction>('reset');
+  const [confirmationMode, setConfirmationMode] =
+    useState<GameAction>('newGame');
   const [selectedPos, setSelectedPos] = useState<CellPosition | null>(null);
-  const [fillMode, setFillMode] = useState<CellFillMode>('digit');
+  const [fillMode, setFillMode] = useState<CellFill>('digit');
 
   const selectedCell = selectedPos
     ? state.board[selectedPos.row]?.[selectedPos.col]
     : null;
+
+  const previousCompleted = useRef(state.completed);
+
+  /** effects */
+  useEffect(() => {
+    if (!previousCompleted.current && state.completed) completionModal.onOpen();
+
+    previousCompleted.current = state.completed;
+  }, [state.completed, completionModal]);
 
   /** modal handlers */
   const handleGameAction = (mode: GameAction) => {
@@ -76,20 +75,19 @@ export const LandingPage = () => {
   };
 
   const handleConfirm = () => {
-    if (confirmationMode === 'reset') reset();
+    if (confirmationMode === 'newGame') newGame();
     else restart();
 
     confirmationModal.onClose();
   };
 
   const handleCompletionReset = () => {
-    reset();
+    newGame();
     completionModal.onClose();
   };
 
   /** cell handlers */
-  const handleCellSelection = (cell: Cell) =>
-    setSelectedPos({ row: cell.row, col: cell.col });
+  const handleCellSelection = (pos: CellPosition) => setSelectedPos(pos);
 
   const handleDigitInput = (digit: SudokuDigit) => {
     if (!selectedPos) return;
@@ -132,11 +130,6 @@ export const LandingPage = () => {
     }
   };
 
-  /** effects */
-  useEffect(() => {
-    if (state.completed) completionModal.onOpen();
-  }, [state.completed, completionModal]);
-
   return (
     <Container
       as={VStack}
@@ -144,6 +137,7 @@ export const LandingPage = () => {
       h="full"
       alignItems="center"
       justifyContent="center"
+      pt={2}
       pb={3}
       gap={3}
     >
@@ -156,9 +150,9 @@ export const LandingPage = () => {
         resume={resume}
       />
       <Flex w="full" align="flex-start" justify="center">
-        {/* left spacer */}
+        {/* left sidebar */}
         <Box flex="1" />
-
+        {/* board */}
         <SudokuBoard
           puzzle={state.board}
           isPaused={state.paused}
@@ -167,43 +161,16 @@ export const LandingPage = () => {
           resume={resume}
           onCellSelect={handleCellSelection}
         />
-        {/* right controls */}
-        <Flex
-          flex="1"
-          direction="column"
-          justify="center"
-          align="flex-start"
-          pl="6"
-          gap={4}
-        >
-          <VStack gap={4} align="stretch" maxW="60">
-            <HStack justify="center" gap="2">
-              <Button
-                flex="1"
-                size="sm"
-                variant="solid"
-                onClick={() => handleGameAction('restart')}
-              >
-                Restart
-              </Button>
-              <Button
-                flex="1"
-                size="sm"
-                variant="surface"
-                onClick={() => handleGameAction('reset')}
-              >
-                New Game
-              </Button>
-            </HStack>
-            <CountsGrid
-              counts={state.remaining}
-              cellFillMode={fillMode}
-              onValueClick={handleValueClick}
-              onTabChange={setFillMode}
-            />
-          </VStack>
-        </Flex>
+        {/* right sidebar */}
+        <ControlsSidebar
+          fillMode={fillMode}
+          remaining={state.remaining}
+          handleGameAction={handleGameAction}
+          handleTabChange={setFillMode}
+          handleValueClick={handleValueClick}
+        />
       </Flex>
+      {/* modals */}
       <CompletionModal
         difficulty="easy"
         errors={state.errors}

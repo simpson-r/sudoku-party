@@ -1,4 +1,5 @@
 'use client';
+
 import { SimpleGrid, SimpleGridProps } from '@chakra-ui/react';
 
 export const SudokuGrid = ({
@@ -7,12 +8,13 @@ export const SudokuGrid = ({
   return (
     <SimpleGrid
       position="relative"
-      w="lg"
+      w={{ base: 'sm', md: 'lg' }}
       h="full"
       bg="bg.inverted"
       columns={3}
-      p={0.5}
-      gap={0.5}
+      p={1}
+      gap={1}
+      tabIndex={0}
       {...props}
     />
   );

@@ -1,5 +1,8 @@
 'use client';
 
+import { FaGear } from "react-icons/fa6";
+import { LuGrid3X3 } from 'react-icons/lu';
+
 import {
   Container,
   createListCollection,
@@ -8,11 +11,11 @@ import {
   IconButton,
   useDisclosure,
 } from '@chakra-ui/react';
-import { LuCog } from 'react-icons/lu';
-import { ColorModeIcon, useColorMode } from '../ui/color-mode';
-import { Menu } from '../ui/menu';
 
-const PROFILE_MENU_ITEMS = createListCollection({
+import { ColorModeIcon, useColorMode } from '@/components/ui/color-mode';
+import { Menu } from '@/components/ui/menu';
+
+const MENU_ITEMS = createListCollection({
   items: [
     {
       label: 'Toggle theme',
@@ -52,17 +55,20 @@ export const Header = () => {
       alignItems="center"
       borderBottom="1px solid"
       borderColor="border"
-      minH="12"
+      minH={14}
       gap={8}
     >
       {/* left-aligned nav */}
-      <Heading size={{ base: 'xl', md: '2xl' }} cursor="pointer">
-        sudoku.party
-      </Heading>
+      <HStack align="center" gap={2}>
+        <LuGrid3X3 size={24}/>
+        <Heading size={{ base: 'lg', md: 'xl' }}>
+          sudokuparty
+        </Heading>
+      </HStack>
 
       {/* right-aligned nav */}
       <Menu
-        items={PROFILE_MENU_ITEMS}
+        items={MENU_ITEMS}
         open={isMenuOpen}
         positioning={{ placement: 'top-end' }}
         onPointerDownOutside={onMenuClose}
@@ -71,11 +77,11 @@ export const Header = () => {
         <IconButton
           aria-label="menu"
           variant="ghost"
-          boxSize={5}
+          size='2xs'
           onClick={onMenuOpen}
           asChild
         >
-          <LuCog />
+          <FaGear />
         </IconButton>
       </Menu>
     </Container>

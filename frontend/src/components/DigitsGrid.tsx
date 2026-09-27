@@ -1,44 +1,44 @@
 'use client';
 
 import { Flex, SimpleGrid, Tabs, Text, VStack } from '@chakra-ui/react';
-import { LuPencil, LuPenLine } from 'react-icons/lu';
-import { CellFillMode, SudokuDigit } from './SudokuGrid/types';
-import { CANDIDATE_POSITION } from './SudokuGrid/constants';
+import { LuPencil, LuNotebookPen } from 'react-icons/lu';
+import { CellFill, SudokuDigit } from './SudokuGrid/types';
+import { getCandidatePlacement } from './SudokuGrid/helpers';
 
 /**
  * This component displays digit controls for entering values or candidates, along with the remaining count for each digit.
  */
-export const CountsGrid = ({
-  cellFillMode,
+export const DigitsGrid = ({
+  fillMode,
   counts,
   onValueClick,
   onTabChange,
 }: React.PropsWithChildren<{
-  cellFillMode: CellFillMode;
+  fillMode: CellFill;
   counts: Record<SudokuDigit, number>;
   onValueClick: (val: SudokuDigit) => void;
-  onTabChange: (mode: CellFillMode) => void;
+  onTabChange: (mode: CellFill) => void;
 }>) => {
   return (
     <VStack>
       {/* tabs */}
       <Tabs.Root
-        value={cellFillMode}
+        value={fillMode}
         variant="enclosed"
-        onValueChange={(e) => onTabChange(e.value as CellFillMode)}
+        onValueChange={(e) => onTabChange(e.value as CellFill)}
       >
         <Tabs.List>
           <Tabs.Trigger value="digit" _selected={{ color: 'bg.inverted' }}>
-            <LuPenLine />
+            <LuPencil />
             Normal
           </Tabs.Trigger>
           <Tabs.Trigger value="candidate" _selected={{ color: 'bg.inverted' }}>
-            <LuPencil />
+            <LuNotebookPen />
             Candidate
           </Tabs.Trigger>
         </Tabs.List>
       </Tabs.Root>
-      {/* value/candidate grid */}
+      {/* digits grid */}
       <SimpleGrid columns={3} gap={3}>
         {Object.entries(counts).map(([num, remaining]) => (
           <Flex
@@ -55,7 +55,8 @@ export const CountsGrid = ({
             cursor="pointer"
             onClick={() => onValueClick(Number(num) as SudokuDigit)}
           >
-            {cellFillMode === 'digit' ? (
+            {fillMode === 'digit' ? (
+              // digit
               <>
                 <Text fontSize="3xl" color={!!remaining ? 'fg' : 'fg.subtle'}>
                   {num}
@@ -73,12 +74,12 @@ export const CountsGrid = ({
                 )}
               </>
             ) : (
+              // candidate
               <Text
                 position="absolute"
                 fontSize="md"
-                fontWeight="bold"
                 color={!!remaining ? 'fg' : 'fg.subtle'}
-                {...CANDIDATE_POSITION(2, 1)[Number(num) as SudokuDigit]}
+                {...getCandidatePlacement(num as unknown as SudokuDigit, 3, 1)}
               >
                 {num}
               </Text>
