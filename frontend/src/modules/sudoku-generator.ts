@@ -19,7 +19,7 @@ const POSITIONS = Array.from(
 );
 
 /**
- * sudoku generation module
+ * Sudoku generation module
  */
 const countSolutions = (grid: number[][], limit = 2): number => {
   let count = 0;
