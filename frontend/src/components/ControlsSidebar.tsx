@@ -1,7 +1,8 @@
 import { Button, Flex, HStack, VStack } from '@chakra-ui/react';
 
 import { DigitsGrid } from '@/components/DigitsGrid';
-import { CellFill, GameAction, SudokuDigit } from '@/components/SudokuGrid/types';
+import { CellFill, GameAction } from '@/components/SudokuGrid/types';
+import { SudokuDigit } from '@shared/types';
 
 /**
  * This component renders controls panel for game actions, fill mode selection, and digit input.
@@ -42,7 +43,7 @@ export const ControlsSidebar = ({
             flex="1"
             size="sm"
             variant="outline"
-            onClick={() => handleGameAction('reset')}
+            onClick={() => handleGameAction('newGame')}
           >
             New Game
           </Button>

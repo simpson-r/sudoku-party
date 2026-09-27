@@ -13,11 +13,12 @@ export const SudokuGrid = ({
       position="relative"
       w={{ base: 'sm', md: 'lg' }}
       h="full"
-      bg="bg.inverted"
       columns={3}
       p={1}
       gap={1}
+      bg="bg.inverted"
       tabIndex={0}
+      _focus={{ boxShadow: 'none', outline: 'none' }}
       {...props}
     />
   );

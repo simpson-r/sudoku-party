@@ -1,7 +1,7 @@
 'use client';
 
 import { Button, Dialog, HStack, Stat, Text, VStack } from '@chakra-ui/react';
-import { Difficulty } from '../SudokuGrid/types';
+import { Difficulty } from '@shared/types';
 
 type CompletionStats = {
   difficulty: Difficulty;

@@ -3,7 +3,7 @@
 import { SimpleGrid } from '@chakra-ui/react';
 
 import { SudokuCell } from '@/components/SudokuGrid/SudokuCell';
-import { Cell, CellPosition, SudokuDigit } from '@/components/SudokuGrid/types';
+import { Cell, CellPosition, SudokuDigit } from '@shared/types';
 
 interface SudokuBoxProps {
   cells: Cell[];

@@ -1,14 +1,13 @@
 import { useEffect, useMemo, useReducer, useState } from 'react';
 
-import {
-  Cell,
-  CellPayload,
-  CellPosition,
-  SudokuDigit,
-} from '@/components/SudokuGrid/types';
+import { CellPayload } from '@/components/SudokuGrid/types';
 import { INITIAL_REMAINING, ONE_SEC } from '@/components/SudokuGrid/constants';
-import { generateSudokuGame } from '@/modules/sudoku-generator';
+import {
+  generateSudokuGame,
+  isPuzzleComplete,
+} from '../../../shared/sudoku-generator';
 import { formatSeconds } from '@/utils/helpers';
+import { Cell, CellPosition, SudokuDigit } from '@shared/types';
 
 // types & interfaces
 interface SudokuState {
@@ -86,16 +85,12 @@ export function reducer(state: SudokuState, action: Action): SudokuState {
           }),
       };
 
-      const completed = board.every((row) =>
-        row.every((cell) => cell.value === cell.actual),
-      );
-
       return {
         ...state,
         board,
         errors: state.errors + (value !== cell.actual ? 1 : 0),
         remaining,
-        completed,
+        completed: isPuzzleComplete(board),
       };
     }
     case 'CLEAR_DIGIT': {
@@ -164,7 +159,9 @@ export function reducer(state: SudokuState, action: Action): SudokuState {
  * This hook manages Sudoku game state, actions, and lifecycle.
  */
 export const useSudokuGame = () => {
-  const [initialBoard, setInitialBoard] = useState(() => generateSudokuGame().puzzle);
+  const [initialBoard, setInitialBoard] = useState(
+    () => generateSudokuGame().puzzle,
+  );
 
   const initialRemaining = useMemo(
     () => buildRemainingCounts(initialBoard),

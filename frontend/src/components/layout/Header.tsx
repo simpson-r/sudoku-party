@@ -44,8 +44,8 @@ export const Header = () => {
       w="full"
       justifyContent="space-between"
       alignItems="center"
-      borderBottom="1px solid"
-      borderColor="border"
+      borderBottom="2px solid"
+      borderColor="fg"
       minH={14}
       gap={8}
     >

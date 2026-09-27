@@ -1,5 +1,6 @@
-import { BOX_SIZE, GRID_SIZE } from './constants';
-import { Cell, SudokuDigit } from './types';
+import { BOX_SIZE, GRID_SIZE } from "@shared/constants";
+import { Cell, SudokuDigit } from "@shared/types";
+
 
 const getCandidatePlacements = (x?: number, y?: number) => ({
   1: { top: y, left: x },

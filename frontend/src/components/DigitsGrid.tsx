@@ -1,9 +1,12 @@
 'use client';
 
-import { Flex, SimpleGrid, Tabs, Text, VStack } from '@chakra-ui/react';
 import { LuPencil, LuNotebookPen } from 'react-icons/lu';
-import { CellFill, SudokuDigit } from './SudokuGrid/types';
+
+import { Flex, SimpleGrid, Tabs, Text, VStack } from '@chakra-ui/react';
+
+import { CellFill } from './SudokuGrid/types';
 import { getCandidatePlacement } from './SudokuGrid/helpers';
+import { SudokuDigit } from '@shared/types';
 
 /**
  * This component displays digit controls for entering values or candidates, along with the remaining count for each digit.
@@ -43,7 +46,7 @@ export const DigitsGrid = ({
         {Object.entries(counts).map(([num, remaining]) => (
           <Flex
             key={`${num}-count`}
-            w="16"
+            w={{ base: 12, md: 16 }}
             aspectRatio="square"
             position="relative"
             justify="center"
@@ -58,12 +61,12 @@ export const DigitsGrid = ({
             {fillMode === 'digit' ? (
               // digit
               <>
-                <Text fontSize="3xl" color={!!remaining ? 'fg' : 'fg.subtle'}>
+                <Text fontSize={{base: 'lg', md: '3xl'}} color={!!remaining ? 'fg' : 'fg.subtle'}>
                   {num}
                 </Text>
                 {Boolean(remaining) && (
                   <Text
-                    fontSize="sm"
+                    fontSize={{base: 'xs', md: 'sm'}}
                     color="fg.muted"
                     position="absolute"
                     top="0"
@@ -77,7 +80,7 @@ export const DigitsGrid = ({
               // candidate
               <Text
                 position="absolute"
-                fontSize="md"
+                fontSize={{base: 'xs', md: 'md'}}
                 color={!!remaining ? 'fg' : 'fg.subtle'}
                 {...getCandidatePlacement(num as unknown as SudokuDigit, 3, 1)}
               >

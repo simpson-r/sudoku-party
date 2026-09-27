@@ -5,11 +5,11 @@ import { IoPlayCircle } from 'react-icons/io5';
 
 import { Icon, SimpleGridProps } from '@chakra-ui/react';
 
-import { GRID_SIZE } from '@/components/SudokuGrid/constants';
 import { SudokuBox } from '@/components/SudokuGrid/SudokuBox';
 import { SudokuGrid } from '@/components/SudokuGrid/SudokuGrid';
 import { generateCellsPerBox } from '@/components/SudokuGrid/helpers';
-import { Cell, CellPosition, SudokuDigit } from '@/components/SudokuGrid/types';
+import { Cell, CellPosition, SudokuDigit } from '@shared/types';
+import { GRID_SIZE } from '@shared/constants';
 
 // types
 type Direction = { dr: number; dc: number };
@@ -41,14 +41,19 @@ export const SudokuBoard = ({
   onCellSelect: (pos: CellPosition) => void;
   resume: VoidFunction;
 } & SimpleGridProps) => {
-  const [selectedPosition, setSelectedPosition] = useState<CellPosition>();
-  
+  const [selectedPosition, setSelectedPosition] = useState<CellPosition | null>(
+    null,
+  );
+
   const cellsPerBox = useMemo(() => generateCellsPerBox(puzzle), [puzzle]);
   const selectedCell = selectedPosition
     ? puzzle[selectedPosition.row][selectedPosition.col]
     : undefined;
 
-  // handlers 
+  // handlers
+  const handleBlur = () => {
+    setSelectedPosition(null);
+  };
   const handleCellSelect = useCallback(
     (pos: CellPosition) => {
       setSelectedPosition(pos);
@@ -79,7 +84,7 @@ export const SudokuBoard = ({
 
   // render
   return (
-    <SudokuGrid onKeyDown={handleArrowKey} {...props}>
+    <SudokuGrid onKeyDown={handleArrowKey} onBlur={handleBlur} {...props}>
       {Array.from({ length: GRID_SIZE }).map((_, boxIndex) => (
         <SudokuBox
           key={boxIndex}

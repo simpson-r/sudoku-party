@@ -1,15 +1,6 @@
-import {
-  BOX_SIZE,
-  GRID_SIZE,
-  REMOVALS,
-} from '@/components/SudokuGrid/constants';
-import {
-  Difficulty,
-  Cell,
-  SudokuGame,
-  SudokuDigit,
-} from '@/components/SudokuGrid/types';
 import { shuffle } from '@/utils/helpers';
+import { BOX_SIZE, GRID_SIZE, REMOVALS } from './constants';
+import { Cell, Difficulty, SudokuDigit, SudokuGame } from './types';
 
 // constants
 const VALUES = Array.from({ length: GRID_SIZE }, (_, index) => index + 1);
@@ -19,7 +10,7 @@ const POSITIONS = Array.from(
 );
 
 /**
- * Sudoku generation module
+ * sudoku generation methods
  */
 const countSolutions = (grid: number[][], limit = 2): number => {
   let count = 0;
@@ -160,3 +151,6 @@ const canPlaceValue = (
   !existsInRow(grid, val, r) &&
   !existsInCol(grid, val, c) &&
   !existsInSquare(grid, val, r, c);
+
+export const isPuzzleComplete = (board: Cell[][]) =>
+  board.every((row) => row.every((cell) => cell.value === cell.actual));
