@@ -1,49 +1,52 @@
-import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from 'react';
 
-export const WebSocketContext = createContext(false, null, () => {});
+type WebSocketContextValue = {
+  isConnected: boolean;
+  message: string | null;
+  send: (outgoingMessage: string) => void;
+};
 
+const WebSocketContext = createContext<WebSocketContextValue | null>(null);
+
+/**
+ * This component provides WebSocket connection state and actions to descendant components.
+ */
 export const WebSocketProvider = ({ children }: React.PropsWithChildren) => {
-  const [isReady, setIsReady] = useState(false);
-  const [message, setMessage] = useState(null);
-
+  const [isConnected, setIsConnected] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
   const ws = useRef<WebSocket>(null);
 
   useEffect(() => {
-    const socket = new WebSocket("wss://echo.websocket.events/");
-    socket.onopen = () => setIsReady(true);
-    socket.onclose = () => setIsReady(false);
+    const socket = new WebSocket('ws://localhost:8080');
+    socket.onopen = () => setIsConnected(true);
+    socket.onclose = () => setIsConnected(false);
     socket.onmessage = (event) => setMessage(event.data);
-
     ws.current = socket;
 
-    return () => {
-      socket.close();
-    };
+    return () => socket.close();
   }, []);
 
-  const value = [isReady, message, ws.current?.send.bind(ws.current)];
+  const send = (outgoingMessage: string) => {
+    if (ws.current?.readyState !== WebSocket.OPEN) return;
+    ws.current.send(outgoingMessage);
+  };
 
   return (
-    <WebSocketContext.Provider value={value}>
+    <WebSocketContext.Provider value={{ isConnected, message, send }}>
       {children}
     </WebSocketContext.Provider>
   );
 };
-//And there’s our context! To use it, we just need to create a consumer.
 
-// Very similar to the WsHook component above.
-export const WsConsumer = () => {
-  const [ready, val, send] = useContext(WebSocketContext); // use it just like a hook
+/**
+ * This hook provides access to the WebSocket connection state and actions
+ */
+export const useWebSocket = () => {
+  const context = useContext(WebSocketContext);
 
-  useEffect(() => {
-    if (ready) {
-      send("test message");
-    }
-  }, [ready, send]); // make sure to include send in dependency array
+  if (!context) {
+    throw new Error('useWebSocket must be used within a WebSocketProvider');
+  }
 
-  return (
-    <div>
-      Ready: {JSON.stringify(ready)}, Value: {val}
-    </div>
-  );
+  return context;
 };
