@@ -1,9 +1,13 @@
-import { Button, Flex, HStack, VStack } from '@chakra-ui/react';
+import { Button, ButtonProps, Flex, HStack, VStack } from '@chakra-ui/react';
 
 import { DigitsGrid } from '@/components/DigitsGrid';
 import { CellFill, GameAction } from '@/components/SudokuGrid/types';
 import { SudokuDigit } from '@shared/types';
 
+const BUTTON_ITEMS = [
+  { variant: 'surface', label: 'Restart', type: 'restart' },
+  { variant: 'outline', label: 'New Game', type: 'newGame' },
+];
 /**
  * This component renders controls panel for game actions, fill mode selection, and digit input.
  */
@@ -30,30 +34,26 @@ export const ControlsSidebar = ({
       gap={4}
     >
       <VStack gap={4} align="stretch" maxW="60">
-        <HStack justify="center" gap="2">
-          <Button
-            flex="1"
-            size="sm"
-            variant="surface"
-            onClick={() => handleGameAction('restart')}
-          >
-            Restart
-          </Button>
-          <Button
-            flex="1"
-            size="sm"
-            variant="outline"
-            onClick={() => handleGameAction('newGame')}
-          >
-            New Game
-          </Button>
-        </HStack>
         <DigitsGrid
           counts={remaining}
           fillMode={fillMode}
           onValueClick={handleValueClick}
           onTabChange={handleTabChange}
         />
+        {/* <HStack justify="center" gap="2">
+          {BUTTON_ITEMS.map(({ label, type, variant }) => (
+            <Button
+              key={type}
+              aria-label={label}
+              flex="1"
+              size="sm"
+              variant={variant as ButtonProps['variant']}
+              onClick={() => handleGameAction(type as GameAction)}
+            >
+              {label}
+            </Button>
+          ))}
+        </HStack> */}
       </VStack>
     </Flex>
   );

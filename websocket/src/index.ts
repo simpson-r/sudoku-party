@@ -1,10 +1,10 @@
 import { randomUUID } from 'node:crypto';
 import { WebSocket, WebSocketServer } from 'ws';
 import type { ClientMessage, Player, Room, ServerMessage } from './types.js';
+import { generateSudokuGame } from '../../shared/sudoku-generator.js';
 
 // constants
 const PORT = 8080;
-
 
 // setup
 const wss = new WebSocketServer({ port: PORT });
@@ -41,28 +41,32 @@ wss.on('connection', (ws) => {
           name = msg.name;
 
           if (!rooms.get(roomId)) {
-            rooms.set(roomId, { players: new Map<string, Player>() }); // create room if it doesn't exist
+            rooms.set(roomId, {
+              players: new Map<string, Player>(),
+              game: generateSudokuGame(),
+            }); // create room if it doesn't exist
           }
 
           const players = rooms.get(roomId)!.players;
           players.set(userId, { id: userId, name, socket: ws });
 
-          // broadcast room join
+          // send --> game state
+          const room = rooms.get(roomId)!;
+          ws.send(JSON.stringify({ type: 'game_state', game: room.game }));
+          // send --> player joined room
           broadcastToRoom(
             roomId,
-            {
-              type: 'notification',
-              message: `${name} joined the room.`,
-            },
+            { type: 'notification', message: `${name} joined the room.` },
             ws,
           );
 
-          const users = Array.from(players.values() ?? [])
+          const users = Array.from(players.values())
             .map((client) => client.name)
             .filter(Boolean);
 
-          // broadcast users list
+          // send --> users list, board state
           broadcastToRoom(roomId, { type: 'users', users });
+
           break;
         }
       }

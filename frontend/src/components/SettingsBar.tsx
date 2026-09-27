@@ -1,4 +1,4 @@
-import { IoPause, IoPlay } from "react-icons/io5";
+import { IoPause, IoPlay } from 'react-icons/io5';
 
 import { Flex, HStack, IconButton, Text } from '@chakra-ui/react';
 
@@ -27,7 +27,7 @@ export const SettingsBar = ({
   return (
     <HStack justify="center" gap={4}>
       <Flex align="center" gap={0}>
-        <Text fontSize="sm" fontVariantNumeric="tabular-nums">
+        <Text fontSize="sm" fontFamily="mono" fontVariantNumeric="tabular-nums">
           {`Time: ${time}`}
         </Text>
         <IconButton
@@ -41,7 +41,7 @@ export const SettingsBar = ({
           {hidePauseToggle ? undefined : isPaused ? <IoPlay /> : <IoPause />}
         </IconButton>
       </Flex>
-      <Text fontSize="sm">{`Errors: ${errors}`}</Text>
+      <Text fontSize="sm" fontFamily="mono">{`Errors: ${errors}`}</Text>
     </HStack>
   );
 };

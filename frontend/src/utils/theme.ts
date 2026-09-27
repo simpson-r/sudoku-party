@@ -1,13 +1,21 @@
 'use client';
 
 import { createSystem, defaultConfig, defineConfig } from '@chakra-ui/react';
-import { Geist, Inter } from 'next/font/google';
+import { Inter, Fragment_Mono } from 'next/font/google';
 
 /**
  * fonts
  */
-export const geistSans = Geist({ subsets: ['latin'] });
-export const inter = Inter({ display: 'swap', subsets: ['latin'] });
+export const inter = Inter({
+  display: 'swap',
+  subsets: ['latin'],
+  weight: '400',
+});
+const fragmentMono = Fragment_Mono({
+  display: 'swap',
+  subsets: ['latin'],
+  weight: '400',
+});
 
 export const theme = defineConfig({
   globalCss: {
@@ -18,8 +26,9 @@ export const theme = defineConfig({
   theme: {
     tokens: {
       fonts: {
-        heading: { value: geistSans.style.fontFamily },
-        body: { value: inter.style.fontFamily },
+        heading: { value: fragmentMono.style.fontFamily },
+        body: { value: fragmentMono.style.fontFamily },
+        mono: { value: fragmentMono.style.fontFamily },
       },
     },
   },

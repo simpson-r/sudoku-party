@@ -7,7 +7,12 @@ import { Flex, SimpleGrid, Tabs, Text, VStack } from '@chakra-ui/react';
 import { CellFill } from './SudokuGrid/types';
 import { getCandidatePlacement } from './SudokuGrid/helpers';
 import { SudokuDigit } from '@shared/types';
+import { Tooltip } from './ui/tooltip';
 
+const TAB_ITEMS = [
+  { icon: <LuPencil />, label: 'Normal', value: 'digit' },
+  { icon: <LuNotebookPen />, label: 'Candidate', value: 'candidate' },
+];
 /**
  * This component displays digit controls for entering values or candidates, along with the remaining count for each digit.
  */
@@ -26,19 +31,25 @@ export const DigitsGrid = ({
     <VStack>
       {/* tabs */}
       <Tabs.Root
+        w="full"
         value={fillMode}
-        variant="enclosed"
+        variant="subtle"
         onValueChange={(e) => onTabChange(e.value as CellFill)}
       >
-        <Tabs.List>
-          <Tabs.Trigger value="digit" _selected={{ color: 'bg.inverted' }}>
-            <LuPencil />
-            Normal
-          </Tabs.Trigger>
-          <Tabs.Trigger value="candidate" _selected={{ color: 'bg.inverted' }}>
-            <LuNotebookPen />
-            Candidate
-          </Tabs.Trigger>
+        <Tabs.List w="full">
+          {TAB_ITEMS.map(({ value, icon }) => (
+            <Tooltip content={value} positioning={{ placement: 'top' }}>
+              <Tabs.Trigger
+                key={value}
+                value={value}
+                justifyContent="center"
+                flex="1"
+                _selected={{ color: 'bg', bgColor: 'bg.inverted' }}
+              >
+                {icon}
+              </Tabs.Trigger>
+            </Tooltip>
+          ))}
         </Tabs.List>
       </Tabs.Root>
       {/* digits grid */}
@@ -61,12 +72,15 @@ export const DigitsGrid = ({
             {fillMode === 'digit' ? (
               // digit
               <>
-                <Text fontSize={{base: 'lg', md: '3xl'}} color={!!remaining ? 'fg' : 'fg.subtle'}>
+                <Text
+                  fontSize={{ base: 'lg', md: '2xl' }}
+                  color={!!remaining ? 'fg' : 'fg.subtle'}
+                >
                   {num}
                 </Text>
                 {Boolean(remaining) && (
                   <Text
-                    fontSize={{base: 'xs', md: 'sm'}}
+                    fontSize={{ base: 'xs', md: 'sm' }}
                     color="fg.muted"
                     position="absolute"
                     top="0"
@@ -80,7 +94,7 @@ export const DigitsGrid = ({
               // candidate
               <Text
                 position="absolute"
-                fontSize={{base: 'xs', md: 'md'}}
+                fontSize={{ base: 'xs', md: 'md' }}
                 color={!!remaining ? 'fg' : 'fg.subtle'}
                 {...getCandidatePlacement(num as unknown as SudokuDigit, 3, 1)}
               >
