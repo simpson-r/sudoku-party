@@ -11,7 +11,7 @@ import {
 } from '@/components/SudokuGrid/types';
 import { shuffle } from '@/utils/helpers';
 
-/** constants */
+// constants
 const VALUES = Array.from({ length: GRID_SIZE }, (_, index) => index + 1);
 const POSITIONS = Array.from(
   { length: GRID_SIZE * GRID_SIZE },
@@ -76,7 +76,6 @@ const createSudokuGrid = (solution: number[][], removals: number): Cell[][] => {
 
   for (const position of shuffle(POSITIONS)) {
     if (numRemovals >= removals) break;
-    console.log({ numRemovals, removals });
 
     const row = Math.floor(position / GRID_SIZE);
     const col = position % GRID_SIZE;

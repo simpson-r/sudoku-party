@@ -38,7 +38,7 @@ export const CompletionModal = ({
 }) => {
   const stats: CompletionStats = { difficulty, errors, time };
 
-  /** callbacks */
+  // callbacks
   const renderDuration = () => {
     const timeParts = time.split(':');
     const [hours, mins, secs] =
@@ -60,7 +60,7 @@ export const CompletionModal = ({
     );
   };
 
-  /** render */
+  // render
   return (
     <Dialog.Root
       placement="center"

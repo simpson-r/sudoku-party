@@ -1,10 +1,10 @@
 import { randomUUID } from 'node:crypto';
 import { WebSocket, WebSocketServer } from 'ws';
 
-/** constants */
+// constants
 const PORT = 8080;
 
-/** types */
+// types
 type Player = { id: string; name: string; socket: WebSocket };
 type PlayerInfo = { id: string; name: string };
 type Room = { players: Map<string, Player> };
@@ -22,11 +22,11 @@ type ServerMessage =
   | { type: 'player_joined'; player: PlayerInfo }
   | { type: 'player_left'; playerId: string };
 
-/** setup */
+// setup
 const wss = new WebSocketServer({ port: PORT });
 const rooms = new Map<string, Room>();
 
-/** room functionality */
+// room functionality 
 function broadcastToRoom(
   roomId: string,
   data: ServerMessage,
@@ -46,7 +46,7 @@ wss.on('connection', (ws) => {
   let roomId: string | null = null;
   let name: string | null = null;
 
-  /** message handling */
+  // message handling 
   ws.on('message', (message) => {
     try {
       const msg = JSON.parse(message.toString()) as ClientMessage;
@@ -96,7 +96,7 @@ wss.on('connection', (ws) => {
     }
   });
 
-  /** close handling */
+  // close handling 
   ws.on('close', () => {
     if (roomId && rooms.get(roomId)) {
       const players = rooms.get(roomId)?.players;

@@ -11,10 +11,10 @@ import { SudokuGrid } from '@/components/SudokuGrid/SudokuGrid';
 import { generateCellsPerBox } from '@/components/SudokuGrid/helpers';
 import { Cell, CellPosition, SudokuDigit } from '@/components/SudokuGrid/types';
 
-/** types */
+// types
 type Direction = { dr: number; dc: number };
 
-/** constants */
+// constants
 const directions: Partial<Record<string, Direction>> = {
   ArrowLeft: { dr: 0, dc: -1 },
   ArrowRight: { dr: 0, dc: 1 },
@@ -48,7 +48,7 @@ export const SudokuBoard = ({
     ? puzzle[selectedPosition.row][selectedPosition.col]
     : undefined;
 
-  /** handlers */
+  // handlers 
   const handleCellSelect = useCallback(
     (pos: CellPosition) => {
       setSelectedPosition(pos);
@@ -77,7 +77,7 @@ export const SudokuBoard = ({
     [isPaused, puzzle, selectedPosition, handleCellSelect],
   );
 
-  /** render */
+  // render
   return (
     <SudokuGrid onKeyDown={handleArrowKey} {...props}>
       {Array.from({ length: GRID_SIZE }).map((_, boxIndex) => (

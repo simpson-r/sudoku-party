@@ -20,10 +20,10 @@ export const SettingsBar = ({
   pause: VoidFunction;
   resume: VoidFunction;
 }) => {
-  /** callbacks */
+  // callbacks
   const toggleGame = () => (isPaused ? resume() : pause());
 
-  /** render */
+  // render
   return (
     <HStack justify="center" gap={4}>
       <Flex align="center" gap={0}>

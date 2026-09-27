@@ -30,7 +30,7 @@ export const SudokuCell = ({
   ...props
 }: SudokuCellProps & BoxProps) => {
   const { given, actual, value, candidates } = cell;
-  /** cell styling */
+  // cell styling 
   const color = useMemo(() => {
     if (given) return 'fg';
     if (value !== null && value !== actual) return 'fg.error';
@@ -53,7 +53,7 @@ export const SudokuCell = ({
     }
   }, [given, highlighted, identical, paused, selected]);
 
-  /** callbacks */
+  // callbacks
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
       if (!selected || given || paused) return;
@@ -69,7 +69,7 @@ export const SudokuCell = ({
     [given, paused, selected, value, onCellClear, onCellFill],
   );
 
-  /** effects */
+  // effects
   useEffect(() => {
     if (!selected) return;
 
@@ -77,7 +77,7 @@ export const SudokuCell = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [selected, handleKeyDown]);
 
-  /** render */
+  // render
   return (
     <Center
       w="full"

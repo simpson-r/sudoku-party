@@ -17,7 +17,7 @@ import {
 } from '@/components/SudokuGrid/types';
 import { ControlsSidebar } from '@/components/ControlsSidebar';
 
-/** constants */
+// constants
 const CONFIRM_CONFIG = {
   newGame: {
     heading: 'Start a new game?',
@@ -61,14 +61,14 @@ export const LandingPage = () => {
 
   const previousCompleted = useRef(state.completed);
 
-  /** effects */
+  // effects
   useEffect(() => {
     if (!previousCompleted.current && state.completed) completionModal.onOpen();
 
     previousCompleted.current = state.completed;
   }, [state.completed, completionModal]);
 
-  /** modal handlers */
+  // modal handlers 
   const handleGameAction = (mode: GameAction) => {
     setConfirmationMode(mode);
     confirmationModal.onOpen();
@@ -86,7 +86,7 @@ export const LandingPage = () => {
     completionModal.onClose();
   };
 
-  /** cell handlers */
+  // cell handlers
   const handleCellSelection = (pos: CellPosition) => setSelectedPos(pos);
 
   const handleDigitInput = (digit: SudokuDigit) => {
@@ -104,7 +104,7 @@ export const LandingPage = () => {
     if (!selectedCell || !selectedPos) return;
 
     if (selectedCell.value && digit) {
-      clearCell({ ...selectedPos, value: digit });
+      clearCell(selectedPos);
       return;
     }
 

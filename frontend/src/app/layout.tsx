@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { Provider } from '@/components/ui/provider';
 
-/** browser metadata */
 export const metadata: Metadata = {
   title: 'Sudoku Party',
   description: 'Multiplayer Sudoku - Collaborative Sudoku with friends',

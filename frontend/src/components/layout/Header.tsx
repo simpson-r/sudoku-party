@@ -1,6 +1,6 @@
 'use client';
 
-import { FaGear } from "react-icons/fa6";
+import { FaGear } from 'react-icons/fa6';
 import { LuGrid3X3 } from 'react-icons/lu';
 
 import {
@@ -16,35 +16,26 @@ import { ColorModeIcon, useColorMode } from '@/components/ui/color-mode';
 import { Menu } from '@/components/ui/menu';
 
 const MENU_ITEMS = createListCollection({
-  items: [
-    {
-      label: 'Toggle theme',
-      value: 'theme',
-      icon: ColorModeIcon,
-      divider: true,
-    },
-  ],
+  items: [{ label: 'Toggle theme', value: 'theme', icon: ColorModeIcon }],
 });
 
-/** This component renders the global header which includes settings */
+/**
+ * This component renders the global header which includes settings
+ */
 export const Header = () => {
-  const {
-    open: isMenuOpen,
-    onClose: onMenuClose,
-    onOpen: onMenuOpen,
-  } = useDisclosure();
+  const menu = useDisclosure();
 
   const { toggleColorMode } = useColorMode();
 
-  /** callbacks */
+  // callbacks
   const handleMenuSelect = (value: string) => {
+    /** @todo add more menu options */
     switch (value) {
       case 'theme':
         toggleColorMode();
         break;
     }
-
-    onMenuClose();
+    menu.onClose();
   };
 
   return (
@@ -60,25 +51,23 @@ export const Header = () => {
     >
       {/* left-aligned nav */}
       <HStack align="center" gap={2}>
-        <LuGrid3X3 size={24}/>
-        <Heading size={{ base: 'lg', md: 'xl' }}>
-          sudokuparty
-        </Heading>
+        <LuGrid3X3 size={24} />
+        <Heading size={{ base: 'lg', md: 'xl' }}>sudokuparty</Heading>
       </HStack>
 
       {/* right-aligned nav */}
       <Menu
         items={MENU_ITEMS}
-        open={isMenuOpen}
+        open={menu.open}
         positioning={{ placement: 'top-end' }}
-        onPointerDownOutside={onMenuClose}
+        onPointerDownOutside={menu.onClose}
         onMenuSelect={handleMenuSelect}
       >
         <IconButton
           aria-label="menu"
           variant="ghost"
-          size='2xs'
-          onClick={onMenuOpen}
+          size="2xs"
+          onClick={menu.onOpen}
           asChild
         >
           <FaGear />
