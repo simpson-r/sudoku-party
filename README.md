@@ -1,5 +1,5 @@
 # Sudoku Party
-A multiplayer Sudoku game built with React and WebSockets.
+[WIP] A multiplayer Sudoku game built with React and WebSockets.
 
 Players can solve standard 9x9 Sudoku puzzles. Multiplayer support enables players to join a shared game and receive puzzle updates in real time.
 
@@ -28,4 +28,4 @@ npm run dev
 ```
 
 ## Status
-Work in progress. Currently building out real-time multiplayer functionality.
+[WIP] Currently building out real-time multiplayer functionality.

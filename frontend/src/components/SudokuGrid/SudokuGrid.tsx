@@ -3,7 +3,7 @@
 import { SimpleGrid, SimpleGridProps } from '@chakra-ui/react';
 
 /**
- * This component renders the base grid layout for the Sudoku board.
+ * This component renders the base grid layout for the Sudoku board
  */
 export const SudokuGrid = ({
   ...props
