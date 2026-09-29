@@ -1,39 +1,34 @@
 'use client';
 
-import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+
 
 import { useDisclosure } from '@chakra-ui/react';
 
-import { PlayerMode, SetupConfig } from '@/components/SudokuGrid/types';
-import { SinglePlayerGame } from '@/components/Game/SinglePlayerGame';
-import { MultiplayerGame } from '@/components/Game/MultiplayerGame';
+import { SetupConfig } from '@/components/SudokuGrid/types';
 import { GameSetupModal } from '@/components/modals/GameSetupModal';
 import { SudokuBoard } from '@/components/SudokuGrid/SudokuBoard';
-import { Game } from '@/components/layout/GameLayout';
+import { Game } from '@/components/layout/Game';
 
 /**
- * This component is the entry point for the Sudoku experience
+ * This component is the entry point for the app
  * It renders the setup modal or appropriate game flow based on the selected player mode.
  */
 export const LandingPage = () => {
+  const router = useRouter();
   const setupModal = useDisclosure({ defaultOpen: true });
-  const [playerMode, setPlayerMode] = useState<PlayerMode | undefined>();
 
   const handleSubmit = (config: SetupConfig) => {
-    setPlayerMode(config.mode);
-    setupModal.onClose();
+    const params = new URLSearchParams(config);
+    router.push(`/game?${params.toString()}`);
   };
 
   return (
     <>
-      {playerMode === 'single' && <SinglePlayerGame />}
-      {playerMode === 'multi' && <MultiplayerGame />}
-      {!playerMode && (
-        <Game.Root flex={0}>
-          <Game.Status />
-          <SudokuBoard placeholder />
-        </Game.Root>
-      )}
+      <Game.Root flex={0}>
+        <Game.Status />
+        <SudokuBoard placeholder />
+      </Game.Root>
       <GameSetupModal
         isOpen={setupModal.open}
         onSubmit={handleSubmit}

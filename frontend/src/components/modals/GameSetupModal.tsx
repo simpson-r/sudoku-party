@@ -59,7 +59,7 @@ export const GameSetupModal = ({
           justifyContent="center"
           alignItems="center"
           bgColor="bg"
-          border="2px solid"
+          border="2.5px solid"
           maxW={400}
           w="full"
         >

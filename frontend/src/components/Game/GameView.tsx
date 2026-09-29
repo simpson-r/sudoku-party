@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 
 import { Box, useDisclosure } from '@chakra-ui/react';
 
-import { Game } from '@/components/layout/GameLayout';
+import { Game } from '@/components/layout/Game';
 import { CompletionModal } from '@/components/modals/CompletionModal';
 import { ConfirmationModal } from '@/components/modals/ConfirmationModal';
 import { SettingsBar } from '@/components/SettingsBar';
