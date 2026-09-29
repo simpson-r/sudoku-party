@@ -1,13 +1,20 @@
 import { useEffect, useMemo, useReducer, useState } from 'react';
 
 import { CellPayload } from '@/components/SudokuGrid/types';
-import { INITIAL_REMAINING, ONE_SEC } from '@/components/SudokuGrid/constants';
+import { ONE_SEC } from '@/components/SudokuGrid/constants';
 import {
   generateSudokuGame,
   isPuzzleComplete,
 } from '../../../shared/sudoku-generator';
-import { formatSeconds } from '@/utils/helpers';
-import { Cell, CellPosition, RemainingCounts, SudokuDigit } from '@shared/types';
+import { buildRemainingCounts, formatSeconds } from '@/utils/helpers';
+import {
+  Cell,
+  CellPosition,
+  Difficulty,
+  RemainingCounts,
+  SudokuDigit,
+} from '@shared/types';
+import { updateBoard } from '@shared/helpers';
 
 // types & interfaces
 interface SudokuState {
@@ -30,32 +37,6 @@ type Action =
   | { type: 'RESUME' };
 
 // helpers
-const buildRemainingCounts = (puzzle: Cell[][]) => {
-  const remaining = { ...INITIAL_REMAINING };
-  for (const row of puzzle) {
-    for (const { actual, given } of row) {
-      if (given) remaining[actual]--;
-    }
-  }
-
-  return remaining;
-};
-
-const updateBoard = (
-  curBoard: Cell[][],
-  prevCell: Cell,
-  value: Partial<Cell>,
-) => {
-  const { row, col } = prevCell;
-  const cell: Cell = {
-    ...curBoard[row][col],
-    ...value,
-  };
-  const updatedRow = curBoard[row].with(col, cell);
-  const board = curBoard.with(row, updatedRow);
-  return { board, cell };
-};
-
 const createInitialState = (
   board: Cell[][],
   remaining: RemainingCounts,
@@ -73,7 +54,7 @@ export function reducer(state: SudokuState, action: Action): SudokuState {
     case 'FILL_DIGIT': {
       const { row, col, value } = action.payload;
       const prevCell = state.board[row][col];
-      const { board, cell } = updateBoard(state.board, prevCell, { value });
+      const { board, cell } = updateBoard(state.board, row, col, { value });
 
       const remaining = {
         ...state.remaining,
@@ -97,7 +78,7 @@ export function reducer(state: SudokuState, action: Action): SudokuState {
       const prevCell = state.board[row][col];
       if (!prevCell.value) return state;
 
-      const { board } = updateBoard(state.board, prevCell, { value: null });
+      const { board } = updateBoard(state.board, row, col, { value: null });
 
       return {
         ...state,
@@ -125,11 +106,12 @@ export function reducer(state: SudokuState, action: Action): SudokuState {
     case 'ADD_CANDIDATE': {
       const { row, col, value } = action.payload;
       const prevCell = state.board[row][col];
+
       const curCandidates = prevCell?.candidates ?? [];
       if (curCandidates.includes(value)) return state;
-
       const candidates = [...curCandidates, value];
-      const { board } = updateBoard(state.board, prevCell, { candidates });
+
+      const { board } = updateBoard(state.board, row, col, { candidates });
 
       return {
         ...state,
@@ -142,7 +124,7 @@ export function reducer(state: SudokuState, action: Action): SudokuState {
       const curCandidates = prevCell.candidates ?? [];
 
       const candidates = curCandidates.filter((c) => !toRemove.includes(c));
-      const { board } = updateBoard(state.board, prevCell, { candidates });
+      const { board } = updateBoard(state.board, row, col, { candidates });
 
       return {
         ...state,
@@ -157,9 +139,9 @@ export function reducer(state: SudokuState, action: Action): SudokuState {
 /**
  * This hook manages single player Sudoku game state, actions, and lifecycle.
  */
-export const useSinglePlayerSudoku = () => {
-  const [initialBoard, setInitialBoard] = useState(
-    () => generateSudokuGame().puzzle,
+export const useSinglePlayerSudoku = (difficulty: Difficulty) => {
+  const [initialBoard, setInitialBoard] = useState(() =>
+    generateSudokuGame(difficulty),
   );
 
   const initialRemaining = useMemo(
@@ -202,7 +184,7 @@ export const useSinglePlayerSudoku = () => {
   const resume = () => dispatch({ type: 'RESUME' });
 
   const newGame = () => {
-    const newPuzzle = generateSudokuGame().puzzle;
+    const newPuzzle = generateSudokuGame();
     const newRemaining = buildRemainingCounts(newPuzzle);
 
     setInitialBoard(newPuzzle);

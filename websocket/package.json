@@ -18,6 +18,7 @@
     "typescript": "^7.0.2"
   },
   "dependencies": {
-    "uuid": "^14.0.2"
+    "uuid": "^14.0.2",
+    "ws": "^8.22.0"
   }
 }

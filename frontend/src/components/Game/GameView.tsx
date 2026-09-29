@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 
-import { Box, useDisclosure } from '@chakra-ui/react';
+import { useDisclosure } from '@chakra-ui/react';
 
 import { Game } from '@/components/layout/Game';
 import { CompletionModal } from '@/components/modals/CompletionModal';
@@ -20,9 +20,10 @@ import {
 
 // types
 interface GameViewProps {
-  board: Cell[][];
+  board?: Cell[][];
   errors: number;
   fillMode: CellFill;
+  isCellSelected?: boolean;
   isGameComplete: boolean;
   isPaused: boolean;
   remainingCounts: RemainingCounts;
@@ -31,10 +32,8 @@ interface GameViewProps {
   onDigitClick: (digit: SudokuDigit) => void;
   onDigitInput: (digit: SudokuDigit) => void;
   onDigitRemoval: (digit: SudokuDigit | null) => void;
-  onNewGame: VoidFunction;
-  onPause: VoidFunction;
-  onRestart: VoidFunction;
-  onResume: VoidFunction;
+  onPause?: VoidFunction;
+  onResume?: VoidFunction;
   onTabChange: (fill: CellFill) => void;
 }
 // constants
@@ -58,6 +57,7 @@ export const GameView = ({
   board,
   errors,
   fillMode,
+  isCellSelected = false,
   isGameComplete,
   isPaused,
   remainingCounts,
@@ -66,9 +66,7 @@ export const GameView = ({
   onDigitClick,
   onDigitInput,
   onDigitRemoval,
-  onNewGame,
   onPause,
-  onRestart,
   onResume,
   onTabChange,
 }: GameViewProps) => {
@@ -84,24 +82,6 @@ export const GameView = ({
 
     previousCompleted.current = isGameComplete;
   }, [isGameComplete, completionModal]);
-
-  // modal handlers
-  const handleGameAction = (mode: GameAction) => {
-    setConfirmationMode(mode);
-    confirmationModal.onOpen();
-  };
-
-  const handleConfirm = () => {
-    if (confirmationMode === 'newGame') onNewGame();
-    else onRestart();
-
-    confirmationModal.onClose();
-  };
-
-  const handleCompletionReset = () => {
-    onNewGame();
-    completionModal.onClose();
-  };
 
   return (
     <Game.Root>
@@ -133,13 +113,13 @@ export const GameView = ({
           <ControlsSidebar
             fillMode={fillMode}
             remaining={remainingCounts}
-            handleGameAction={handleGameAction}
+            disabled={isCellSelected}
             handleTabChange={onTabChange}
             handleValueClick={onDigitClick}
           />
         </Game.Side>
       </Game.Content>
-      {/* modals */}
+      {/* modals
       <CompletionModal
         difficulty="easy"
         errors={errors}
@@ -153,7 +133,7 @@ export const GameView = ({
         isOpen={confirmationModal.open}
         onClose={confirmationModal.onClose}
         onConfirm={handleConfirm}
-      />
+      /> */}
     </Game.Root>
   );
 };

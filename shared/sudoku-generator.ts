@@ -1,5 +1,5 @@
-import { shuffle } from '@/utils/helpers';
 import { BOX_SIZE, GRID_SIZE, REMOVALS } from './constants';
+import { shuffle } from './helpers';
 import { Cell, Difficulty, SudokuDigit, SudokuGame } from './types';
 
 // constants
@@ -99,7 +99,7 @@ const createSudokuGrid = (solution: number[][], removals: number): Cell[][] => {
 
 export const generateSudokuGame = (
   difficulty: Difficulty = 'easy',
-): SudokuGame => {
+): Cell[][] => {
   const solution = Array.from({ length: GRID_SIZE }, () =>
     Array<number>(GRID_SIZE).fill(0),
   );
@@ -112,7 +112,7 @@ export const generateSudokuGame = (
 
   const puzzle = createSudokuGrid(solution, REMOVALS[difficulty]); // remove values based on selected difficulty
 
-  return { solution, puzzle };
+  return puzzle;
 };
 
 /**

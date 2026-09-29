@@ -5,7 +5,6 @@ import { Page } from '@/components/layout/Page';
 import { GamePage } from '@/pages/GamePage';
 import { parseDifficulty } from '@shared/helpers';
 
-
 type PageProps = { params: Promise<{ roomId: string }> };
 
 const Game = async ({ params }: PageProps) => {

@@ -2,27 +2,22 @@
 
 import { useState } from 'react';
 
-import { useSinglePlayerSudoku } from '@/hooks/use-single-player-sudoku';
-import { CellFill } from '@/components/SudokuGrid/types';
+import { useMultiplayerSudoku } from '@/hooks/use-multiplayer-sudoku';
+import { CellFill, MultiplayerConfig } from '@/components/SudokuGrid/types';
 import { CellPosition, SudokuDigit } from '@shared/types';
+import { GameLoadingView } from './GameLoadingView';
 import { GameView } from './GameView';
 
-export const MultiplayerGame = () => {
-  const { state, time, actions } = useSinglePlayerSudoku();
-  const {
-    clearCell,
-    fillCell,
-    pause,
-    newGame,
-    resume,
-    restart,
-    addCandidate,
-    removeCandidate,
-  } = actions;
-
+export const MultiplayerGame = ({ config }: { config: MultiplayerConfig }) => {
   const [selectedPos, setSelectedPos] = useState<CellPosition | null>(null);
   const [fillMode, setFillMode] = useState<CellFill>('digit');
+  const { state, time, actions } = useMultiplayerSudoku(config);
 
+  // render non-interactive board for loading state
+  if (!state.board) return <GameLoadingView />;
+
+  // constants
+  const { clearCell, fillCell } = actions;
   const selectedCell = selectedPos
     ? state.board[selectedPos.row]?.[selectedPos.col]
     : null;
@@ -37,7 +32,7 @@ export const MultiplayerGame = () => {
     if (fillMode === 'digit') {
       fillCell(payload);
     } else {
-      addCandidate(payload);
+      // addCandidate(payload);
     }
   };
 
@@ -50,10 +45,10 @@ export const MultiplayerGame = () => {
     }
 
     if (selectedCell.candidates?.length || digit) {
-      removeCandidate({
-        ...selectedPos,
-        candidates: digit ? [digit] : (selectedCell.candidates ?? []),
-      });
+      // removeCandidate({
+      //   ...selectedPos,
+      //   candidates: digit ? [digit] : (selectedCell.candidates ?? []),
+      // });
     }
   };
 
@@ -74,18 +69,14 @@ export const MultiplayerGame = () => {
   return (
     <GameView
       board={state.board}
-      isGameComplete={state.completed}
-      isPaused={state.paused}
+      isGameComplete={false}
+      isPaused={false}
       time={time}
       fillMode={fillMode}
-      errors={state.errors}
+      errors={0}
       remainingCounts={state.remaining}
       onDigitInput={handleDigitInput}
       onDigitRemoval={handleDigitRemoval}
-      onPause={pause}
-      onResume={resume}
-      onNewGame={newGame}
-      onRestart={restart}
       onTabChange={setFillMode}
       onCellSelect={handleCellSelection}
       onDigitClick={handleValueClick}

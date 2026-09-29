@@ -1,7 +1,9 @@
 import { randomUUID } from 'node:crypto';
 import { WebSocket, WebSocketServer } from 'ws';
-import type { ClientMessage, Player, Room, ServerMessage } from './types.js';
+import type { Player, Room } from './types.js';
 import { generateSudokuGame } from '../../shared/sudoku-generator.js';
+import type { ClientMessage, ServerMessage } from '../../shared/types.js';
+import { updateBoard } from '../../shared/helpers.js';
 
 // constants
 const PORT = 8080;
@@ -10,14 +12,15 @@ const PORT = 8080;
 const wss = new WebSocketServer({ port: PORT });
 const rooms = new Map<string, Room>();
 
-// room functionality
+// helpers
 function broadcastToRoom(
   roomId: string,
   data: ServerMessage,
   ignoreSocket?: WebSocket,
 ) {
-  const players = rooms.get(roomId)!.players;
-  for (const player of players.values()) {
+  const room = rooms.get(roomId);
+  if (!room) return;
+  for (const player of room.players.values()) {
     const { socket } = player;
     if (socket.readyState === WebSocket.OPEN && socket !== ignoreSocket) {
       socket.send(JSON.stringify(data));
@@ -43,58 +46,62 @@ wss.on('connection', (ws) => {
           if (!rooms.get(roomId)) {
             rooms.set(roomId, {
               players: new Map<string, Player>(),
-              game: generateSudokuGame(),
-            }); // create room if it doesn't exist
+              game: { board: generateSudokuGame(), startedAt: Date.now() },
+            });
           }
 
-          const players = rooms.get(roomId)!.players;
-          players.set(userId, { id: userId, name, socket: ws });
+          const playersMap = rooms.get(roomId)!.players;
+          playersMap.set(userId, { id: userId, name, socket: ws });
 
-          // send --> game state
           const room = rooms.get(roomId)!;
-          ws.send(JSON.stringify({ type: 'game_state', game: room.game }));
-          // send --> player joined room
-          broadcastToRoom(
-            roomId,
-            { type: 'notification', message: `${name} joined the room.` },
-            ws,
+          ws.send(JSON.stringify({ type: 'game_state', game: room.game })); // send game state to user
+
+          const players = Array.from(playersMap.values()).map(
+            ({ name, id }) => ({ name, id }),
           );
+          broadcastToRoom(roomId, { type: 'players', players });
+          break;
+        }
+        case 'cell_update': {
+          if (!roomId) return;
 
-          const users = Array.from(players.values())
-            .map((client) => client.name)
-            .filter(Boolean);
+          const room = rooms.get(roomId);
+          if (!room) return;
 
-          // send --> users list, board state
-          broadcastToRoom(roomId, { type: 'users', users });
+          const { row, col, value } = msg;
+          const game = room.game;
+          const { board } = updateBoard(game.board, row, col, { value });
+          game.board = board;
 
+          const outgoing: ServerMessage = {
+            type: 'cell_updated',
+            row,
+            col,
+            value,
+          };
+
+          broadcastToRoom(roomId, outgoing, ws);
           break;
         }
       }
     } catch (err) {
-      console.error('Invalid message received:', message);
+      console.error('Failed to handle message:', err);
     }
   });
 
   // close handling
   ws.on('close', () => {
     if (roomId && rooms.get(roomId)) {
-      const players = rooms.get(roomId)?.players;
-      players?.delete(userId);
+      const playersMap = rooms.get(roomId)?.players;
+      playersMap?.delete(userId);
 
-      broadcastToRoom(roomId, {
-        type: 'notification',
-        message: `${name} left the room.`,
-      });
-
-      const users = Array.from(players?.values() ?? []).map(
-        (player) => player.name,
+      const players = Array.from(playersMap?.values() ?? []).map(
+        ({ name, id }) => ({ name, id }),
       );
-
-      // broadcast updated users list
-      broadcastToRoom(roomId, { type: 'users', users });
-
+      // send to room: updated users list
+      broadcastToRoom(roomId, { type: 'players', players });
       // room cleanup
-      if (players?.size === 0) rooms.delete(roomId);
+      if (playersMap?.size === 0) rooms.delete(roomId);
     }
   });
 });

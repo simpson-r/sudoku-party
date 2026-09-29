@@ -1,3 +1,6 @@
+import { INITIAL_REMAINING } from '@/components/SudokuGrid/constants';
+import { Cell } from '@shared/types';
+
 /**
  * Formats a duration in seconds as MM:SS or HH:MM:SS.
  */
@@ -11,18 +14,19 @@ export const formatSeconds = (secs: number) => {
   return `${h > 0 ? `${pad(h)}:` : ''}${pad(m)}:${pad(s)}`;
 };
 
-
-
 /**
- * Returns a randomly shuffled copy of an array without mutating the original (Fisher–Yates)
+ * Returns the elapsed time in seconds since the game started
  */
-export const shuffle = <T>(values: T[]): T[] => {
-  const result = [...values];
+export const getElapsedTime = (startedAt: number) =>
+  Math.floor((Date.now() - startedAt) / 1000);
 
-  for (let i = result.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [result[i], result[j]] = [result[j], result[i]];
+export const buildRemainingCounts = (puzzle: Cell[][]) => {
+  const remaining = { ...INITIAL_REMAINING };
+  for (const row of puzzle) {
+    for (const { actual, given } of row) {
+      if (given) remaining[actual]--;
+    }
   }
 
-  return result;
+  return remaining;
 };

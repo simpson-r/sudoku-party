@@ -10,12 +10,12 @@ export const SudokuGrid = ({
 }: React.PropsWithChildren<SimpleGridProps>) => {
   return (
     <SimpleGrid
-      position="relative"
       w={{ base: 'sm', md: 'lg' }}
-      h="full"
+      aspectRatio="1/1"
+      position="relative"
       columns={3}
-      p='0.125rem'
-      gap='0.125rem'
+      p="0.125rem"
+      gap="0.125rem"
       bg="bg.inverted"
       tabIndex={0}
       _focus={{ boxShadow: 'none', outline: 'none' }}

@@ -3,7 +3,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import { IoPlayCircle } from 'react-icons/io5';
 
-import { Icon, SimpleGridProps } from '@chakra-ui/react';
+import { Center, Icon, SimpleGridProps, Spinner } from '@chakra-ui/react';
 
 import { SudokuBox } from '@/components/SudokuGrid/SudokuBox';
 import { SudokuGrid } from '@/components/SudokuGrid/SudokuGrid';
@@ -17,16 +17,16 @@ import { GRID_SIZE } from '@shared/constants';
 // types
 type Direction = { dr: number; dc: number };
 type SudokuBoardProps =
-  | { placeholder: true }
   | {
-      puzzle: Cell[][];
+      puzzle?: Cell[][];
       placeholder?: false;
       isPaused?: boolean;
       clearCell: (digit: SudokuDigit | null) => void;
       fillCell: (digit: SudokuDigit) => void;
       onCellSelect: (pos: CellPosition) => void;
-      resume: VoidFunction;
-    };
+      resume?: VoidFunction;
+    }
+  | { puzzle: undefined };
 
 // constants
 const directions: Partial<Record<string, Direction>> = {
@@ -41,10 +41,11 @@ const EMPTY_BOARD = createEmptyBoard();
  * This component renders the sudoku board and manages board-level interactions like cell selection, keyboard nav, and resume
  */
 export const SudokuBoard = (props: SudokuBoardProps & SimpleGridProps) => {
-  const puzzle = props.placeholder ? EMPTY_BOARD : props.puzzle;
+  const puzzle = !props.puzzle ? EMPTY_BOARD : props.puzzle;
   const cellsPerBox = useMemo(() => generateCellsPerBox(puzzle), [puzzle]);
-  // render non-interactive board for landing page
-  if (props.placeholder) {
+
+  // render non-interactive board for loading state
+  if (!props.puzzle) {
     return (
       <SudokuGrid>
         {Array.from({ length: GRID_SIZE }).map((_, boxIndex) => (
@@ -58,11 +59,13 @@ export const SudokuBoard = (props: SudokuBoardProps & SimpleGridProps) => {
             onCellSelect={undefined}
           />
         ))}
+        <Center position="absolute" inset="0" zIndex={1}>
+          <Spinner />
+        </Center>
       </SudokuGrid>
     );
   }
 
-  // interactive board for landing page
   const { isPaused, clearCell, fillCell, resume, onCellSelect, ...rest } =
     props;
 

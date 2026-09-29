@@ -9,32 +9,41 @@ import { getCandidatePlacement } from './SudokuGrid/helpers';
 import { SudokuDigit } from '@shared/types';
 import { Tooltip } from './ui/tooltip';
 
+// constants
 const TAB_ITEMS = [
   { icon: <LuPencil />, label: 'Digits', value: 'digit' },
   { icon: <LuNotebookPen />, label: 'Candidates', value: 'candidate' },
 ];
+// types
+type DigitsGridProps = {
+  counts: Record<SudokuDigit, number>;
+  disabled?: boolean;
+  fillMode: CellFill;
+  onValueClick?: (value: SudokuDigit) => void;
+  onTabChange?: (mode: CellFill) => void;
+};
+
 /**
  * This component displays digit controls for entering values or candidates, along with the remaining count for each digit.
  */
 export const DigitsGrid = ({
-  fillMode,
   counts,
+  disabled = false,
+  fillMode,
   onValueClick,
   onTabChange,
-}: React.PropsWithChildren<{
-  fillMode: CellFill;
-  counts: Record<SudokuDigit, number>;
-  onValueClick: (val: SudokuDigit) => void;
-  onTabChange: (mode: CellFill) => void;
-}>) => {
+}: React.PropsWithChildren<DigitsGridProps>) => {
   return (
-    <VStack>
+    <VStack
+      opacity={disabled ? 0.5 : 1}
+      pointerEvents={disabled ? 'none' : undefined}
+    >
       {/* tabs */}
       <Tabs.Root
         w="full"
         value={fillMode}
         variant="subtle"
-        onValueChange={(e) => onTabChange(e.value as CellFill)}
+        onValueChange={(e) => onTabChange?.(e.value as CellFill)}
       >
         <Tabs.List w="full">
           {TAB_ITEMS.map(({ label, value, icon }) => (
@@ -42,9 +51,10 @@ export const DigitsGrid = ({
               <Tabs.Trigger
                 key={value}
                 value={value}
+                flex={1}
                 justifyContent="center"
-                flex="1"
                 borderRadius="none"
+                disabled={disabled}
                 _selected={{ color: 'bg', bgColor: 'gray.solid' }}
               >
                 <Icon size="md">{icon}</Icon>
@@ -67,9 +77,9 @@ export const DigitsGrid = ({
             border="2px solid"
             borderRadius="none"
             borderColor="border"
-            _hover={{ borderColor:'border.inverted'}}
-            cursor="pointer"
-            onClick={() => onValueClick(Number(num) as SudokuDigit)}
+            _hover={disabled ? undefined : { borderColor: 'border.inverted' }}
+            cursor={disabled ? undefined : 'pointer'}
+            onClick={() => onValueClick?.(Number(num) as SudokuDigit)}
           >
             {fillMode === 'digit' ? (
               // digit

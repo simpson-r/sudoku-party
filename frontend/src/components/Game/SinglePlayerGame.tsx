@@ -3,12 +3,12 @@
 import { useState } from 'react';
 
 import { useSinglePlayerSudoku } from '@/hooks/use-single-player-sudoku';
-import { CellFill } from '@/components/SudokuGrid/types';
+import { CellFill, SetupConfig } from '@/components/SudokuGrid/types';
 import { CellPosition, SudokuDigit } from '@shared/types';
 import { GameView } from './GameView';
 
-export const SinglePlayerGame = () => {
-  const { state, time, actions } = useSinglePlayerSudoku();
+export const SinglePlayerGame = ({ config }: { config: SetupConfig }) => {
+  const { state, time, actions } = useSinglePlayerSudoku(config.difficulty);
   const {
     clearCell,
     fillCell,
@@ -80,12 +80,11 @@ export const SinglePlayerGame = () => {
       fillMode={fillMode}
       errors={state.errors}
       remainingCounts={state.remaining}
+      isCellSelected={!!selectedCell}
       onDigitInput={handleDigitInput}
       onDigitRemoval={handleDigitRemoval}
       onPause={pause}
       onResume={resume}
-      onNewGame={newGame}
-      onRestart={restart}
       onTabChange={setFillMode}
       onCellSelect={handleCellSelection}
       onDigitClick={handleValueClick}

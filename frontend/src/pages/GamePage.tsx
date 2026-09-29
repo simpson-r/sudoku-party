@@ -3,6 +3,7 @@
 import { SetupConfig } from '@/components/SudokuGrid/types';
 import { SinglePlayerGame } from '@/components/Game/SinglePlayerGame';
 import { MultiplayerGame } from '@/components/Game/MultiplayerGame';
+import { WebSocketProvider } from '@/context/WebSocketContext';
 
 /**
  * This component is the entry point for a sudoku game
@@ -11,8 +12,12 @@ import { MultiplayerGame } from '@/components/Game/MultiplayerGame';
 export const GamePage = ({ config }: { config: SetupConfig }) => {
   return (
     <>
-      {config.mode === 'single' && <SinglePlayerGame />}
-      {config.mode === 'multi' && <MultiplayerGame />}
+      {config.mode === 'single' && <SinglePlayerGame config={config} />}
+      {config.mode === 'multi' && (
+        <WebSocketProvider>
+          <MultiplayerGame config={config} />
+        </WebSocketProvider>
+      )}
     </>
   );
 };

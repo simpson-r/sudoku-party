@@ -37,3 +37,10 @@ export type SetupForm = {
   mode?: PlayerMode;
   name?: string;
 };
+
+export type MultiplayerConfig = {
+  name?: string;
+  roomId: string;
+  difficulty: Difficulty;
+  mode: PlayerMode;
+};

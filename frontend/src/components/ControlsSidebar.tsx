@@ -1,7 +1,7 @@
-import { Button, ButtonProps, Flex, HStack, VStack } from '@chakra-ui/react';
+import { Flex } from '@chakra-ui/react';
 
 import { DigitsGrid } from '@/components/DigitsGrid';
-import { CellFill, GameAction } from '@/components/SudokuGrid/types';
+import { CellFill } from '@/components/SudokuGrid/types';
 import { SudokuDigit } from '@shared/types';
 
 const BUTTON_ITEMS = [
@@ -14,26 +14,26 @@ const BUTTON_ITEMS = [
 export const ControlsSidebar = ({
   fillMode,
   remaining,
-  handleGameAction,
+  disabled = false,
   handleTabChange,
   handleValueClick,
 }: {
   fillMode: CellFill;
+  disabled?: boolean;
   remaining: Record<SudokuDigit, number>;
-  handleGameAction: (action: GameAction) => void;
-  handleTabChange: (mode: CellFill) => void;
-  handleValueClick: (digit: SudokuDigit) => void;
+  handleTabChange?: (mode: CellFill) => void;
+  handleValueClick?: (digit: SudokuDigit) => void;
 }) => {
   return (
     <Flex direction="column" justify="center" align="flex-start" gap={4}>
-      <VStack gap={4} align="stretch" maxW="60">
-        <DigitsGrid
-          counts={remaining}
-          fillMode={fillMode}
-          onValueClick={handleValueClick}
-          onTabChange={handleTabChange}
-        />
-        {/* <HStack justify="center" gap="2">
+      <DigitsGrid
+        counts={remaining}
+        fillMode={fillMode}
+        disabled={disabled}
+        onValueClick={handleValueClick}
+        onTabChange={handleTabChange}
+      />
+      {/* <HStack justify="center" gap="2">
           {BUTTON_ITEMS.map(({ label, type, variant }) => (
             <Button
               key={type}
@@ -47,7 +47,6 @@ export const ControlsSidebar = ({
             </Button>
           ))}
         </HStack> */}
-      </VStack>
     </Flex>
   );
 };
