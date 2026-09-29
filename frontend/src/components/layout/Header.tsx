@@ -4,7 +4,6 @@ import { FaGear } from 'react-icons/fa6';
 import { LuGrid3X3 } from 'react-icons/lu';
 
 import {
-  Container,
   createListCollection,
   Heading,
   HStack,
@@ -39,15 +38,15 @@ export const Header = () => {
   };
 
   return (
-    <Container
-      as={HStack}
+    <HStack
       w="full"
       justifyContent="space-between"
       alignItems="center"
-      borderBottom="2px solid"
+      borderBottom="0.125rem solid"
       borderColor="fg"
       minH={14}
       gap={8}
+      px={6}
     >
       {/* left-aligned nav */}
       <HStack align="center" gap={2}>
@@ -73,6 +72,6 @@ export const Header = () => {
           <FaGear />
         </IconButton>
       </Menu>
-    </Container>
+    </HStack>
   );
 };

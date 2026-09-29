@@ -2,7 +2,7 @@
 
 import { LuPencil, LuNotebookPen } from 'react-icons/lu';
 
-import { Flex, SimpleGrid, Tabs, Text, VStack } from '@chakra-ui/react';
+import { Flex, Icon, SimpleGrid, Tabs, Text, VStack } from '@chakra-ui/react';
 
 import { CellFill } from './SudokuGrid/types';
 import { getCandidatePlacement } from './SudokuGrid/helpers';
@@ -10,8 +10,8 @@ import { SudokuDigit } from '@shared/types';
 import { Tooltip } from './ui/tooltip';
 
 const TAB_ITEMS = [
-  { icon: <LuPencil />, label: 'Normal', value: 'digit' },
-  { icon: <LuNotebookPen />, label: 'Candidate', value: 'candidate' },
+  { icon: <LuPencil />, label: 'Digits', value: 'digit' },
+  { icon: <LuNotebookPen />, label: 'Candidates', value: 'candidate' },
 ];
 /**
  * This component displays digit controls for entering values or candidates, along with the remaining count for each digit.
@@ -37,8 +37,8 @@ export const DigitsGrid = ({
         onValueChange={(e) => onTabChange(e.value as CellFill)}
       >
         <Tabs.List w="full">
-          {TAB_ITEMS.map(({ value, icon }) => (
-            <Tooltip content={value} positioning={{ placement: 'top' }}>
+          {TAB_ITEMS.map(({ label,value, icon }) => (
+            <Tooltip content={label} positioning={{ placement: 'top' }}>
               <Tabs.Trigger
                 key={value}
                 value={value}
@@ -46,7 +46,7 @@ export const DigitsGrid = ({
                 flex="1"
                 _selected={{ color: 'bg', bgColor: 'bg.inverted' }}
               >
-                {icon}
+                <Icon size='md'>{icon}</Icon>
               </Tabs.Trigger>
             </Tooltip>
           ))}
@@ -94,7 +94,7 @@ export const DigitsGrid = ({
               // candidate
               <Text
                 position="absolute"
-                fontSize={{ base: 'xs', md: 'md' }}
+                fontSize={{ base: 'xs', md: 'sm' }}
                 color={!!remaining ? 'fg' : 'fg.subtle'}
                 {...getCandidatePlacement(num as unknown as SudokuDigit, 3, 1)}
               >

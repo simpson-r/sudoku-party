@@ -25,14 +25,7 @@ export const ControlsSidebar = ({
   handleValueClick: (digit: SudokuDigit) => void;
 }) => {
   return (
-    <Flex
-      flex="1"
-      direction="column"
-      justify="center"
-      align="flex-start"
-      pl="6"
-      gap={4}
-    >
+    <Flex direction="column" justify="center" align="flex-start" gap={4}>
       <VStack gap={4} align="stretch" maxW="60">
         <DigitsGrid
           counts={remaining}

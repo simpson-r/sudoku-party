@@ -1,4 +1,4 @@
-import { SudokuDigit } from "@shared/types";
+import { Difficulty, SudokuDigit } from '@shared/types';
 /**
  * cell types
  */
@@ -16,3 +16,11 @@ export type CellPayload = {
 export type GameAction = 'newGame' | 'restart';
 
 export type CellFill = 'digit' | 'candidate';
+
+export type PlayerMode = 'single' | 'multi';
+
+export type SetupConfig = {
+  name: string;
+  difficulty?: Difficulty;
+  mode?: PlayerMode;
+};

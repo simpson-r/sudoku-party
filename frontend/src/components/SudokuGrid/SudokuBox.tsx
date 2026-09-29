@@ -9,9 +9,9 @@ interface SudokuBoxProps {
   cells: Cell[];
   paused?: boolean;
   selectedCell?: Cell;
-  onCellClear: (digit: SudokuDigit | null) => void;
-  onCellFill: (digit: SudokuDigit) => void;
-  onCellSelect: (pos: CellPosition) => void;
+  onCellClear?: (digit: SudokuDigit | null) => void;
+  onCellFill?: (digit: SudokuDigit) => void;
+  onCellSelect?: (pos: CellPosition) => void;
 }
 
 /**
@@ -44,7 +44,7 @@ export const SudokuBox = ({
           identical={
             !!selectedCell?.value && cell.value === selectedCell?.value
           }
-          onClick={() => onCellSelect({ row: cell.row, col: cell.col })}
+          onClick={() => onCellSelect?.({ row: cell.row, col: cell.col })}
           {...props}
         />
       ))}

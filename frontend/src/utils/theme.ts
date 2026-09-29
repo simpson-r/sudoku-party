@@ -1,12 +1,12 @@
 'use client';
 
 import { createSystem, defaultConfig, defineConfig } from '@chakra-ui/react';
-import { Inter, Fragment_Mono } from 'next/font/google';
+import { Inter, Fragment_Mono, Atkinson_Hyperlegible } from 'next/font/google';
 
 /**
  * fonts
  */
-export const inter = Inter({
+const inter = Inter({
   display: 'swap',
   subsets: ['latin'],
   weight: '400',
@@ -27,8 +27,8 @@ export const theme = defineConfig({
     tokens: {
       fonts: {
         heading: { value: fragmentMono.style.fontFamily },
-        body: { value: fragmentMono.style.fontFamily },
-        mono: { value: fragmentMono.style.fontFamily },
+        body: { value: 'Helvetica Neue, Helvetica, Arial, sans-serif' },
+        mono: { value: inter.style.fontFamily },
       },
     },
   },

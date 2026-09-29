@@ -38,3 +38,5 @@ export type Difficulty = 'easy' | 'medium' | 'hard';
 export type SudokuDigit = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
 
 export type CellFill = 'digit' | 'candidate';
+
+export type RemainingCounts = Record<SudokuDigit, number>;

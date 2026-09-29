@@ -1,6 +1,5 @@
-import { BOX_SIZE, GRID_SIZE } from "@shared/constants";
-import { Cell, SudokuDigit } from "@shared/types";
-
+import { BOX_SIZE, GRID_SIZE } from '@shared/constants';
+import { Cell, SudokuDigit } from '@shared/types';
 
 const getCandidatePlacements = (x?: number, y?: number) => ({
   1: { top: y, left: x },
@@ -23,7 +22,6 @@ const getCandidatePlacements = (x?: number, y?: number) => ({
 export const getCandidatePlacement = (digit: SudokuDigit, x = 2, y = 1) =>
   getCandidatePlacements(x, y)[digit];
 
-
 /**
  * Groups the cells of a sudoku grid into its 9 boxes
  * @param puzzle - sudoku grid represented as a 2D array of cells
@@ -41,3 +39,18 @@ export const generateCellsPerBox = (puzzle: Cell[][]): Cell[][] => {
   }
   return cellsPerBox;
 };
+
+/**
+ * Creates a 9×9 Sudoku board with empty cells.
+ */
+export const createEmptyBoard = (): Cell[][] =>
+  Array.from({ length: 9 }, (_, row) =>
+    Array.from({ length: 9 }, (_, col) => ({
+      row,
+      col,
+      value: null,
+      actual: 1,
+      candidates: null,
+      given: false,
+    })),
+  );

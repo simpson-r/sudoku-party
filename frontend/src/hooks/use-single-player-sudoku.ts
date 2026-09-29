@@ -7,7 +7,7 @@ import {
   isPuzzleComplete,
 } from '../../../shared/sudoku-generator';
 import { formatSeconds } from '@/utils/helpers';
-import { Cell, CellPosition, SudokuDigit } from '@shared/types';
+import { Cell, CellPosition, RemainingCounts, SudokuDigit } from '@shared/types';
 
 // types & interfaces
 interface SudokuState {
@@ -17,7 +17,6 @@ interface SudokuState {
   paused: boolean;
   remaining: RemainingCounts;
 }
-type RemainingCounts = Record<SudokuDigit, number>;
 type CandidateRemoval = { row: number; col: number; candidates: SudokuDigit[] };
 type ResetPayload = { board: Cell[][]; remaining: RemainingCounts };
 
@@ -156,9 +155,9 @@ export function reducer(state: SudokuState, action: Action): SudokuState {
 }
 
 /**
- * This hook manages Sudoku game state, actions, and lifecycle.
+ * This hook manages single player Sudoku game state, actions, and lifecycle.
  */
-export const useSudokuGame = () => {
+export const useSinglePlayerSudoku = () => {
   const [initialBoard, setInitialBoard] = useState(
     () => generateSudokuGame().puzzle,
   );

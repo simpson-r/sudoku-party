@@ -13,8 +13,8 @@ interface SudokuCellProps {
   identical?: boolean;
   paused?: boolean;
   selected: boolean;
-  onCellClear: (digit: SudokuDigit | null) => void;
-  onCellFill: (digit: SudokuDigit) => void;
+  onCellClear?: (digit: SudokuDigit | null) => void;
+  onCellFill?: (digit: SudokuDigit) => void;
 }
 /**
  * This component renders an individual Sudoku grid cell. It manages visual highlights (selection, errors, candidates)
@@ -61,10 +61,10 @@ export const SudokuCell = ({
 
       if (e.key >= '1' && e.key <= '9') {
         e.preventDefault();
-        onCellFill(Number(e.key) as SudokuDigit);
+        onCellFill?.(Number(e.key) as SudokuDigit);
       } else if (e.key === 'Backspace' || e.key === 'Delete') {
         e.preventDefault();
-        onCellClear(value);
+        onCellClear?.(value);
       }
     },
     [given, paused, selected, value, onCellClear, onCellFill],

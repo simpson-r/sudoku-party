@@ -7,12 +7,26 @@ import { Icon, SimpleGridProps } from '@chakra-ui/react';
 
 import { SudokuBox } from '@/components/SudokuGrid/SudokuBox';
 import { SudokuGrid } from '@/components/SudokuGrid/SudokuGrid';
-import { generateCellsPerBox } from '@/components/SudokuGrid/helpers';
+import {
+  createEmptyBoard,
+  generateCellsPerBox,
+} from '@/components/SudokuGrid/helpers';
 import { Cell, CellPosition, SudokuDigit } from '@shared/types';
 import { GRID_SIZE } from '@shared/constants';
 
 // types
 type Direction = { dr: number; dc: number };
+type SudokuBoardProps =
+  | { placeholder: true }
+  | {
+      puzzle: Cell[][];
+      placeholder?: false;
+      isPaused?: boolean;
+      clearCell: (digit: SudokuDigit | null) => void;
+      fillCell: (digit: SudokuDigit) => void;
+      onCellSelect: (pos: CellPosition) => void;
+      resume: VoidFunction;
+    };
 
 // constants
 const directions: Partial<Record<string, Direction>> = {
@@ -21,31 +35,41 @@ const directions: Partial<Record<string, Direction>> = {
   ArrowUp: { dr: -1, dc: 0 },
   ArrowDown: { dr: 1, dc: 0 },
 };
+const EMPTY_BOARD = createEmptyBoard();
 
 /**
- * This components renders the sudoku board and manages board-level interactions like cell selection, keyboard nav, and resume
+ * This component renders the sudoku board and manages board-level interactions like cell selection, keyboard nav, and resume
  */
-export const SudokuBoard = ({
-  puzzle,
-  isPaused,
-  clearCell,
-  fillCell,
-  resume,
-  onCellSelect,
-  ...props
-}: {
-  puzzle: Cell[][];
-  isPaused?: boolean;
-  clearCell: (digit: SudokuDigit | null) => void;
-  fillCell: (digit: SudokuDigit) => void;
-  onCellSelect: (pos: CellPosition) => void;
-  resume: VoidFunction;
-} & SimpleGridProps) => {
+export const SudokuBoard = (props: SudokuBoardProps & SimpleGridProps) => {
+  const puzzle = props.placeholder ? EMPTY_BOARD : props.puzzle;
+  const cellsPerBox = useMemo(() => generateCellsPerBox(puzzle), [puzzle]);
+  // render non-interactive board for landing page
+  if (props.placeholder) {
+    return (
+      <SudokuGrid>
+        {Array.from({ length: GRID_SIZE }).map((_, boxIndex) => (
+          <SudokuBox
+            key={boxIndex}
+            cells={cellsPerBox[boxIndex]}
+            selectedCell={undefined}
+            paused={true}
+            onCellClear={undefined}
+            onCellFill={undefined}
+            onCellSelect={undefined}
+          />
+        ))}
+      </SudokuGrid>
+    );
+  }
+
+  // interactive board for landing page
+  const { isPaused, clearCell, fillCell, resume, onCellSelect, ...rest } =
+    props;
+
   const [selectedPosition, setSelectedPosition] = useState<CellPosition | null>(
     null,
   );
 
-  const cellsPerBox = useMemo(() => generateCellsPerBox(puzzle), [puzzle]);
   const selectedCell = selectedPosition
     ? puzzle[selectedPosition.row][selectedPosition.col]
     : undefined;
@@ -84,7 +108,7 @@ export const SudokuBoard = ({
 
   // render
   return (
-    <SudokuGrid onKeyDown={handleArrowKey} onBlur={handleBlur} {...props}>
+    <SudokuGrid onKeyDown={handleArrowKey} onBlur={handleBlur} {...rest}>
       {Array.from({ length: GRID_SIZE }).map((_, boxIndex) => (
         <SudokuBox
           key={boxIndex}
