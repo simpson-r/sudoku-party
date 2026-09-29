@@ -54,3 +54,24 @@ export const createEmptyBoard = (): Cell[][] =>
       given: false,
     })),
   );
+
+/**
+ * Updates remaining digit counts after a cell value changes.
+ */
+export const updateRemainingCounts = (
+  remaining: Record<SudokuDigit, number>,
+  prevValue: SudokuDigit | null,
+  nextValue: SudokuDigit | null,
+) => {
+  const updated = { ...remaining };
+
+  if (prevValue && prevValue !== nextValue) {
+    updated[prevValue] += 1;
+  }
+
+  if (nextValue && prevValue !== nextValue) {
+    updated[nextValue] -= 1;
+  }
+
+  return updated;
+};

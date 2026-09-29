@@ -100,7 +100,7 @@ export const SudokuCell = ({
           <Text
             key={candidate}
             position="absolute"
-            fontSize="xs"
+            fontSize={{ base: '2xs', md: 'xs', lg: 'sm' }}
             fontVariantNumeric="tabular-nums"
             color="gray.500"
             {...getCandidatePlacement(Number(candidate) as SudokuDigit, 1, 0)}

@@ -12,7 +12,14 @@ const Root = (props: React.ComponentProps<typeof VStack>) => (
  * Arranges the game board and its surrounding side content.
  */
 const Content = (props: React.ComponentProps<typeof Flex>) => (
-  <Flex w="full" align="flex-start" justify="center" gap={6} {...props} />
+  <Flex
+    direction={{ base: 'column', lg: 'row' }}
+    w="full"
+    align={{ base: 'center', lg: 'flex-start' }}
+    justify={{ base: 'flex-start', lg: 'center' }}
+    gap={6}
+    {...props}
+  />
 );
 
 /**

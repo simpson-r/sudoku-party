@@ -15,6 +15,7 @@ import {
   SudokuDigit,
 } from '@shared/types';
 import { updateBoard } from '@shared/helpers';
+import { updateRemainingCounts } from '@/components/SudokuGrid/helpers';
 
 // types & interfaces
 interface SudokuState {
@@ -55,21 +56,15 @@ export function reducer(state: SudokuState, action: Action): SudokuState {
       const { row, col, value } = action.payload;
       const prevCell = state.board[row][col];
       const { board, cell } = updateBoard(state.board, row, col, { value });
-
-      const remaining = {
-        ...state.remaining,
-        [value]: state.remaining[value] - (prevCell.value !== value ? 1 : 0),
-        ...(prevCell.value &&
-          prevCell.value !== cell.value && {
-            [prevCell.value]: state.remaining[prevCell.value] + 1,
-          }),
-      };
-
       return {
         ...state,
         board,
         errors: state.errors + (value !== cell.actual ? 1 : 0),
-        remaining,
+        remaining: updateRemainingCounts(
+          state.remaining,
+          prevCell.value,
+          cell.value,
+        ),
         completed: isPuzzleComplete(board),
       };
     }
@@ -83,10 +78,7 @@ export function reducer(state: SudokuState, action: Action): SudokuState {
       return {
         ...state,
         board,
-        remaining: {
-          ...state.remaining,
-          [prevCell.value]: state.remaining[prevCell.value] + 1,
-        },
+        remaining: updateRemainingCounts(state.remaining, prevCell.value, null),
       };
     }
     case 'PAUSE':

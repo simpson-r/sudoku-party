@@ -1,4 +1,5 @@
 import { INITIAL_REMAINING, ONE_SEC } from '@/components/SudokuGrid/constants';
+import { updateRemainingCounts } from '@/components/SudokuGrid/helpers';
 import { MultiplayerConfig } from '@/components/SudokuGrid/types';
 import { useWebSocket } from '@/context/WebSocketContext';
 import {
@@ -46,19 +47,14 @@ export function reducer(state: SudokuState, action: Action): SudokuState {
       const prevCell = state.board?.[row][col];
       const { board, cell } = updateBoard(state.board, row, col, { value });
 
-      const remaining = {
-        ...state.remaining,
-        [value]: state.remaining[value] - (prevCell.value !== value ? 1 : 0),
-        ...(prevCell.value &&
-          prevCell.value !== cell.value && {
-            [prevCell.value]: state.remaining?.[prevCell?.value] + 1,
-          }),
-      };
-
       return {
         ...state,
         board,
-        remaining,
+        remaining: updateRemainingCounts(
+          state.remaining,
+          prevCell.value,
+          cell.value,
+        ),
       };
     }
     case 'CLEAR_DIGIT': {
@@ -73,10 +69,7 @@ export function reducer(state: SudokuState, action: Action): SudokuState {
       return {
         ...state,
         board,
-        remaining: {
-          ...state.remaining,
-          [prevCell.value]: state.remaining[prevCell.value] + 1,
-        },
+        remaining: updateRemainingCounts(state.remaining, prevCell.value, null),
       };
     }
     case 'INIT_BOARD':
