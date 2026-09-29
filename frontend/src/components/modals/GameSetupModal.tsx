@@ -12,7 +12,7 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { Difficulty } from '@shared/types';
-import { PlayerMode, SetupConfig } from '../SudokuGrid/types';
+import { PlayerMode, SetupConfig, SetupForm } from '../SudokuGrid/types';
 import { useState } from 'react';
 
 // constants
@@ -27,6 +27,8 @@ const PLAYER_MODE_ITEMS: { label: string; key: PlayerMode }[] = [
 ];
 
 const INITIAL_CONFIG = { name: '', difficulty: undefined, mode: undefined };
+
+const INPUT_HEIGHT = { base: 10, md: 12 };
 /**
  * This component displays a modal for configuring a sudoku game
  */
@@ -39,51 +41,66 @@ export const GameSetupModal = ({
   isLoading?: boolean;
   onSubmit: (config: SetupConfig) => void;
 }) => {
-  const [config, setConfig] = useState<SetupConfig>(INITIAL_CONFIG);
-  const isSubmitDisabled =
-    !config.name.trim() || !config.difficulty || !config.mode;
+  const [config, setConfig] = useState<SetupForm>(INITIAL_CONFIG);
+  const isSubmitDisabled = !config.difficulty || !config.mode;
 
   const handleValueChange = <T extends keyof SetupConfig>(
     key: T,
     value: SetupConfig[T],
   ) => {
-    setConfig((prevState) => ({ ...prevState, [key]: value }));
+    setConfig((prevState) => ({
+      ...prevState,
+      [key]: key === 'name' ? value?.trim() : value,
+    }));
   };
 
   return (
     <Dialog.Root placement="center" open={isOpen} lazyMount unmountOnExit>
-      <Dialog.Backdrop backdropFilter="blur(3px)" />
-      <Dialog.Positioner>
+      <Dialog.Backdrop
+        bg={{ base: 'blackAlpha.300', _dark: 'whiteAlpha.100' }}
+        backdropFilter="blur(1px)"
+        textTransform="lowercase"
+      />
+      <Dialog.Positioner >
         <Dialog.Content
-          rounded="0"
-          justifyContent="center"
-          alignItems="center"
-          bgColor="bg"
-          border="2.5px solid"
-          maxW={400}
-          w="full"
+          w={{ base: 'calc(100% - 32px)', md: '500px' }}
+          maxW="520px"
+          minH={{ base: 'auto', md: '500px' }}
+          aspectRatio={{ base: 'auto', md: '1 / 1' }}
+          display="flex"
+          flexDirection="column"
+          border="4px solid"
+          borderRadius={0}
+          bg="bg"
+          p={{ base: 6, md: 8 }}
+          boxShadow="2xl"
         >
-          <Dialog.Header flexDirection="column" textAlign="center">
+          <Dialog.Header
+            flexDirection="column"
+            textAlign="center"
+            gap={3}
+            pb={{ base: 3, md: 7 }}
+          >
             <Dialog.Title asChild>
-              <Heading letterSpacing="-0.03em">Launch a Sudoku party!</Heading>
+              <Heading
+                fontSize={{ base: 'lg', md: '2xl' }}
+                letterSpacing="-0.03em"
+              >
+                welcome to sudokuparty!
+              </Heading>
             </Dialog.Title>
-            <Text>Select your Sudoku settings</Text>
+            <Text>choose your settings</Text>
           </Dialog.Header>
 
-          <Dialog.Body>
-            <VStack gap={3}>
-              <Field.Root>
-                <Field.Label color="fg">Name</Field.Label>
-                <Input
-                  rounded="0"
-                  border="1.5px solid"
-                  bgColor="bg.muted"
-                  value={config.name}
-                  onChange={(e) =>
-                    handleValueChange('name', e.currentTarget.value)
-                  }
-                />
-              </Field.Root>
+          <Dialog.Body
+            w="9/12"
+            mx="auto"
+            p={0}
+            display="flex"
+            flexDirection="column"
+            flex="1"
+          >
+            <VStack w="full" gap={4}>
               <ButtonFieldGroup
                 fieldLabel="Difficulty"
                 items={DIFF_ITEMS}
@@ -92,29 +109,45 @@ export const GameSetupModal = ({
                   handleValueChange('difficulty', value)
                 }
               />
+
               <ButtonFieldGroup
                 fieldLabel="Mode"
                 items={PLAYER_MODE_ITEMS}
                 value={config.mode}
                 onValueChange={(value) => handleValueChange('mode', value)}
               />
+
+              <Field.Root>
+                <Field.Label fontSize={{ base: 'sm', sm: 'md' }}>
+                  Name (optional)
+                </Field.Label>
+                <Input
+                  border="1.5px solid"
+                  borderRadius={0}
+                  h={INPUT_HEIGHT}
+                  value={config.name}
+                  placeholder="your name"
+                  onChange={(e) =>
+                    handleValueChange('name', e.currentTarget.value)
+                  }
+                />
+              </Field.Root>
+              <Button
+                w="full"
+                h={INPUT_HEIGHT}
+                mt="auto"
+                color={isSubmitDisabled ? 'fg' : 'fg.inverted'}
+                variant={isSubmitDisabled ? 'outline' : 'solid'}
+                border={isSubmitDisabled ? '2px solid' : undefined}
+                borderRadius={0}
+                loading={isLoading}
+                onClick={() => onSubmit(config as SetupConfig)}
+                disabled={isSubmitDisabled}
+              >
+                play
+              </Button>
             </VStack>
           </Dialog.Body>
-
-          <Dialog.Footer w="full" justifyContent="center">
-            <Button
-              w="9/12"
-              color={isSubmitDisabled ? 'fg' : 'fg.inverted'}
-              variant={isSubmitDisabled ? 'outline' : 'solid'}
-              border="1.5px solid"
-              rounded="0"
-              loading={isLoading}
-              onClick={() => onSubmit(config)}
-              disabled={isSubmitDisabled}
-            >
-              Start party
-            </Button>
-          </Dialog.Footer>
         </Dialog.Content>
       </Dialog.Positioner>
     </Dialog.Root>
@@ -134,7 +167,9 @@ const ButtonFieldGroup = <T extends string>({
 }) => {
   return (
     <Field.Root>
-      <Field.Label color="fg">{fieldLabel}</Field.Label>
+      <Field.Label color="fg" fontSize={{ base: 'sm', sm: 'md' }}>
+        {fieldLabel}
+      </Field.Label>
       <RadioGroup.Root
         value={value}
         onValueChange={(details) => onValueChange(details.value as T)}
@@ -146,13 +181,17 @@ const ButtonFieldGroup = <T extends string>({
               key={key}
               value={key}
               flex={1}
-              h={10}
-              px={4}
+              h={INPUT_HEIGHT}
               justifyContent="center"
               border="1.5px solid"
               borderColor="border.inverted"
               cursor="pointer"
-              _checked={{ bg: 'bg.inverted', color: 'fg.inverted' }}
+              _checked={{
+                bg: 'bg.inverted',
+                color: 'fg.inverted',
+                _hover: { bg: 'bg.inverted' },
+              }}
+              _hover={{ bg: 'bg.muted' }}
             >
               <RadioGroup.ItemText>{label}</RadioGroup.ItemText>
               <RadioGroup.ItemHiddenInput />

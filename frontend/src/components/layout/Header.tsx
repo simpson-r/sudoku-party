@@ -1,5 +1,6 @@
 'use client';
 
+import { usePathname } from 'next/navigation';
 import { FaGear } from 'react-icons/fa6';
 import { LuGrid3X3 } from 'react-icons/lu';
 
@@ -8,6 +9,7 @@ import {
   Heading,
   HStack,
   IconButton,
+  Link,
   useDisclosure,
 } from '@chakra-ui/react';
 
@@ -22,8 +24,8 @@ const MENU_ITEMS = createListCollection({
  * This component renders the global header which includes settings
  */
 export const Header = () => {
+  const pathname = usePathname();
   const menu = useDisclosure();
-
   const { toggleColorMode } = useColorMode();
 
   // callbacks
@@ -49,29 +51,33 @@ export const Header = () => {
       px={6}
     >
       {/* left-aligned nav */}
-      <HStack align="center" gap={2}>
-        <LuGrid3X3 size={24} />
-        <Heading size={{ base: 'lg', md: 'xl' }}>sudokuparty</Heading>
-      </HStack>
+      <Link href="/" textDecoration="none" cursor="pointer">
+        <HStack align="center" gap={2}>
+          <LuGrid3X3 size={24} />
+          <Heading size={{ base: 'lg', md: 'xl' }}>sudokuparty</Heading>
+        </HStack>
+      </Link>
 
       {/* right-aligned nav */}
-      <Menu
-        items={MENU_ITEMS}
-        open={menu.open}
-        positioning={{ placement: 'top-end' }}
-        onPointerDownOutside={menu.onClose}
-        onMenuSelect={handleMenuSelect}
-      >
-        <IconButton
-          aria-label="menu"
-          variant="ghost"
-          size="2xs"
-          onClick={menu.onOpen}
-          asChild
+      {pathname !== '/' && (
+        <Menu
+          items={MENU_ITEMS}
+          open={menu.open}
+          positioning={{ placement: 'top-end' }}
+          onPointerDownOutside={menu.onClose}
+          onMenuSelect={handleMenuSelect}
         >
-          <FaGear />
-        </IconButton>
-      </Menu>
+          <IconButton
+            aria-label="menu"
+            variant="ghost"
+            size="2xs"
+            onClick={menu.onOpen}
+            asChild
+          >
+            <FaGear />
+          </IconButton>
+        </Menu>
+      )}
     </HStack>
   );
 };

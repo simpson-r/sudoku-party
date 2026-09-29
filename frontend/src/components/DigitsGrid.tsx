@@ -37,16 +37,17 @@ export const DigitsGrid = ({
         onValueChange={(e) => onTabChange(e.value as CellFill)}
       >
         <Tabs.List w="full">
-          {TAB_ITEMS.map(({ label,value, icon }) => (
+          {TAB_ITEMS.map(({ label, value, icon }) => (
             <Tooltip content={label} positioning={{ placement: 'top' }}>
               <Tabs.Trigger
                 key={value}
                 value={value}
                 justifyContent="center"
                 flex="1"
-                _selected={{ color: 'bg', bgColor: 'bg.inverted' }}
+                borderRadius="none"
+                _selected={{ color: 'bg', bgColor: 'gray.solid' }}
               >
-                <Icon size='md'>{icon}</Icon>
+                <Icon size="md">{icon}</Icon>
               </Tabs.Trigger>
             </Tooltip>
           ))}
@@ -63,9 +64,10 @@ export const DigitsGrid = ({
             justify="center"
             align="center"
             bgColor="bg.muted"
-            border="1px solid"
-            borderRadius="md"
+            border="2px solid"
+            borderRadius="none"
             borderColor="border"
+            _hover={{ borderColor:'border.inverted'}}
             cursor="pointer"
             onClick={() => onValueClick(Number(num) as SudokuDigit)}
           >

@@ -15,7 +15,7 @@ const Game = async ({ searchParams }: PageProps) => {
   return (
     <Page.Root>
       <Header />
-      <GamePage config={result} />
+      <GamePage config={{...result, mode: 'single'}} />
     </Page.Root>
   );
 };

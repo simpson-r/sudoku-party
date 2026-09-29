@@ -1,7 +1,7 @@
 'use client';
 
 import { createSystem, defaultConfig, defineConfig } from '@chakra-ui/react';
-import { Inter, Fragment_Mono, Atkinson_Hyperlegible } from 'next/font/google';
+import { Inter, Fragment_Mono } from 'next/font/google';
 
 /**
  * fonts
@@ -19,9 +19,13 @@ const fragmentMono = Fragment_Mono({
 
 export const theme = defineConfig({
   globalCss: {
-    h1: { color: 'fg' },
-    h2: { color: 'fg' },
-    body: { color: 'fg.muted', fontWeight: 'normal' },
+    h1: { color: 'fg', textTransform: 'lowercase' },
+    h2: { color: 'fg', textTransform: 'lowercase' },
+    body: {
+      color: 'fg.muted',
+      fontWeight: 'normal',
+      textTransform: 'lowercase',
+    },
   },
   theme: {
     tokens: {

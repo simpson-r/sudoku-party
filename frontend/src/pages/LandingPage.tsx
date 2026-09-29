@@ -2,13 +2,17 @@
 
 import { useRouter } from 'next/navigation';
 
-
 import { useDisclosure } from '@chakra-ui/react';
 
 import { SetupConfig } from '@/components/SudokuGrid/types';
 import { GameSetupModal } from '@/components/modals/GameSetupModal';
-import { SudokuBoard } from '@/components/SudokuGrid/SudokuBoard';
-import { Game } from '@/components/layout/Game';
+import { Difficulty } from '@shared/types';
+
+const createRoomId = (difficulty: Difficulty) => {
+  const difficultyCode = difficulty[0];
+  const id = crypto.randomUUID().slice(0, 6);
+  return `${difficultyCode}${id}`;
+};
 
 /**
  * This component is the entry point for the app
@@ -19,16 +23,20 @@ export const LandingPage = () => {
   const setupModal = useDisclosure({ defaultOpen: true });
 
   const handleSubmit = (config: SetupConfig) => {
-    const params = new URLSearchParams(config);
-    router.push(`/game?${params.toString()}`);
+    if (config.mode === 'multi') {
+      const roomId = createRoomId(config.difficulty);
+      router.push(`/game/${roomId}`);
+      return;
+    }
+    const params = new URLSearchParams({
+      difficulty: config.difficulty,
+      ...(config.name && { name: config.name }),
+    });
+    router.push(`/game?${params}`);
   };
 
   return (
     <>
-      <Game.Root flex={0}>
-        <Game.Status />
-        <SudokuBoard placeholder />
-      </Game.Root>
       <GameSetupModal
         isOpen={setupModal.open}
         onSubmit={handleSubmit}
