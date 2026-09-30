@@ -12,7 +12,7 @@ export type Cell = {
 
 export type SelectedCell = { row: number; col: number };
 
-export type CellPayload = {
+export type CellUpdate = {
   row: number;
   col: number;
   value: SudokuDigit;
@@ -38,6 +38,12 @@ export type CellFill = 'digit' | 'candidate';
 
 export type RemainingCounts = Record<SudokuDigit, number>;
 
+export type CandidateUpdate = {
+  row: number;
+  col: number;
+  candidates: SudokuDigit[];
+};
+
 /**
  * player types
  */
@@ -47,15 +53,28 @@ export type PlayerInfo = { id: string; name: string };
  * websocket types
  */
 export type ClientMessage =
-  | { type: 'join'; roomId: string; name: string }
+  | { type: 'join'; roomId: string; }
   | {
       type: 'cell_update';
       row: number;
       col: number;
       value: SudokuDigit | null;
+    }
+  | {
+      type: 'candidate_add';
+      row: number;
+      col: number;
+      candidate: SudokuDigit;
+    }
+  | {
+      type: 'candidate_remove';
+      row: number;
+      col: number;
+      candidates: SudokuDigit[];
     };
 
 export type ServerMessage =
+  | { type: 'identity'; playerId: string }
   | { type: 'players'; players: PlayerInfo[] }
   | {
       type: 'cell_updated';
@@ -63,6 +82,12 @@ export type ServerMessage =
       col: number;
       value: SudokuDigit | null;
     }
-  | { type: 'game_state'; game: SudokuGame; startedAt: number }
+  | {
+      type: 'candidates_updated';
+      row: number;
+      col: number;
+      candidates: SudokuDigit[];
+    }
+  | { type: 'game_state'; game: SudokuGame }
   | { type: 'player_joined'; player: PlayerInfo }
   | { type: 'player_left'; playerId: string };

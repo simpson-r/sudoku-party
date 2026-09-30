@@ -74,15 +74,16 @@ export const SinglePlayerGame = ({ config }: { config: SetupConfig }) => {
   return (
     <GameView
       board={state.board}
+      difficulty={config.difficulty}
       isGameComplete={state.completed}
       isPaused={state.paused}
       time={time}
       fillMode={fillMode}
       errors={state.errors}
       remainingCounts={state.remaining}
-      isCellSelected={!!selectedCell}
       onDigitInput={handleDigitInput}
       onDigitRemoval={handleDigitRemoval}
+      onNewGame={() => {}}
       onPause={pause}
       onResume={resume}
       onTabChange={setFillMode}

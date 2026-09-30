@@ -3,7 +3,7 @@ import { WebSocket, WebSocketServer } from 'ws';
 import type { Player, Room } from './types.js';
 import { generateSudokuGame } from '../../shared/sudoku-generator.js';
 import type { ClientMessage, ServerMessage } from '../../shared/types.js';
-import { updateBoard } from '../../shared/helpers.js';
+import { isValidPosition, updateBoard } from '../../shared/helpers.js';
 
 // constants
 const PORT = 8080;
@@ -29,7 +29,7 @@ function broadcastToRoom(
 }
 
 wss.on('connection', (ws) => {
-  const userId = randomUUID();
+  const playerId = randomUUID();
   let roomId: string | null = null;
   let name: string | null = null;
 
@@ -41,19 +41,23 @@ wss.on('connection', (ws) => {
       switch (msg.type) {
         case 'join': {
           roomId = msg.roomId;
-          name = msg.name;
 
           if (!rooms.get(roomId)) {
             rooms.set(roomId, {
               players: new Map<string, Player>(),
               game: { board: generateSudokuGame(), startedAt: Date.now() },
+              nextPlayerIndex: 1,
             });
           }
 
-          const playersMap = rooms.get(roomId)!.players;
-          playersMap.set(userId, { id: userId, name, socket: ws });
-
           const room = rooms.get(roomId)!;
+          name = `Player ${room.nextPlayerIndex}`;
+          room.nextPlayerIndex++;
+
+          const playersMap = rooms.get(roomId)!.players;
+          playersMap.set(playerId, { id: playerId, name, socket: ws });
+
+          ws.send(JSON.stringify({ type: 'identity', playerId })); // send identity to user
           ws.send(JSON.stringify({ type: 'game_state', game: room.game })); // send game state to user
 
           const players = Array.from(playersMap.values()).map(
@@ -69,6 +73,8 @@ wss.on('connection', (ws) => {
           if (!room) return;
 
           const { row, col, value } = msg;
+          if (!isValidPosition(row, col)) return;
+
           const game = room.game;
           const { board } = updateBoard(game.board, row, col, { value });
           game.board = board;
@@ -78,6 +84,65 @@ wss.on('connection', (ws) => {
             row,
             col,
             value,
+          };
+
+          broadcastToRoom(roomId, outgoing, ws);
+          break;
+        }
+        case 'candidate_add': {
+          if (!roomId) return;
+
+          const room = rooms.get(roomId);
+          if (!room) return;
+
+          const { row, col, candidate } = msg;
+          if (!isValidPosition(row, col)) return;
+          
+          const game = room.game;
+          const cell = game.board?.[row]?.[col];
+
+          const candidates = [...(cell?.candidates ?? []), candidate];
+
+          const { board } = updateBoard(room.game.board, row, col, {
+            candidates,
+          });
+          game.board = board;
+
+          const outgoing: ServerMessage = {
+            type: 'candidates_updated',
+            row,
+            col,
+            candidates,
+          };
+
+          broadcastToRoom(roomId, outgoing, ws);
+          break;
+        }
+
+        case 'candidate_remove': {
+          if (!roomId) return;
+
+          const room = rooms.get(roomId);
+          if (!room) return;
+
+          const { row, col, candidates } = msg;
+          const game = room.game;
+          const cell = game.board?.[row]?.[col];
+
+          const updatedCandidates = (cell?.candidates ?? []).filter(
+            (c) => !candidates.includes(c),
+          );
+
+          const { board } = updateBoard(room.game.board, row, col, {
+            candidates: updatedCandidates,
+          });
+          game.board = board;
+
+          const outgoing: ServerMessage = {
+            type: 'candidates_updated',
+            row,
+            col,
+            candidates,
           };
 
           broadcastToRoom(roomId, outgoing, ws);
@@ -93,7 +158,7 @@ wss.on('connection', (ws) => {
   ws.on('close', () => {
     if (roomId && rooms.get(roomId)) {
       const playersMap = rooms.get(roomId)?.players;
-      playersMap?.delete(userId);
+      playersMap?.delete(playerId);
 
       const players = Array.from(playersMap?.values() ?? []).map(
         ({ name, id }) => ({ name, id }),

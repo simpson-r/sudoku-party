@@ -2,35 +2,50 @@ import { Box, Flex, VStack } from '@chakra-ui/react';
 
 /**
  * Root layout container for the game view.
- * Provides the shared spacing and alignment for game content.
+ * Provides shared spacing and alignment for game content.
  */
 const Root = (props: React.ComponentProps<typeof VStack>) => (
-  <VStack w="full" justify="center" px={8} py={10} {...props} />
+  <VStack w="full" px={8} py={10} {...props} />
 );
 
 /**
- * Arranges the game board and its surrounding side content.
+ * Arranges the game board and sidebar.
+ * Stacks game content vertically on smaller screens.
  */
 const Content = (props: React.ComponentProps<typeof Flex>) => (
   <Flex
-    direction={{ base: 'column', lg: 'row' }}
+    direction={{ base: 'column', md: 'row' }}
     w="full"
-    align={{ base: 'center', lg: 'flex-start' }}
-    justify={{ base: 'flex-start', lg: 'center' }}
+    justify="center"
+    align={{ base: 'center', md: 'flex-start' }}
     gap={6}
     {...props}
   />
 );
 
 /**
- * Flexible side region used for game controls, player information, or spacing that keeps the board centered.
+ * Contains the board and its game status.
  */
-const Side = (props: React.ComponentProps<typeof Box>) => (
-  <Box flex="1" {...props} />
+const Main = (props: React.ComponentProps<typeof VStack>) => (
+  <VStack flexShrink={0} gap={1} {...props} />
 );
 
 /**
- * Displays game status above the board while preserving its layout space to prevent the board from shifting between game states.
+ * Contains secondary game information and controls.
+ */
+const Sidebar = (props: React.ComponentProps<typeof VStack>) => (
+  <VStack
+    w="full"
+    maxW={{ base: 'md', md: '2xs' }}
+    align="stretch"
+    gap={4}
+    {...props}
+  />
+);
+
+/**
+ * Displays game status while preserving its layout space
+ * to prevent the board from shifting between game states.
  */
 const Status = (props: React.ComponentProps<typeof Box>) => (
   <Box minH={6} {...props} />
@@ -39,6 +54,7 @@ const Status = (props: React.ComponentProps<typeof Box>) => (
 export const Game = {
   Root,
   Content,
-  Side,
+  Main,
+  Sidebar,
   Status,
 };

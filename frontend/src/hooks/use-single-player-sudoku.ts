@@ -8,11 +8,11 @@ import {
 } from '../../../shared/sudoku-generator';
 import { buildRemainingCounts, formatSeconds } from '@/utils/helpers';
 import {
+  CandidateUpdate,
   Cell,
   CellPosition,
   Difficulty,
   RemainingCounts,
-  SudokuDigit,
 } from '@shared/types';
 import { updateBoard } from '@shared/helpers';
 import { updateRemainingCounts } from '@/components/SudokuGrid/helpers';
@@ -25,14 +25,14 @@ interface SudokuState {
   paused: boolean;
   remaining: RemainingCounts;
 }
-type CandidateRemoval = { row: number; col: number; candidates: SudokuDigit[] };
+
 type ResetPayload = { board: Cell[][]; remaining: RemainingCounts };
 
 type Action =
   | { type: 'CLEAR_DIGIT'; payload: CellPosition }
   | { type: 'FILL_DIGIT'; payload: CellPayload }
   | { type: 'ADD_CANDIDATE'; payload: CellPayload }
-  | { type: 'REMOVE_CANDIDATE'; payload: CandidateRemoval }
+  | { type: 'REMOVE_CANDIDATE'; payload: CandidateUpdate }
   | { type: 'PAUSE' }
   | { type: 'RESET'; payload: ResetPayload }
   | { type: 'RESUME' };
@@ -168,7 +168,7 @@ export const useSinglePlayerSudoku = (difficulty: Difficulty) => {
   const addCandidate = (payload: CellPayload) =>
     dispatch({ type: 'ADD_CANDIDATE', payload });
 
-  const removeCandidate = (payload: CandidateRemoval) =>
+  const removeCandidate = (payload: CandidateUpdate) =>
     dispatch({ type: 'REMOVE_CANDIDATE', payload });
 
   const pause = () => dispatch({ type: 'PAUSE' });

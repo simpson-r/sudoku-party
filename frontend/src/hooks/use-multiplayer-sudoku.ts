@@ -9,12 +9,14 @@ import {
 } from '@/utils/helpers';
 import { updateBoard } from '@shared/helpers';
 import {
+  CandidateUpdate,
   Cell,
-  CellPayload,
+  CellUpdate,
   CellPosition,
   PlayerInfo,
   RemainingCounts,
   ServerMessage,
+  SudokuDigit,
 } from '@shared/types';
 import { useEffect, useReducer, useState } from 'react';
 
@@ -22,24 +24,44 @@ import { useEffect, useReducer, useState } from 'react';
 type BoardPayload = {
   board: Cell[][];
   remaining: RemainingCounts;
-  startedAt: number;
 };
 
 type SudokuState = {
   board?: Cell[][];
-  users: PlayerInfo[];
+  players: PlayerInfo[];
   remaining: RemainingCounts;
 };
 
 type Action =
   | { type: 'INIT_BOARD'; payload: BoardPayload }
   | { type: 'CLEAR_DIGIT'; payload: CellPosition }
-  | { type: 'FILL_DIGIT'; payload: CellPayload }
-  | { type: 'SET_USERS'; payload: PlayerInfo[] };
+  | { type: 'FILL_DIGIT'; payload: CellUpdate }
+  | {
+      type: 'ADD_CANDIDATE';
+      payload: { row: number; col: number; candidate: SudokuDigit };
+    }
+  | { type: 'REMOVE_CANDIDATE'; payload: CandidateUpdate }
+  | { type: 'SET_CANDIDATES'; payload: CandidateUpdate }
+  | { type: 'SET_PLAYERS'; payload: PlayerInfo[] };
 
 // reducer
 export function reducer(state: SudokuState, action: Action): SudokuState {
   switch (action.type) {
+    case 'CLEAR_DIGIT': {
+      if (!state.board) return state;
+
+      const { row, col } = action.payload;
+      const prevCell = state.board[row][col];
+      if (!prevCell.value) return state;
+
+      const { board } = updateBoard(state.board, row, col, { value: null });
+
+      return {
+        ...state,
+        board,
+        remaining: updateRemainingCounts(state.remaining, prevCell.value, null),
+      };
+    }
     case 'FILL_DIGIT': {
       if (!state.board) return state;
 
@@ -57,19 +79,56 @@ export function reducer(state: SudokuState, action: Action): SudokuState {
         ),
       };
     }
-    case 'CLEAR_DIGIT': {
+    case 'ADD_CANDIDATE': {
       if (!state.board) return state;
 
-      const { row, col } = action.payload;
+      const { row, col, candidate } = action.payload;
       const prevCell = state.board[row][col];
-      if (!prevCell.value) return state;
 
-      const { board } = updateBoard(state.board, row, col, { value: null });
+      const curCandidates = prevCell.candidates ?? [];
+      if (curCandidates.includes(candidate)) return state;
+
+      const candidates = [...curCandidates, candidate];
+      const { board } = updateBoard(state.board, row, col, { candidates });
 
       return {
         ...state,
         board,
-        remaining: updateRemainingCounts(state.remaining, prevCell.value, null),
+      };
+    }
+
+    case 'REMOVE_CANDIDATE': {
+      if (!state.board) return state;
+
+      const { row, col, candidates } = action.payload;
+      const prevCell = state.board[row][col];
+
+      const curCandidates = prevCell.candidates ?? [];
+      const updatedCandidates = curCandidates.filter(
+        (candidate) => !candidates.includes(candidate),
+      );
+
+      const { board } = updateBoard(state.board, row, col, {
+        candidates: updatedCandidates,
+      });
+
+      return {
+        ...state,
+        board,
+      };
+    }
+
+    case 'SET_CANDIDATES': {
+      if (!state.board) return state;
+
+      const { row, col, candidates } = action.payload;
+      const { board } = updateBoard(state.board, row, col, {
+        candidates,
+      });
+
+      return {
+        ...state,
+        board,
       };
     }
     case 'INIT_BOARD':
@@ -78,6 +137,12 @@ export function reducer(state: SudokuState, action: Action): SudokuState {
         ...state,
         board,
         remaining,
+      };
+    case 'SET_PLAYERS':
+      const players = action.payload;
+      return {
+        ...state,
+        players,
       };
     default:
       return state;
@@ -91,12 +156,13 @@ export const useMultiplayerSudoku = (config: MultiplayerConfig) => {
   const { isConnected, send, subscribe } = useWebSocket();
   const [state, dispatch] = useReducer(reducer, {
     board: undefined,
-    users: [],
+    players: [],
     remaining: INITIAL_REMAINING,
   });
 
   const [timer, setTimer] = useState(0);
   const [startedAt, setStartedAt] = useState<number | null>(null);
+  const [playerId, setPlayerId] = useState<string | undefined>(undefined);
 
   // subscribe to messages
   useEffect(() => {
@@ -106,13 +172,7 @@ export const useMultiplayerSudoku = (config: MultiplayerConfig) => {
 
   // join room
   useEffect(() => {
-    if (isConnected) {
-      send({
-        type: 'join',
-        name: config.name || '',
-        roomId: config.roomId,
-      });
-    }
+    if (isConnected) send({ type: 'join', roomId: config.roomId });
   }, [isConnected]);
 
   // timer
@@ -130,28 +190,18 @@ export const useMultiplayerSudoku = (config: MultiplayerConfig) => {
 
   // handlers
   const handleMessage = (message: ServerMessage) => {
+    console.log({ message });
     switch (message?.type) {
-      case 'game_state':
-        const { game } = message;
-        const { board } = game;
-
-        setStartedAt(game.startedAt);
+      case 'candidates_updated': {
+        const { col, row, candidates } = message;
 
         dispatch({
-          type: 'INIT_BOARD',
-          payload: {
-            board,
-            remaining: buildRemainingCounts(board),
-            startedAt: game.startedAt,
-          },
+          type: 'SET_CANDIDATES',
+          payload: { row, col, candidates },
         });
-
         break;
-        break;
-      case 'players':
-        dispatch({ type: 'SET_USERS', payload: message.players });
-        break;
-      case 'cell_updated':
+      }
+      case 'cell_updated': {
         const { col, row, value } = message;
 
         if (value !== null) {
@@ -166,6 +216,28 @@ export const useMultiplayerSudoku = (config: MultiplayerConfig) => {
           });
         }
         break;
+      }
+      case 'game_state':
+        const { game } = message;
+        const { board } = game;
+
+        setStartedAt(game.startedAt);
+
+        dispatch({
+          type: 'INIT_BOARD',
+          payload: {
+            board,
+            remaining: buildRemainingCounts(board),
+          },
+        });
+
+        break;
+      case 'identity':
+        setPlayerId(message.playerId);
+        break;
+      case 'players':
+        dispatch({ type: 'SET_PLAYERS', payload: message.players });
+        break;
       default:
         break;
     }
@@ -177,17 +249,34 @@ export const useMultiplayerSudoku = (config: MultiplayerConfig) => {
     send({ type: 'cell_update', value: null, ...payload });
   };
 
-  const fillCell = (payload: CellPayload) => {
+  const fillCell = (payload: CellUpdate) => {
     dispatch({ type: 'FILL_DIGIT', payload });
     send({ type: 'cell_update', ...payload });
   };
 
+  const addCandidate = (payload: {
+    row: number;
+    col: number;
+    candidate: SudokuDigit;
+  }) => {
+    dispatch({ type: 'ADD_CANDIDATE', payload });
+    send({ type: 'candidate_add', ...payload });
+  };
+
+  const removeCandidate = (payload: CandidateUpdate) => {
+    dispatch({ type: 'REMOVE_CANDIDATE', payload });
+    send({ type: 'candidate_remove', ...payload });
+  };
+
   return {
     state,
+    playerId,
     time: formatSeconds(timer),
     actions: {
       clearCell,
       fillCell,
+      addCandidate,
+      removeCandidate,
     },
   };
 };

@@ -11,28 +11,28 @@ import { GameView } from './GameView';
 export const MultiplayerGame = ({ config }: { config: MultiplayerConfig }) => {
   const [selectedPos, setSelectedPos] = useState<CellPosition | null>(null);
   const [fillMode, setFillMode] = useState<CellFill>('digit');
-  const { state, time, actions } = useMultiplayerSudoku(config);
+
+  const { actions, playerId, state, time } = useMultiplayerSudoku(config);
 
   // render non-interactive board for loading state
   if (!state.board) return <GameLoadingView />;
 
   // constants
-  const { clearCell, fillCell } = actions;
+  const { clearCell, fillCell, addCandidate, removeCandidate } = actions;
   const selectedCell = selectedPos
     ? state.board[selectedPos.row]?.[selectedPos.col]
     : null;
 
-  // cell handlers
+  // handlers
   const handleCellSelection = (pos: CellPosition) => setSelectedPos(pos);
 
   const handleDigitInput = (digit: SudokuDigit) => {
     if (!selectedPos) return;
 
-    const payload = { ...selectedPos, value: digit };
     if (fillMode === 'digit') {
-      fillCell(payload);
+      fillCell({ ...selectedPos, value: digit });
     } else {
-      // addCandidate(payload);
+      addCandidate({ ...selectedPos, candidate: digit });
     }
   };
 
@@ -45,10 +45,10 @@ export const MultiplayerGame = ({ config }: { config: MultiplayerConfig }) => {
     }
 
     if (selectedCell.candidates?.length || digit) {
-      // removeCandidate({
-      //   ...selectedPos,
-      //   candidates: digit ? [digit] : (selectedCell.candidates ?? []),
-      // });
+      removeCandidate({
+        ...selectedPos,
+        candidates: digit ? [digit] : (selectedCell.candidates ?? []),
+      });
     }
   };
 
@@ -69,14 +69,19 @@ export const MultiplayerGame = ({ config }: { config: MultiplayerConfig }) => {
   return (
     <GameView
       board={state.board}
+      errors={0}
+      difficulty={config.difficulty}
+      fillMode={fillMode}
       isGameComplete={false}
       isPaused={false}
-      time={time}
-      fillMode={fillMode}
-      errors={0}
+      players={state.players}
+      playerId={playerId}
       remainingCounts={state.remaining}
+      roomId={config.roomId}
+      time={time}
       onDigitInput={handleDigitInput}
       onDigitRemoval={handleDigitRemoval}
+      onNewGame={() => {}}
       onTabChange={setFillMode}
       onCellSelect={handleCellSelection}
       onDigitClick={handleValueClick}

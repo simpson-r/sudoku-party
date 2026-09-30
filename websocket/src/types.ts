@@ -5,7 +5,7 @@ import type { SudokuDigit, SudokuGame } from '../../shared/types.js';
 export type Player = { id: string; name: string; socket: WebSocket };
 
 // room
-export type Room = { players: Map<string, Player>; game: SudokuGame };
+export type Room = { players: Map<string, Player>; game: SudokuGame, nextPlayerIndex: number };
 
 // messages
 export type CellUpdate =

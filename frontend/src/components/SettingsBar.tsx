@@ -1,6 +1,7 @@
 import { IoPause, IoPlay } from 'react-icons/io5';
 
 import { HStack, Icon, Text } from '@chakra-ui/react';
+import { Difficulty } from '@shared/types';
 
 /**
  * This component displays the game timer and error count, with controls for pausing and resuming the game.
@@ -8,6 +9,7 @@ import { HStack, Icon, Text } from '@chakra-ui/react';
 export const SettingsBar = ({
   enablePause = false,
   errors = 0,
+  difficulty,
   hidePauseToggle = false,
   isPaused,
   time,
@@ -15,6 +17,7 @@ export const SettingsBar = ({
   resume,
 }: {
   enablePause?: boolean;
+  difficulty: Difficulty;
   isPaused: boolean;
   hidePauseToggle?: boolean;
   time: string;
@@ -27,11 +30,14 @@ export const SettingsBar = ({
 
   // render
   return (
-    <HStack justify="center" align="center" gap={4}>
+    <HStack w="full" justify="space-between" align="center" fontWeight="medium">
+      <StatusItem label="difficulty">{difficulty}</StatusItem>
+
       <HStack align="center" gap={0}>
-        <Text fontSize="sm" fontFamily="mono" fontVariantNumeric="tabular-nums">
+        <Text fontSize="sm" fontVariantNumeric="tabular-nums">
           {time}
         </Text>
+
         {enablePause && (
           <Icon
             minW={5}
@@ -44,7 +50,23 @@ export const SettingsBar = ({
           </Icon>
         )}
       </HStack>
-      <Text fontSize="sm" fontFamily="mono">{`Errors: ${errors}`}</Text>
+
+      <StatusItem label="errors">{errors}</StatusItem>
     </HStack>
   );
 };
+
+const StatusItem = ({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) => (
+  <Text fontSize="sm" fontVariantNumeric="tabular-nums">
+    <Text as="span" color="gray.fg">
+      {label}:{' '}
+    </Text>
+    {children}
+  </Text>
+);
