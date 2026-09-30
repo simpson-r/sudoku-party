@@ -119,6 +119,8 @@ export const GameView = ({
   const handleDigitRemoval = (digit: SudokuDigit | null) => {
     if (!selectedCell || !selectedPos) return;
 
+    if (selectedCell.value === selectedCell.actual) return;
+
     if (selectedCell.value && digit) {
       onClearCell(selectedPos);
       return;
@@ -133,7 +135,7 @@ export const GameView = ({
   };
 
   const handleValueClick = (digit: SudokuDigit) => {
-    if (!selectedCell) return;
+    if (!selectedCell || selectedCell.value === selectedCell.actual) return;
 
     const digitMatch = fillMode === 'digit' && selectedCell.value === digit;
     const candidateMatch =

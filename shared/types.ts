@@ -47,13 +47,13 @@ export type CandidateUpdate = {
 /**
  * player types
  */
-export type PlayerInfo = { id: string; name: string };
+export type PlayerInfo = { id: string; name: string; score: number };
 
 /**
  * websocket types
  */
 export type ClientMessage =
-  | { type: 'join'; roomId: string; }
+  | { type: 'join'; roomId: string }
   | {
       type: 'cell_update';
       row: number;
@@ -75,6 +75,7 @@ export type ClientMessage =
 
 export type ServerMessage =
   | { type: 'identity'; playerId: string }
+  | { type: 'score'; playerId: string; score: number }
   | { type: 'players'; players: PlayerInfo[] }
   | {
       type: 'cell_updated';

@@ -37,14 +37,3 @@ export const updateBoard = (
 
   return { board: updatedBoard, cell };
 };
-
-/**
- * Returns whether a row or column index is within the Sudoku grid
- */
-export const isValidPosition = (row: number, col: number) =>
-  Number.isInteger(row) &&
-  Number.isInteger(col) &&
-  row >= 0 &&
-  row < 9 &&
-  col >= 0 &&
-  col < 9;

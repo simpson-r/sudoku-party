@@ -25,7 +25,7 @@ export const Players = ({
           </Table.Row>
         </Table.Header>
         <Table.Body>
-          {players.map(({ id, name }) => (
+          {players.map(({ id, name, score }) => (
             <Table.Row key={id} _last={{ borderBottom: 'none' }}>
               <Table.Cell>
                 <HStack>
@@ -37,7 +37,7 @@ export const Players = ({
                   )}
                 </HStack>
               </Table.Cell>
-              <Table.Cell textAlign="end">{10}</Table.Cell>
+              <Table.Cell textAlign="end">{score}</Table.Cell>
             </Table.Row>
           ))}
         </Table.Body>

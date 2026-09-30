@@ -2,7 +2,7 @@ import { WebSocket } from 'ws';
 import type { SudokuDigit, SudokuGame } from '../../shared/types.js';
 
 // player
-export type Player = { id: string; name: string; socket: WebSocket };
+export type Player = { id: string; name: string; socket: WebSocket, score: 0 };
 
 // room
 export type Room = { players: Map<string, Player>; game: SudokuGame, nextPlayerIndex: number };
