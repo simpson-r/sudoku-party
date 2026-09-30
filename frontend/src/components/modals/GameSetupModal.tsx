@@ -6,7 +6,6 @@ import {
   Field,
   Heading,
   HStack,
-  Input,
   RadioGroup,
   Text,
   VStack,
@@ -25,9 +24,7 @@ const PLAYER_MODE_ITEMS: { label: string; key: PlayerMode }[] = [
   { label: 'Single', key: 'single' },
   { label: 'Multiplayer', key: 'multi' },
 ];
-
 const INITIAL_CONFIG = { name: '', difficulty: undefined, mode: undefined };
-
 const INPUT_HEIGHT = { base: 10, md: 12 };
 /**
  * This component displays a modal for configuring a sudoku game
@@ -48,10 +45,7 @@ export const GameSetupModal = ({
     key: T,
     value: SetupConfig[T],
   ) => {
-    setConfig((prevState) => ({
-      ...prevState,
-      [key]: key === 'name' ? value?.trim() : value,
-    }));
+    setConfig((prevState) => ({ ...prevState, [key]: value }));
   };
 
   return (
@@ -61,11 +55,10 @@ export const GameSetupModal = ({
         backdropFilter="blur(1px)"
         textTransform="lowercase"
       />
-      <Dialog.Positioner >
+      <Dialog.Positioner>
         <Dialog.Content
-          w={{ base: 'calc(100% - 32px)', md: '500px' }}
-          maxW="520px"
-          minH={{ base: 'auto', md: '500px' }}
+          w={{ base: 'calc(100% - 32px)', md: '480px' }}
+          minH={{ base: 'auto', md: '480px' }}
           aspectRatio={{ base: 'auto', md: '1 / 1' }}
           display="flex"
           flexDirection="column"
@@ -83,7 +76,7 @@ export const GameSetupModal = ({
           >
             <Dialog.Title asChild>
               <Heading
-                fontSize={{ base: 'lg', md: '2xl' }}
+                fontSize={{ base: 'lg', md: '1.75rem' }}
                 letterSpacing="-0.03em"
               >
                 welcome to sudokuparty!
@@ -116,37 +109,21 @@ export const GameSetupModal = ({
                 value={config.mode}
                 onValueChange={(value) => handleValueChange('mode', value)}
               />
-
-              <Field.Root>
-                <Field.Label fontSize={{ base: 'sm', sm: 'md' }}>
-                  Name (optional)
-                </Field.Label>
-                <Input
-                  border="1.5px solid"
-                  borderRadius={0}
-                  h={INPUT_HEIGHT}
-                  value={config.name}
-                  placeholder="your name"
-                  onChange={(e) =>
-                    handleValueChange('name', e.currentTarget.value)
-                  }
-                />
-              </Field.Root>
-              <Button
-                w="full"
-                h={INPUT_HEIGHT}
-                mt="auto"
-                color={isSubmitDisabled ? 'fg' : 'fg.inverted'}
-                variant={isSubmitDisabled ? 'outline' : 'solid'}
-                border={isSubmitDisabled ? '2px solid' : undefined}
-                borderRadius={0}
-                loading={isLoading}
-                onClick={() => onSubmit(config as SetupConfig)}
-                disabled={isSubmitDisabled}
-              >
-                play
-              </Button>
             </VStack>
+            <Button
+              w="full"
+              h={INPUT_HEIGHT}
+              mt="auto"
+              color={isSubmitDisabled ? 'fg' : 'fg.inverted'}
+              variant={isSubmitDisabled ? 'outline' : 'solid'}
+              border={isSubmitDisabled ? '2px solid' : undefined}
+              borderRadius={0}
+              loading={isLoading}
+              onClick={() => onSubmit(config as SetupConfig)}
+              disabled={isSubmitDisabled}
+            >
+              play
+            </Button>
           </Dialog.Body>
         </Dialog.Content>
       </Dialog.Positioner>

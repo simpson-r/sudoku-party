@@ -16,7 +16,6 @@ import {
   PlayerInfo,
   RemainingCounts,
   ServerMessage,
-  SudokuDigit,
 } from '@shared/types';
 import { useEffect, useReducer, useState } from 'react';
 
@@ -36,10 +35,7 @@ type Action =
   | { type: 'INIT_BOARD'; payload: BoardPayload }
   | { type: 'CLEAR_DIGIT'; payload: CellPosition }
   | { type: 'FILL_DIGIT'; payload: CellUpdate }
-  | {
-      type: 'ADD_CANDIDATE';
-      payload: { row: number; col: number; candidate: SudokuDigit };
-    }
+  | { type: 'ADD_CANDIDATE'; payload: CellUpdate }
   | { type: 'REMOVE_CANDIDATE'; payload: CandidateUpdate }
   | { type: 'SET_CANDIDATES'; payload: CandidateUpdate }
   | { type: 'SET_PLAYERS'; payload: PlayerInfo[] };
@@ -82,7 +78,7 @@ export function reducer(state: SudokuState, action: Action): SudokuState {
     case 'ADD_CANDIDATE': {
       if (!state.board) return state;
 
-      const { row, col, candidate } = action.payload;
+      const { row, col, value: candidate } = action.payload;
       const prevCell = state.board[row][col];
 
       const curCandidates = prevCell.candidates ?? [];
@@ -190,7 +186,6 @@ export const useMultiplayerSudoku = (config: MultiplayerConfig) => {
 
   // handlers
   const handleMessage = (message: ServerMessage) => {
-    console.log({ message });
     switch (message?.type) {
       case 'candidates_updated': {
         const { col, row, candidates } = message;
@@ -254,13 +249,14 @@ export const useMultiplayerSudoku = (config: MultiplayerConfig) => {
     send({ type: 'cell_update', ...payload });
   };
 
-  const addCandidate = (payload: {
-    row: number;
-    col: number;
-    candidate: SudokuDigit;
-  }) => {
+  const addCandidate = (payload: CellUpdate) => {
     dispatch({ type: 'ADD_CANDIDATE', payload });
-    send({ type: 'candidate_add', ...payload });
+    send({
+      type: 'candidate_add',
+      row: payload.row,
+      col: payload.col,
+      candidate: payload.value,
+    });
   };
 
   const removeCandidate = (payload: CandidateUpdate) => {

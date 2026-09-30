@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { useBreakpointValue, useDisclosure } from '@chakra-ui/react';
 
@@ -9,11 +9,13 @@ import { CompletionModal } from '@/components/modals/CompletionModal';
 import { ConfirmationModal } from '@/components/modals/ConfirmationModal';
 import { SettingsBar } from '@/components/SettingsBar';
 import { SudokuBoard } from '@/components/SudokuGrid/SudokuBoard';
-import { CellFill } from '@/components/SudokuGrid/types';
+import { CellFill, CellPayload } from '@/components/SudokuGrid/types';
 import { Controls } from '@/components/Controls';
 import {
+  CandidateUpdate,
   Cell,
   CellPosition,
+  CellUpdate,
   Difficulty,
   PlayerInfo,
   RemainingCounts,
@@ -27,7 +29,6 @@ interface GameViewProps {
   board?: Cell[][];
   errors: number;
   difficulty: Difficulty;
-  fillMode: CellFill;
   isGameComplete: boolean;
   isPaused: boolean;
   playerId?: string;
@@ -35,14 +36,13 @@ interface GameViewProps {
   remainingCounts: RemainingCounts;
   roomId?: string;
   time: string;
-  onCellSelect: (pos: CellPosition) => void;
-  onDigitClick: (digit: SudokuDigit) => void;
-  onDigitInput: (digit: SudokuDigit) => void;
-  onDigitRemoval: (digit: SudokuDigit | null) => void;
+  onAddCandidate: (update: CellPayload) => void;
+  onRemoveCandidate: (update: CandidateUpdate) => void;
+  onFillCell: (update: CellUpdate) => void;
+  onClearCell: (pos: CellPosition) => void;
   onNewGame: VoidFunction;
   onPause?: VoidFunction;
   onResume?: VoidFunction;
-  onTabChange: (fill: CellFill) => void;
 }
 // constants
 const CONFIRM_CONFIG = {
@@ -64,7 +64,6 @@ const CONFIRM_CONFIG = {
 export const GameView = ({
   board,
   errors,
-  fillMode,
   difficulty,
   isGameComplete,
   isPaused,
@@ -73,21 +72,26 @@ export const GameView = ({
   remainingCounts,
   roomId,
   time,
-  onCellSelect,
-  onDigitClick,
-  onDigitInput,
-  onDigitRemoval,
+  onFillCell,
+  onAddCandidate,
+  onRemoveCandidate,
+  onClearCell,
   onNewGame,
   onPause,
   onResume,
-  onTabChange,
 }: GameViewProps) => {
   const completionModal = useDisclosure();
   //  const confirmationModal = useDisclosure();
   //const [confirmationMode, setConfirmationMode] =  useState<GameAction>('newGame');
+  const [selectedPos, setSelectedPos] = useState<CellPosition | null>(null);
+  const [fillMode, setFillMode] = useState<CellFill>('digit');
   const previousCompleted = useRef(isGameComplete);
   const isMobile = useBreakpointValue({ base: true, md: false });
+
   const isMulti = !!roomId;
+  const selectedCell = selectedPos
+    ? board?.[selectedPos.row]?.[selectedPos.col]
+    : null;
 
   // effects
   useEffect(() => {
@@ -100,6 +104,44 @@ export const GameView = ({
   const handleCompletion = () => {
     completionModal.onClose();
     onNewGame();
+  };
+
+  const handleCellSelection = (pos: CellPosition) => setSelectedPos(pos);
+
+  const handleDigitInput = (digit: SudokuDigit) => {
+    if (!selectedPos) return;
+
+    const payload = { ...selectedPos, value: digit };
+    if (fillMode === 'digit') onFillCell(payload);
+    else onAddCandidate(payload);
+  };
+
+  const handleDigitRemoval = (digit: SudokuDigit | null) => {
+    if (!selectedCell || !selectedPos) return;
+
+    if (selectedCell.value && digit) {
+      onClearCell(selectedPos);
+      return;
+    }
+
+    if (selectedCell.candidates?.length || digit) {
+      onRemoveCandidate({
+        ...selectedPos,
+        candidates: digit ? [digit] : (selectedCell.candidates ?? []),
+      });
+    }
+  };
+
+  const handleValueClick = (digit: SudokuDigit) => {
+    if (!selectedCell) return;
+
+    const digitMatch = fillMode === 'digit' && selectedCell.value === digit;
+    const candidateMatch =
+      fillMode === 'candidate' && selectedCell.candidates?.includes(digit);
+
+    digitMatch || candidateMatch
+      ? handleDigitRemoval(digit)
+      : handleDigitInput(digit);
   };
 
   return (
@@ -123,25 +165,25 @@ export const GameView = ({
           <SudokuBoard
             puzzle={board}
             isPaused={isPaused}
-            clearCell={onDigitRemoval}
-            fillCell={onDigitInput}
+            clearCell={handleDigitRemoval}
+            fillCell={handleDigitInput}
             resume={onResume}
-            onCellSelect={onCellSelect}
+            onCellSelect={handleCellSelection}
           />
         </Game.Main>
 
         {/* sidebar */}
         <Game.Sidebar>
-          {!isMobile && (
-            <Game.Status>
-              {isMulti && <InviteLink roomId={roomId} />}
-            </Game.Status>
+          {!isMobile && !isMulti ? (
+            <Game.Status />
+          ) : (
+            isMulti && <InviteLink roomId={roomId} />
           )}
           <Controls
             fillMode={fillMode}
             remaining={remainingCounts}
-            handleTabChange={onTabChange}
-            handleValueClick={onDigitClick}
+            handleTabChange={setFillMode}
+            handleValueClick={handleValueClick}
           />
           {players && <Players players={players} playerId={playerId || ''} />}
         </Game.Sidebar>

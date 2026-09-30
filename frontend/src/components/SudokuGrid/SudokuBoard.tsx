@@ -78,9 +78,6 @@ export const SudokuBoard = (props: SudokuBoardProps & SimpleGridProps) => {
     : undefined;
 
   // handlers
-  const handleBlur = () => {
-    setSelectedPosition(null);
-  };
   const handleCellSelect = useCallback(
     (pos: CellPosition) => {
       setSelectedPosition(pos);
@@ -111,7 +108,7 @@ export const SudokuBoard = (props: SudokuBoardProps & SimpleGridProps) => {
 
   // render
   return (
-    <SudokuGrid onKeyDown={handleArrowKey} onBlur={handleBlur} {...rest}>
+    <SudokuGrid onKeyDown={handleArrowKey} {...rest}>
       {Array.from({ length: GRID_SIZE }).map((_, boxIndex) => (
         <SudokuBox
           key={boxIndex}

@@ -44,7 +44,9 @@ export const SudokuBox = ({
           identical={
             !!selectedCell?.value && cell.value === selectedCell?.value
           }
-          onClick={() => onCellSelect?.({ row: cell.row, col: cell.col })}
+          onClick={() => {
+            onCellSelect?.({ row: cell.row, col: cell.col });
+          }}
           {...props}
         />
       ))}

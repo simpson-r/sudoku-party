@@ -6,7 +6,6 @@ import { BoxProps, Center, Text } from '@chakra-ui/react';
 import { getCandidatePlacement } from '@/components/SudokuGrid/helpers';
 import { Cell, SudokuDigit } from '@shared/types';
 
-
 interface SudokuCellProps {
   cell: Cell;
   highlighted?: boolean;
@@ -31,7 +30,7 @@ export const SudokuCell = ({
   ...props
 }: SudokuCellProps & BoxProps) => {
   const { given, actual, value, candidates } = cell;
-  // cell styling 
+  // cell styling
   const color = useMemo(() => {
     if (given) return 'fg';
     if (value !== null && value !== actual) return 'fg.error';

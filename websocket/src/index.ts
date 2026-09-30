@@ -97,7 +97,7 @@ wss.on('connection', (ws) => {
 
           const { row, col, candidate } = msg;
           if (!isValidPosition(row, col)) return;
-          
+
           const game = room.game;
           const cell = game.board?.[row]?.[col];
 
@@ -142,7 +142,7 @@ wss.on('connection', (ws) => {
             type: 'candidates_updated',
             row,
             col,
-            candidates,
+            candidates: updatedCandidates,
           };
 
           broadcastToRoom(roomId, outgoing, ws);
