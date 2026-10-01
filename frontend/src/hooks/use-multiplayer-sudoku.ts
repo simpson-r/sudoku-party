@@ -1,11 +1,10 @@
 import { useCallback, useEffect, useReducer, useState } from 'react';
 
-import { INITIAL_REMAINING } from '@/components/SudokuGrid/constants';
 import { updateRemainingCounts } from '@/components/SudokuGrid/helpers';
 import { MultiplayerConfig } from '@/components/SudokuGrid/types';
 import { useWebSocket } from '@/context/WebSocketContext';
-import { buildRemainingCounts } from '@/utils/helpers';
-import { updateBoard } from '@shared/helpers';
+import { INITIAL_REMAINING } from '@shared/constants';
+import { buildRemainingCounts, updateBoard } from '@shared/helpers';
 import {
   CandidateUpdate,
   Cell,
@@ -78,8 +77,9 @@ export function reducer(state: SudokuState, action: Action): SudokuState {
       if (!state.board) return state;
 
       const { row, col } = action.payload;
+
       const prevCell = state.board[row][col];
-      if (!prevCell.value) return state;
+      if (!prevCell.value || prevCell.actual === prevCell.value) return state;
 
       const { board } = updateBoard(state.board, row, col, { value: null });
 
@@ -93,7 +93,12 @@ export function reducer(state: SudokuState, action: Action): SudokuState {
       if (!state.board) return state;
 
       const { row, col, value } = action.payload;
+
       const prevCell = state.board?.[row][col];
+
+      if (prevCell.actual === prevCell.value || !state.remaining[value])
+        return state;
+
       const { board, cell } = updateBoard(state.board, row, col, { value });
 
       return {
@@ -110,8 +115,10 @@ export function reducer(state: SudokuState, action: Action): SudokuState {
       if (!state.board) return state;
 
       const { row, col, value: candidate } = action.payload;
-      const prevCell = state.board[row][col];
 
+      if (!state.remaining[candidate]) return state; // don't add if exhausted
+
+      const prevCell = state.board[row][col];
       const curCandidates = prevCell.candidates ?? [];
       if (curCandidates.includes(candidate)) return state;
 
@@ -165,6 +172,9 @@ export function reducer(state: SudokuState, action: Action): SudokuState {
         board,
         remaining,
         startedAt,
+        completedAt: null,
+        completed: false,
+        log: [],
       };
     case 'SET_PLAYERS': {
       const players = action.payload;
@@ -185,15 +195,6 @@ export function reducer(state: SudokuState, action: Action): SudokuState {
         ...state,
         completed: true,
         completedAt: action.payload,
-      };
-    }
-
-    case 'RESET': {
-      return {
-        ...state,
-        ...INITIAL_STATE,
-        startedAt: Date.now(),
-        completedAt: null,
       };
     }
     case 'ERROR': {
@@ -335,10 +336,7 @@ export const useMultiplayerSudoku = (config: MultiplayerConfig) => {
     send({ type: 'candidate_remove', ...payload });
   };
 
-  const newGame = () => {
-    dispatch({ type: 'RESET' });
-    send({ type: 'new_game' });
-  };
+  const newGame = () => send({ type: 'new_game' });
 
   return {
     state,

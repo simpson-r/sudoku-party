@@ -1,13 +1,14 @@
 import { useBreakpoints } from '@/hooks/use-device-breakpoints';
+import { Difficulty } from '@shared/types';
+import { INITIAL_REMAINING } from '@shared/constants';
+
 import { ActivityLog } from '../ActivityLog';
 import { Controls } from '../Controls';
 import { Game } from '../layout/Game';
 import { Players } from '../Players';
-import { INITIAL_REMAINING } from '../SudokuGrid/constants';
 import { SudokuBoard } from '../SudokuGrid/SudokuBoard';
 import { InviteLink } from '../InviteLink';
 import { SettingsBar } from '../SettingsBar';
-import { Difficulty } from '@shared/types';
 
 /**
  * This component renders multiplayer sudoku game loading state by board is undefined

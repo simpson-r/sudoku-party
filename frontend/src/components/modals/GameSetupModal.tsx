@@ -93,7 +93,7 @@ export const GameSetupModal = ({
             flexDirection="column"
             flex="1"
           >
-            <VStack w="full" gap={4}>
+            <VStack w="full" gap={{base: 1, md: 4}}>
               <ButtonFieldGroup
                 fieldLabel="Difficulty"
                 items={DIFF_ITEMS}
@@ -113,7 +113,7 @@ export const GameSetupModal = ({
             <Button
               w="full"
               h={INPUT_HEIGHT}
-              mt="auto"
+              mt={{base: 4, md: 'auto'}}
               color={isSubmitDisabled ? 'fg' : 'fg.inverted'}
               variant={isSubmitDisabled ? 'outline' : 'solid'}
               border={isSubmitDisabled ? '2px solid' : undefined}

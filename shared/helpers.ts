@@ -1,4 +1,5 @@
-import { DIFFICULTY_MAP } from './constants';
+
+import { DIFFICULTY_MAP, INITIAL_REMAINING } from './constants';
 import { Cell } from './types';
 
 /**
@@ -39,4 +40,18 @@ export const updateBoard = (
   const updatedBoard = board.with(row, updatedRow);
 
   return { board: updatedBoard, cell };
+};
+
+/**
+ * Calculates how many placements remain for each digit
+ */
+export const buildRemainingCounts = (puzzle: Cell[][]) => {
+  const remaining = { ...INITIAL_REMAINING };
+  for (const row of puzzle) {
+    for (const { actual, given } of row) {
+      if (given) remaining[actual]--;
+    }
+  }
+
+  return remaining;
 };

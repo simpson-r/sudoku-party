@@ -1,6 +1,6 @@
 'use client';
 
-import { Flex, SimpleGrid, Text } from '@chakra-ui/react';
+import { Flex, SimpleGrid, Stack, Text } from '@chakra-ui/react';
 
 import { CellFill } from './SudokuGrid/types';
 import { getCandidatePlacement } from './SudokuGrid/helpers';
@@ -52,9 +52,9 @@ export const DigitsGrid = ({
         >
           {fillMode === 'digit' ? (
             // digit
-            <>
+            <Stack direction="column" align="center" gap={1}>
               <Text
-                fontSize={{ base: 'md', md: 'lg', lg: '2xl' }}
+                fontSize={{ base: 'sm', md: 'lg', lg: '2xl' }}
                 color={!!remaining ? 'fg' : 'fg.subtle'}
               >
                 {num}
@@ -63,14 +63,14 @@ export const DigitsGrid = ({
                 <Text
                   fontSize={{ base: '2xs', md: 'xs', lg: 'sm' }}
                   color="fg.muted"
-                  position="absolute"
-                  top="0"
-                  right="2"
+                  position={{ base: 'relative', md: 'absolute' }}
+                  top={{ base: 'auto', md: 0 }}
+                  right={{ base: 'auto', md: 2 }}
                 >
                   {remaining}
                 </Text>
               )}
-            </>
+            </Stack>
           ) : (
             // candidate
             <Text

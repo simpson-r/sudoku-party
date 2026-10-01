@@ -86,7 +86,7 @@ export const CompletionModal = ({
                 Congratulations!
               </Dialog.Title>
               <Text fontSize="sm">
-                Puzzle complete. Here&#39;s are the results
+                Puzzle complete. Here are the results.
               </Text>
             </VStack>
           </Dialog.Header>
@@ -124,7 +124,7 @@ export const CompletionModal = ({
           </Dialog.Body>
           {/* modal footer */}
           <Dialog.Footer>
-            <Button color="fg.inverted" onClick={onNewGame}>
+            <Button color="fg.inverted" borderRadius='none' onClick={onNewGame}>
               New game
             </Button>
           </Dialog.Footer>

@@ -10,7 +10,7 @@ export const SudokuGrid = ({
 }: React.PropsWithChildren<SimpleGridProps>) => {
   return (
     <SimpleGrid
-      w={{ base: 'md', md: 'lg', lg: 'xl' }}
+      w={{ base: 'sm', md: 'lg', lg: 'xl' }}
       aspectRatio="1/1"
       position="relative"
       columns={3}

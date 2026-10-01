@@ -1,8 +1,16 @@
 import { randomUUID } from 'node:crypto';
 import { WebSocketServer } from 'ws';
 
-import { parseDifficulty, updateBoard } from '../../shared/helpers.js';
-import type { ClientMessage, Difficulty } from '../../shared/types.js';
+import {
+  buildRemainingCounts,
+  parseDifficulty,
+  updateBoard,
+} from '../../shared/helpers.js';
+import type {
+  ClientMessage,
+  Difficulty,
+  SudokuDigit,
+} from '../../shared/types.js';
 import { broadcastToRoom, createOrGetRoom } from './game/room.js';
 import {
   applyScoreUpdate,
@@ -83,7 +91,13 @@ wss.on('connection', (ws) => {
           if (!isValidPosition(row, col)) return; // return if invalid pos
 
           const cell = getCell(room.game.board, msg);
-          if (!cell || cell.value === cell.actual) return; // return if correct to communicate locked-in value
+
+          if (!cell || cell.value === cell.actual) return; // return so that correct cells remain locked-in
+
+          if (cell.value === cell.actual) return;
+
+          const remaining = buildRemainingCounts(room.game.board);
+          if (!remaining[value as SudokuDigit]) return; // ignore digits that have already been fully placed
 
           const player = getPlayer(playerId, room);
           if (!player) return; // return if player not found
@@ -180,15 +194,12 @@ wss.on('connection', (ws) => {
           const room = rooms.get(roomId);
           if (!room) return;
 
+          for (const player of room.players.values()) player.score = 0; // reset scores
+
           room.game = {
             board: generateSudokuGame(difficulty || 'medium'),
             startedAt: Date.now(),
           };
-
-          // reset scores
-          for (const player of room.players.values()) {
-            player.score = 0;
-          }
 
           broadcastToRoom(room, {
             type: 'game_state',

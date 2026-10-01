@@ -16,8 +16,8 @@ export const SinglePlayerGame = ({ config }: { config: SetupConfig }) => {
       isGameComplete={state.completed}
       isPaused={state.paused}
       players={players}
-      startedAt={0}
-      completedAt={null}
+      startedAt={state.startedAt}
+      completedAt={state.completedAt}
       remainingCounts={state.remaining}
       onFillCell={actions.fillCell}
       onClearCell={actions.clearCell}

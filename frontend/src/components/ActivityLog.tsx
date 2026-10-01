@@ -21,7 +21,7 @@ export const ActivityLog = ({
       <Table.Body>
         {isLoading ? (
           <Table.Row>
-            <Table.Cell colSpan={2} p={0}>
+            <Table.Cell p={0}>
               <Skeleton width="full" h={4} borderRadius="none" />
             </Table.Cell>
           </Table.Row>

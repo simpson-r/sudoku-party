@@ -27,9 +27,11 @@ export const Players = ({
       </Table.Header>
       <Table.Body>
         {isLoading ? (
-          <Table.Cell colSpan={2} p={0}>
-            <Skeleton w="full" h={8} borderRadius="none" />
-          </Table.Cell>
+          <Table.Row>
+            <Table.Cell colSpan={2} p={0}>
+              <Skeleton w="full" h={8} borderRadius="none" />
+            </Table.Cell>
+          </Table.Row>
         ) : (
           players.map(({ id, name, score }) => (
             <Table.Row key={id} _last={{ borderBottom: 'none' }}>

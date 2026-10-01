@@ -1,6 +1,3 @@
-import { INITIAL_REMAINING } from '@/components/SudokuGrid/constants';
-import { Cell } from '@shared/types';
-
 /**
  * Formats a duration in seconds as MM:SS or HH:MM:SS.
  */
@@ -20,13 +17,3 @@ export const formatSeconds = (secs: number) => {
 export const getElapsedTime = (startedAt: number, completedAt?: number | null) =>
   Math.floor(((completedAt ?? Date.now()) - startedAt) / 1000);
 
-export const buildRemainingCounts = (puzzle: Cell[][]) => {
-  const remaining = { ...INITIAL_REMAINING };
-  for (const row of puzzle) {
-    for (const { actual, given } of row) {
-      if (given) remaining[actual]--;
-    }
-  }
-
-  return remaining;
-};

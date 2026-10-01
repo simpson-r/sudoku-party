@@ -1,11 +1,12 @@
 import { useMemo, useReducer, useState } from 'react';
 
+import { updateRemainingCounts } from '@/components/SudokuGrid/helpers';
 import { CellPayload } from '@/components/SudokuGrid/types';
+import { buildRemainingCounts, updateBoard } from '@shared/helpers';
 import {
   generateSudokuGame,
   isPuzzleComplete,
-} from '../../../shared/sudoku-generator';
-import { buildRemainingCounts } from '@/utils/helpers';
+} from '@shared/sudoku-generator';
 import {
   CandidateUpdate,
   Cell,
@@ -13,8 +14,6 @@ import {
   Difficulty,
   RemainingCounts,
 } from '@shared/types';
-import { updateBoard } from '@shared/helpers';
-import { updateRemainingCounts } from '@/components/SudokuGrid/helpers';
 
 // types & interfaces
 interface SudokuState {
@@ -59,10 +58,12 @@ export function reducer(state: SudokuState, action: Action): SudokuState {
   switch (action.type) {
     case 'FILL_DIGIT': {
       const { row, col, value } = action.payload;
-      const prevCell = state.board[row][col];
-      const { board, cell } = updateBoard(state.board, row, col, { value });
 
-      const isCorrect = cell.value === cell.actual;
+      const prevCell = state.board[row][col];
+      if (prevCell.actual === prevCell.value || !state.remaining[value])
+        return state;
+
+      const { board, cell } = updateBoard(state.board, row, col, { value });
 
       return {
         ...state,
@@ -74,7 +75,7 @@ export function reducer(state: SudokuState, action: Action): SudokuState {
           cell.value,
         ),
         completed: isPuzzleComplete(board),
-        score: state.score + (isCorrect ? 10 : -10),
+        score: state.score + (cell.value === cell.actual ? 10 : -10),
       };
     }
     case 'CLEAR_DIGIT': {
