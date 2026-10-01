@@ -2,30 +2,53 @@ import { IoPause, IoPlay } from 'react-icons/io5';
 
 import { HStack, Icon, Text } from '@chakra-ui/react';
 import { Difficulty } from '@shared/types';
+import { formatSeconds, getElapsedTime } from '@/utils/helpers';
+import { useEffect, useState } from 'react';
+import { ONE_SEC } from './SudokuGrid/constants';
 
 /**
  * This component displays the game timer and error count, with controls for pausing and resuming the game.
  */
 export const SettingsBar = ({
   enablePause = false,
-  errors = 0,
+  errors,
   difficulty,
   hidePauseToggle = false,
   isPaused = false,
-  time,
+  startedAt,
+  completedAt,
   pause,
   resume,
 }: {
   enablePause?: boolean;
-  errors: number;
+  errors?: number;
   difficulty: Difficulty;
   hidePauseToggle?: boolean;
   isPaused?: boolean;
-  time: string;
-
+  startedAt: number | null;
+  completedAt?: number | null;
   pause?: VoidFunction;
   resume?: VoidFunction;
 }) => {
+  const [timer, setTimer] = useState(0);
+  // timer
+  useEffect(() => {
+    if (startedAt === null) return;
+
+    if (completedAt !== null) {
+      setTimer(getElapsedTime(startedAt, completedAt));
+      return;
+    }
+
+    setTimer(getElapsedTime(startedAt));
+
+    const timerId = setInterval(
+      () => setTimer(getElapsedTime(startedAt)),
+      ONE_SEC,
+    );
+
+    return () => clearInterval(timerId);
+  }, [completedAt, startedAt]);
   // callbacks
   const toggleGame = () => (isPaused ? resume?.() : pause?.());
 
@@ -33,12 +56,11 @@ export const SettingsBar = ({
   return (
     <HStack w="full" justify="space-between" align="center" fontWeight="medium">
       <StatusItem label="difficulty">{difficulty}</StatusItem>
-
+      {/* timer + single-player pause button */}
       <HStack align="center" gap={0}>
         <Text fontSize="sm" fontVariantNumeric="tabular-nums">
-          {time}
+          {timer ? formatSeconds(timer) : '00:00'}
         </Text>
-
         {enablePause && (
           <Icon
             minW={5}
@@ -52,7 +74,7 @@ export const SettingsBar = ({
         )}
       </HStack>
 
-      <StatusItem label="errors">{errors}</StatusItem>
+      {errors !== undefined && <StatusItem label="errors">{errors}</StatusItem>}
     </HStack>
   );
 };

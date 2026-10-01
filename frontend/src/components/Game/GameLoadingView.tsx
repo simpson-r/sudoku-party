@@ -20,12 +20,14 @@ export const GameLoadingView = ({ difficulty }: { difficulty: Difficulty }) => {
       <Game.Content>
         {/* main */}
         <Game.Main>
-          <SettingsBar
-            difficulty={difficulty}
-            errors={0}
-            time="00:00"
-            hidePauseToggle
-          />
+          <Game.Status>
+            <SettingsBar
+              difficulty={difficulty}
+              startedAt={null}
+              hidePauseToggle
+            />
+          </Game.Status>
+
           <SudokuBoard puzzle={undefined} />
         </Game.Main>
         {/*  sidebar */}

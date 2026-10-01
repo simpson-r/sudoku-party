@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 
-import { useBreakpointValue, useDisclosure } from '@chakra-ui/react';
+import { useDisclosure } from '@chakra-ui/react';
 
 import { Game } from '@/components/layout/Game';
 import { CompletionModal } from '@/components/modals/CompletionModal';
@@ -30,7 +30,7 @@ import { useBreakpoints } from '@/hooks/use-device-breakpoints';
 interface GameViewProps {
   activityLog?: string[];
   board?: Cell[][];
-  errors: number;
+  errors?: number;
   difficulty: Difficulty;
   isGameComplete: boolean;
   isPaused: boolean;
@@ -38,7 +38,8 @@ interface GameViewProps {
   players?: PlayerInfo[];
   remainingCounts: RemainingCounts;
   roomId?: string;
-  time: string;
+  startedAt: number;
+  completedAt: number | null;
   onAddCandidate: (update: CellPayload) => void;
   onRemoveCandidate: (update: CandidateUpdate) => void;
   onFillCell: (update: CellUpdate) => void;
@@ -75,7 +76,8 @@ export const GameView = ({
   players,
   remainingCounts,
   roomId,
-  time,
+  startedAt,
+  completedAt,
   onFillCell,
   onAddCandidate,
   onRemoveCandidate,
@@ -85,12 +87,13 @@ export const GameView = ({
   onResume,
 }: GameViewProps) => {
   const completionModal = useDisclosure();
-  //  const confirmationModal = useDisclosure();
-  //const [confirmationMode, setConfirmationMode] =  useState<GameAction>('newGame');
   const [selectedPos, setSelectedPos] = useState<CellPosition | null>(null);
   const [fillMode, setFillMode] = useState<CellFill>('digit');
   const previousCompleted = useRef(isGameComplete);
   const { isMobile } = useBreakpoints();
+
+  //  const confirmationModal = useDisclosure();
+  //const [confirmationMode, setConfirmationMode] =  useState<GameAction>('newGame');
 
   const isMulti = !!roomId;
   const selectedCell = selectedPos
@@ -162,8 +165,9 @@ export const GameView = ({
               errors={errors}
               difficulty={difficulty}
               isPaused={isPaused}
-              hidePauseToggle={isGameComplete}
-              time={time}
+              hidePauseToggle={isMulti}
+              startedAt={startedAt}
+              completedAt={completedAt}
               pause={onPause}
               resume={onResume}
             />
@@ -200,7 +204,8 @@ export const GameView = ({
         isOpen={completionModal.open}
         playerId={playerId}
         players={players}
-        time={time}
+        startedAt={startedAt}
+        completedAt={completedAt}
         onClose={completionModal.onClose}
         onNewGame={handleNewGame}
       />

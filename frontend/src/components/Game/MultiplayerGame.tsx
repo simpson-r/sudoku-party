@@ -6,7 +6,7 @@ import { GameLoadingView } from './GameLoadingView';
 import { GameView } from './GameView';
 
 export const MultiplayerGame = ({ config }: { config: MultiplayerConfig }) => {
-  const { actions, playerId, state, time } = useMultiplayerSudoku(config);
+  const { actions, playerId, state } = useMultiplayerSudoku(config);
 
   // render non-interactive board for loading state
   if (!state.board) return <GameLoadingView difficulty={config.difficulty} />;
@@ -15,7 +15,7 @@ export const MultiplayerGame = ({ config }: { config: MultiplayerConfig }) => {
     <GameView
       activityLog={state.log}
       board={state.board}
-      errors={0}
+      errors={undefined}
       difficulty={config.difficulty}
       isGameComplete={state.completed}
       isPaused={false}
@@ -23,7 +23,8 @@ export const MultiplayerGame = ({ config }: { config: MultiplayerConfig }) => {
       playerId={playerId}
       remainingCounts={state.remaining}
       roomId={config.roomId}
-      time={time}
+      startedAt={state.startedAt}
+      completedAt={state.completedAt}
       onFillCell={actions.fillCell}
       onClearCell={actions.clearCell}
       onAddCandidate={actions.addCandidate}

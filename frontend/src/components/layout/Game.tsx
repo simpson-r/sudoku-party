@@ -48,7 +48,7 @@ const Sidebar = (props: React.ComponentProps<typeof VStack>) => (
  * to prevent the board from shifting between game states.
  */
 const Status = (props: React.ComponentProps<typeof Box>) => (
-  <Box minH={6} mb={-2} {...props} />
+  <Box w='full' minH={6} mb={-2} {...props} />
 );
 
 export const Game = {

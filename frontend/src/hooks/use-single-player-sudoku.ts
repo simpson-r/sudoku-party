@@ -1,18 +1,16 @@
-import { useEffect, useMemo, useReducer, useState } from 'react';
+import { useMemo, useReducer, useState } from 'react';
 
 import { CellPayload } from '@/components/SudokuGrid/types';
-import { ONE_SEC } from '@/components/SudokuGrid/constants';
 import {
   generateSudokuGame,
   isPuzzleComplete,
 } from '../../../shared/sudoku-generator';
-import { buildRemainingCounts, formatSeconds } from '@/utils/helpers';
+import { buildRemainingCounts } from '@/utils/helpers';
 import {
   CandidateUpdate,
   Cell,
   CellPosition,
   Difficulty,
-  PlayerInfo,
   RemainingCounts,
 } from '@shared/types';
 import { updateBoard } from '@shared/helpers';
@@ -26,6 +24,8 @@ interface SudokuState {
   paused: boolean;
   remaining: RemainingCounts;
   score: number;
+  startedAt: number;
+  completedAt: number | null;
 }
 
 type ResetPayload = { board: Cell[][]; remaining: RemainingCounts };
@@ -50,6 +50,8 @@ const createInitialState = (
   completed: false,
   paused: false,
   score: 0,
+  startedAt: Date.now(),
+  completedAt: null,
 });
 
 // reducer
@@ -78,7 +80,7 @@ export function reducer(state: SudokuState, action: Action): SudokuState {
     case 'CLEAR_DIGIT': {
       const { row, col } = action.payload;
       const prevCell = state.board[row][col];
-      if (!prevCell.value) return state;
+      if (!prevCell.value || prevCell.value === prevCell.actual) return state;
 
       const { board } = updateBoard(state.board, row, col, { value: null });
 
@@ -151,19 +153,6 @@ export const useSinglePlayerSudoku = (difficulty: Difficulty) => {
     reducer,
     createInitialState(initialBoard, initialRemaining),
   );
-  const [timer, setTimer] = useState(0);
-
-  // effects
-  useEffect(() => {
-    // timer
-    if (state.paused || state.completed) return;
-
-    const intervalId = window.setInterval(() => {
-      setTimer((time) => time + 1);
-    }, ONE_SEC);
-
-    return () => clearInterval(intervalId);
-  }, [state.paused, state.completed]);
 
   // actions
   const clearCell = (payload: CellPosition) =>
@@ -190,13 +179,11 @@ export const useSinglePlayerSudoku = (difficulty: Difficulty) => {
 
     const payload = { board: newPuzzle, remaining: newRemaining };
     dispatch({ type: 'RESET', payload });
-    setTimer(0);
   };
 
   const restart = () => {
     const payload = { board: initialBoard, remaining: initialRemaining };
     dispatch({ type: 'RESET', payload });
-    setTimer(0);
   };
 
   return {
@@ -211,7 +198,6 @@ export const useSinglePlayerSudoku = (difficulty: Difficulty) => {
       newGame,
     },
     puzzle: initialBoard,
-    time: formatSeconds(timer),
     state,
   };
 };

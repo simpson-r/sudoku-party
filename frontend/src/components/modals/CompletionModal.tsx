@@ -1,11 +1,11 @@
 'use client';
 
+import { formatSeconds, getElapsedTime } from '@/utils/helpers';
 import {
   Button,
   DataList,
   Dialog,
   Separator,
-  Stat,
   Text,
   TextProps,
   VStack,
@@ -13,7 +13,11 @@ import {
 import { Difficulty, PlayerInfo } from '@shared/types';
 
 // types
-type CompletionStats = { difficulty: Difficulty; errors: number; time: string };
+type CompletionStats = {
+  difficulty: Difficulty;
+  errors?: number;
+  time: string;
+};
 
 // constants
 const COMPLETION_STATS: {
@@ -34,20 +38,27 @@ export const CompletionModal = ({
   isOpen,
   playerId,
   players,
-  time,
+  startedAt,
+  completedAt,
   onClose,
   onNewGame,
 }: {
-  errors: number;
+  errors?: number;
   difficulty: Difficulty;
   isOpen: boolean;
   playerId?: string;
   players?: PlayerInfo[];
-  time: string;
+  startedAt: number;
+  completedAt: number | null;
   onClose: VoidFunction;
   onNewGame: VoidFunction;
 }) => {
-  const stats: CompletionStats = { difficulty, errors, time };
+  const time = formatSeconds(getElapsedTime(startedAt, completedAt));
+  const stats: CompletionStats = {
+    difficulty,
+    time,
+    ...(errors && { errors }),
+  };
 
   return (
     <Dialog.Root
@@ -83,12 +94,15 @@ export const CompletionModal = ({
           <Dialog.Body w="9/12">
             <StatsLabel>Stats</StatsLabel>
             <DataList.Root orientation="horizontal" gap={1} py={2}>
-              {COMPLETION_STATS.map(({ label, key }) => (
-                <DataList.Item key={key}>
-                  <DataList.ItemLabel>{label}</DataList.ItemLabel>
-                  <DataList.ItemValue>{stats[key]}</DataList.ItemValue>
-                </DataList.Item>
-              ))}
+              {COMPLETION_STATS.map(
+                ({ label, key }) =>
+                  stats[key] && (
+                    <DataList.Item key={key}>
+                      <DataList.ItemLabel>{label}</DataList.ItemLabel>
+                      <DataList.ItemValue>{stats[key]}</DataList.ItemValue>
+                    </DataList.Item>
+                  ),
+              )}
             </DataList.Root>
 
             <StatsLabel>Final Score</StatsLabel>
@@ -124,7 +138,7 @@ const StatsLabel = ({ children }: React.PropsWithChildren<TextProps>) => {
   return (
     <>
       <Text textStyle="label">{children}</Text>
-      <Separator w="full" borderColor='border'/>
+      <Separator w="full" borderColor="border" />
     </>
   );
 };

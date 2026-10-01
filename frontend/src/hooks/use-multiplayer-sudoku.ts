@@ -1,12 +1,10 @@
-import { INITIAL_REMAINING, ONE_SEC } from '@/components/SudokuGrid/constants';
+import { useCallback, useEffect, useReducer, useState } from 'react';
+
+import { INITIAL_REMAINING } from '@/components/SudokuGrid/constants';
 import { updateRemainingCounts } from '@/components/SudokuGrid/helpers';
 import { MultiplayerConfig } from '@/components/SudokuGrid/types';
 import { useWebSocket } from '@/context/WebSocketContext';
-import {
-  buildRemainingCounts,
-  formatSeconds,
-  getElapsedTime,
-} from '@/utils/helpers';
+import { buildRemainingCounts } from '@/utils/helpers';
 import { updateBoard } from '@shared/helpers';
 import {
   CandidateUpdate,
@@ -17,7 +15,6 @@ import {
   RemainingCounts,
   ServerMessage,
 } from '@shared/types';
-import { useEffect, useReducer, useState } from 'react';
 
 // helpers
 const getCellActivityMessage = (
@@ -37,12 +34,15 @@ const INITIAL_STATE = {
   remaining: INITIAL_REMAINING,
   log: [],
   completed: false,
+  startedAt: 0,
+  completedAt: null,
 };
 
 // types & interfaces
 type BoardPayload = {
   board: Cell[][];
   remaining: RemainingCounts;
+  startedAt: number;
 };
 
 type SudokuState = {
@@ -51,6 +51,8 @@ type SudokuState = {
   remaining: RemainingCounts;
   log: string[];
   completed: boolean;
+  startedAt: number;
+  completedAt: number | null;
 };
 
 type Action =
@@ -62,7 +64,7 @@ type Action =
   | { type: 'SET_CANDIDATES'; payload: CandidateUpdate }
   | { type: 'SET_PLAYERS'; payload: PlayerInfo[] }
   | { type: 'ADD_ACTIVITY'; payload: string }
-  | { type: 'COMPLETE' }
+  | { type: 'COMPLETE'; payload: number }
   | { type: 'RESET' };
 
 // reducer
@@ -153,11 +155,12 @@ export function reducer(state: SudokuState, action: Action): SudokuState {
       };
     }
     case 'INIT_BOARD':
-      const { board, remaining } = action.payload;
+      const { board, remaining, startedAt } = action.payload;
       return {
         ...state,
         board,
         remaining,
+        startedAt,
       };
     case 'SET_PLAYERS': {
       const players = action.payload;
@@ -177,6 +180,7 @@ export function reducer(state: SudokuState, action: Action): SudokuState {
       return {
         ...state,
         completed: true,
+        completedAt: action.payload,
       };
     }
 
@@ -184,6 +188,8 @@ export function reducer(state: SudokuState, action: Action): SudokuState {
       return {
         ...state,
         ...INITIAL_STATE,
+        startedAt: Date.now(),
+        completedAt: null,
       };
     }
     default:
@@ -200,43 +206,10 @@ export const useMultiplayerSudoku = (config: MultiplayerConfig) => {
     ...INITIAL_STATE,
   });
 
-  const [timer, setTimer] = useState(0);
-  const [startedAt, setStartedAt] = useState<number | null>(null);
-  const [completedAt, setCompletedAt] = useState<number | null>(null);
   const [playerId, setPlayerId] = useState<string | undefined>(undefined);
 
-  // subscribe to messages
-  useEffect(() => {
-    const unsubscribe = subscribe(handleMessage);
-    return unsubscribe;
-  }, []);
-
-  // join room
-  useEffect(() => {
-    if (isConnected) send({ type: 'join', roomId: config.roomId });
-  }, [isConnected]);
-
-  // timer
-  useEffect(() => {
-    if (startedAt === null) return;
-
-    if (state.completed && completedAt) {
-      setTimer(getElapsedTime(startedAt, completedAt));
-      return;
-    }
-
-    setTimer(getElapsedTime(startedAt));
-
-    const timerId = setInterval(
-      () => setTimer(getElapsedTime(startedAt)),
-      ONE_SEC,
-    );
-
-    return () => clearInterval(timerId);
-  }, [completedAt, startedAt, state.completed]);
-
   // handlers
-  const handleMessage = (message: ServerMessage) => {
+  const handleMessage = useCallback((message: ServerMessage) => {
     switch (message?.type) {
       case 'candidates_updated': {
         const { col, row, candidates } = message;
@@ -270,13 +243,12 @@ export const useMultiplayerSudoku = (config: MultiplayerConfig) => {
         const { game, players } = message;
         const { board } = game;
 
-        setStartedAt(game.startedAt);
-
         dispatch({
           type: 'INIT_BOARD',
           payload: {
             board,
             remaining: buildRemainingCounts(board),
+            startedAt: game.startedAt,
           },
         });
         dispatch({ type: 'SET_PLAYERS', payload: players });
@@ -289,13 +261,39 @@ export const useMultiplayerSudoku = (config: MultiplayerConfig) => {
         dispatch({ type: 'SET_PLAYERS', payload: message.players });
         break;
       case 'game_complete':
-        setCompletedAt(message.completedAt);
-        dispatch({ type: 'COMPLETE' });
+        dispatch({ type: 'COMPLETE', payload: message.completedAt });
         break;
+      case 'player_joined': {
+        dispatch({
+          type: 'ADD_ACTIVITY',
+          payload: `${message.player.name} joined`,
+        });
+        break;
+      }
+      case 'player_left': {
+        dispatch({
+          type: 'ADD_ACTIVITY',
+          payload: `${message.playerName} left`,
+        });
+        break;
+      }
       default:
         break;
     }
-  };
+  }, []);
+  // subscribe to messages
+  useEffect(() => {
+    const unsubscribe = subscribe(handleMessage);
+
+    return unsubscribe;
+  }, [subscribe, handleMessage]);
+
+  // join room
+  useEffect(() => {
+    if (isConnected) {
+      send({ type: 'join', roomId: config.roomId });
+    }
+  }, [isConnected, config.roomId, send]);
 
   // actions
   const clearCell = (payload: CellPosition) => {
@@ -324,7 +322,6 @@ export const useMultiplayerSudoku = (config: MultiplayerConfig) => {
   };
 
   const newGame = () => {
-    setTimer(0);
     dispatch({ type: 'RESET' });
     send({ type: 'new_game' });
   };
@@ -332,7 +329,6 @@ export const useMultiplayerSudoku = (config: MultiplayerConfig) => {
   return {
     state,
     playerId,
-    time: formatSeconds(timer),
     actions: {
       clearCell,
       fillCell,

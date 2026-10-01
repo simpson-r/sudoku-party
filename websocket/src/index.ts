@@ -62,6 +62,11 @@ wss.on('connection', (ws) => {
             ({ name, id, score }) => ({ name, id, score }),
           );
 
+          broadcastToRoom(room, {
+            type: 'player_joined',
+            player: room.players.get(playerId)!,
+          }); // send player joined event
+
           ws.send(
             JSON.stringify({ type: 'game_state', game: room.game, players }),
           ); // send game state to user
@@ -93,6 +98,7 @@ wss.on('connection', (ws) => {
           );
 
           broadcastToRoom(room, { type: 'players', players }); // send player list with updated scores
+
           broadcastToRoom(room, {
             type: 'cell_updated',
             row,
@@ -198,19 +204,25 @@ wss.on('connection', (ws) => {
 
   // close handling
   ws.on('close', () => {
-    if (roomId && rooms.get(roomId)) {
-      const playersMap = rooms.get(roomId)?.players;
-      playersMap?.delete(playerId);
+    if (!roomId) return;
+    const room = rooms.get(roomId);
 
-      const players = Array.from(playersMap?.values() ?? []).map(
-        ({ name, id, score }) => ({ name, id, score }),
-      );
-      // send to room: updated users list
-      const room = rooms.get(roomId);
-      broadcastToRoom(room, { type: 'players', players });
-      // room cleanup
-      if (playersMap?.size === 0) rooms.delete(roomId);
-    }
+    if (!room) return;
+
+    broadcastToRoom(room, {
+      type: 'player_left',
+      playerName: room.players.get(playerId)?.name || '',
+    }); // send player left to room
+
+    room.players.delete(playerId);
+
+    const players = Array.from(room.players?.values() ?? []).map(
+      ({ name, id, score }) => ({ name, id, score }),
+    );
+
+    broadcastToRoom(room, { type: 'players', players }); // updated player list to room
+
+    if (room.players?.size === 0) rooms.delete(roomId); // room cleanup
   });
 });
 

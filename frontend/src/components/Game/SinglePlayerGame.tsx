@@ -5,7 +5,7 @@ import { useSinglePlayerSudoku } from '@/hooks/use-single-player-sudoku';
 import { GameView } from './GameView';
 
 export const SinglePlayerGame = ({ config }: { config: SetupConfig }) => {
-  const { state, time, actions } = useSinglePlayerSudoku(config.difficulty);
+  const { state, actions } = useSinglePlayerSudoku(config.difficulty);
   const players = [{ score: state.score, name: 'you', id: '1' }];
 
   return (
@@ -16,7 +16,8 @@ export const SinglePlayerGame = ({ config }: { config: SetupConfig }) => {
       isGameComplete={state.completed}
       isPaused={state.paused}
       players={players}
-      time={time}
+      startedAt={0}
+      completedAt={null}
       remainingCounts={state.remaining}
       onFillCell={actions.fillCell}
       onClearCell={actions.clearCell}

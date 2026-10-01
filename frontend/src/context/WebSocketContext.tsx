@@ -21,7 +21,7 @@ const WebSocketContext = createContext<WebSocketContextValue | null>(null);
  */
 export const WebSocketProvider = ({ children }: React.PropsWithChildren) => {
   const [isConnected, setIsConnected] = useState(false);
-  const subscriberRef = useRef<MessageHandler[]>([]);
+  const subscriberRef = useRef<Set<MessageHandler>>(new Set());
   const ws = useRef<WebSocket>(null);
 
   useEffect(() => {
@@ -38,13 +38,11 @@ export const WebSocketProvider = ({ children }: React.PropsWithChildren) => {
     return () => socket.close();
   }, []);
 
-  const subscribe = (handler: MessageHandler) => {
-    subscriberRef.current.push(handler);
+  const subscribe = (subscriber: MessageHandler) => {
+    subscriberRef.current.add(subscriber);
 
     return () => {
-      subscriberRef.current = subscriberRef.current.filter(
-        (subscriber) => subscriber !== handler,
-      );
+      subscriberRef.current.delete(subscriber);
     };
   };
 

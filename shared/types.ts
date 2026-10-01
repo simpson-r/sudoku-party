@@ -77,7 +77,7 @@ export type ServerMessage =
   | { type: 'identity'; playerId: string }
   | { type: 'players'; players: PlayerInfo[] }
   | { type: 'player_joined'; player: PlayerInfo }
-  | { type: 'player_left'; playerId: string }
+  | { type: 'player_left'; playerName: string }
   | { type: 'error'; code: GameErrorCode }
   | { type: 'game_state'; game: SudokuGame, players: PlayerInfo[] }
   | { type: 'game_complete'; completedAt: number }
