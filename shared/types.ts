@@ -27,22 +27,21 @@ export type CellPosition = {
  * game types
  */
 export type SudokuGame = { board: Cell[][]; startedAt: number };
-
-export type GameAction = 'newGame' | 'restart';
-
-export type Difficulty = 'easy' | 'medium' | 'hard';
-
 export type SudokuDigit = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
-
+export type GameAction = 'newGame' | 'restart';
 export type CellFill = 'digit' | 'candidate';
-
+export type Difficulty = 'easy' | 'medium' | 'hard';
 export type RemainingCounts = Record<SudokuDigit, number>;
-
 export type CandidateUpdate = {
   row: number;
   col: number;
   candidates: SudokuDigit[];
 };
+export type GameErrorCode =
+  | 'ROOM_FULL'
+  | 'ROOM_NOT_FOUND'
+  | 'CONNECTION_FAILED'
+  | 'CONNECTION_LOST';
 
 /**
  * player types
@@ -75,20 +74,21 @@ export type ClientMessage =
 
 export type ServerMessage =
   | { type: 'identity'; playerId: string }
-  | { type: 'score'; playerId: string; score: number }
   | { type: 'players'; players: PlayerInfo[] }
+  | { type: 'error'; code: GameErrorCode }
+  | { type: 'game_state'; game: SudokuGame }
+  | { type: 'player_joined'; player: PlayerInfo }
+  | { type: 'player_left'; playerId: string }
   | {
       type: 'cell_updated';
       row: number;
       col: number;
       value: SudokuDigit | null;
+      player: PlayerInfo;
     }
   | {
       type: 'candidates_updated';
       row: number;
       col: number;
       candidates: SudokuDigit[];
-    }
-  | { type: 'game_state'; game: SudokuGame }
-  | { type: 'player_joined'; player: PlayerInfo }
-  | { type: 'player_left'; playerId: string };
+    };

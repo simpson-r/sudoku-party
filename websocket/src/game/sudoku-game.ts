@@ -1,5 +1,10 @@
-import type { Cell, SudokuDigit } from '../../../shared/types.js';
-import type { Player } from '../types.js';
+import type {
+  Cell,
+  ClientMessage,
+  ServerMessage,
+  SudokuDigit,
+} from '../../../shared/types.js';
+import type { Player, Room } from '../types.js';
 
 /**
  * Updates a player's score based on whether their cell value is correct.
@@ -25,3 +30,12 @@ export const isValidPosition = (row: number, col: number) =>
   row < 9 &&
   col >= 0 &&
   col < 9;
+
+export const getPlayer = (playerId: string, room: Room) => {
+  const player = room.players.get(playerId);
+  if (!player) return;
+  return player;
+};
+
+export const getCell = (board: Cell[][], pos: { row: number; col: number }) =>
+  board[pos.row]?.[pos.col];

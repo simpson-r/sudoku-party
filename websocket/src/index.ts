@@ -1,34 +1,24 @@
 import { randomUUID } from 'node:crypto';
-import { WebSocket, WebSocketServer } from 'ws';
+import { WebSocketServer } from 'ws';
 
 import { updateBoard } from '../../shared/helpers.js';
-import { generateSudokuGame } from '../../shared/sudoku-generator.js';
-import type { ClientMessage, ServerMessage } from '../../shared/types.js';
-import { applyScoreUpdate, isValidPosition } from './game/sudoku-game.js';
-import type { Player, Room } from './types.js';
+import type { ClientMessage } from '../../shared/types.js';
+import { broadcastToRoom, createOrGetRoom } from './game/room.js';
+import {
+  applyScoreUpdate,
+  getCell,
+  getPlayer,
+  isValidPosition,
+} from './game/sudoku-game.js';
+import type { Room } from './types.js';
 
 // constants
 const PORT = 8080;
+const MAX_PLAYERS = 3;
 
 // setup
 const wss = new WebSocketServer({ port: PORT });
 const rooms = new Map<string, Room>();
-
-// helpers
-function broadcastToRoom(
-  roomId: string,
-  data: ServerMessage,
-  ignoreSocket?: WebSocket,
-) {
-  const room = rooms.get(roomId);
-  if (!room) return;
-  for (const player of room.players.values()) {
-    const { socket } = player;
-    if (socket.readyState === WebSocket.OPEN && socket !== ignoreSocket) {
-      socket.send(JSON.stringify(data));
-    }
-  }
-}
 
 wss.on('connection', (ws) => {
   const playerId = randomUUID();
@@ -43,69 +33,66 @@ wss.on('connection', (ws) => {
       switch (msg.type) {
         case 'join': {
           roomId = msg.roomId;
+          const room = createOrGetRoom(rooms, roomId);
 
-          if (!rooms.get(roomId)) {
-            rooms.set(roomId, {
-              players: new Map<string, Player>(),
-              game: { board: generateSudokuGame(), startedAt: Date.now() },
-              nextPlayerIndex: 1,
-            });
+          if (room.players.size >= MAX_PLAYERS) {
+            ws.send(JSON.stringify({ type: 'error', code: 'ROOM_FULL' })); // send room to user
+            return;
           }
 
-          const room = rooms.get(roomId)!;
+          ws.send(JSON.stringify({ type: 'identity', playerId })); // send identity to user
+
           name = `Player ${room.nextPlayerIndex}`;
           room.nextPlayerIndex++;
-
-          const playersMap = rooms.get(roomId)!.players;
-          playersMap.set(playerId, {
+          room.players.set(playerId, {
             id: playerId,
             name,
             socket: ws,
             score: 0,
           });
 
-          ws.send(JSON.stringify({ type: 'identity', playerId })); // send identity to user
           ws.send(JSON.stringify({ type: 'game_state', game: room.game })); // send game state to user
 
-          const players = Array.from(playersMap.values()).map(
+          const players = Array.from(room.players.values()).map(
             ({ name, id, score }) => ({ name, id, score }),
           );
-          broadcastToRoom(roomId, { type: 'players', players });
+
+          broadcastToRoom(room, { type: 'players', players }); // send player list to room
           break;
         }
         case 'cell_update': {
-          if (!roomId) return;
+          if (!roomId || rooms.get(roomId)) return;
 
           const room = rooms.get(roomId);
           if (!room) return;
 
           const { row, col, value } = msg;
-          if (!isValidPosition(row, col)) return;
+          if (!isValidPosition(row, col)) return; // return if invalid pos
 
-          const prevBoard = room.game.board;
-          const cell = prevBoard[row]?.[col];
+          const cell = getCell(room.game.board, msg);
+          if (!cell || cell.value === cell.actual) return; // return if correct to communicate locked-in value
 
-          if (!cell || cell.value === cell.actual) return;
+          const player = getPlayer(playerId, room);
+          if (!player) return; // return if player not found
 
-          const playersMap = room.players;
-          const player = playersMap.get(playerId);
-          if (player) applyScoreUpdate(value, cell, player);
+          applyScoreUpdate(value, cell, player);
 
-          const { board } = updateBoard(prevBoard, row, col, { value });
+          const { board } = updateBoard(room.game.board, row, col, { value });
           room.game.board = board;
 
-          const players = Array.from(playersMap.values()).map(
+          const players = Array.from(room.players.values()).map(
             ({ name, id, score }) => ({ name, id, score }),
           );
-          const outgoing: ServerMessage = {
+
+          broadcastToRoom(room, { type: 'players', players }); // send player list with updated scores
+          broadcastToRoom(room, {
             type: 'cell_updated',
             row,
             col,
             value,
-          };
+            player,
+          }); // send cell update
 
-          broadcastToRoom(roomId, outgoing, ws);
-          broadcastToRoom(roomId, { type: 'players', players });
           break;
         }
         case 'candidate_add': {
@@ -115,26 +102,26 @@ wss.on('connection', (ws) => {
           if (!room) return;
 
           const { row, col, candidate } = msg;
-          if (!isValidPosition(row, col)) return;
+          if (!isValidPosition(row, col)) return; // return if invalid pos
 
-          const game = room.game;
-          const cell = game.board?.[row]?.[col];
-
+          const cell = getCell(room.game.board, { row, col });
           const candidates = [...(cell?.candidates ?? []), candidate];
 
           const { board } = updateBoard(room.game.board, row, col, {
             candidates,
           });
-          game.board = board;
+          room.game.board = board;
 
-          const outgoing: ServerMessage = {
-            type: 'candidates_updated',
-            row,
-            col,
-            candidates,
-          };
-
-          broadcastToRoom(roomId, outgoing, ws);
+          broadcastToRoom(
+            room,
+            {
+              type: 'candidates_updated',
+              row,
+              col,
+              candidates,
+            },
+            ws,
+          );
           break;
         }
 
@@ -145,26 +132,26 @@ wss.on('connection', (ws) => {
           if (!room) return;
 
           const { row, col, candidates } = msg;
-          const game = room.game;
-          const cell = game.board?.[row]?.[col];
+          const cell = getCell(room.game.board, { row, col });
 
           const updatedCandidates = (cell?.candidates ?? []).filter(
             (c) => !candidates.includes(c),
           );
-
           const { board } = updateBoard(room.game.board, row, col, {
             candidates: updatedCandidates,
           });
-          game.board = board;
+          room.game.board = board;
 
-          const outgoing: ServerMessage = {
-            type: 'candidates_updated',
-            row,
-            col,
-            candidates: updatedCandidates,
-          };
-
-          broadcastToRoom(roomId, outgoing, ws);
+          broadcastToRoom(
+            room,
+            {
+              type: 'candidates_updated',
+              row,
+              col,
+              candidates: updatedCandidates,
+            },
+            ws,
+          );
           break;
         }
       }
@@ -183,7 +170,8 @@ wss.on('connection', (ws) => {
         ({ name, id, score }) => ({ name, id, score }),
       );
       // send to room: updated users list
-      broadcastToRoom(roomId, { type: 'players', players });
+      const room = rooms.get(roomId);
+      broadcastToRoom(room, { type: 'players', players });
       // room cleanup
       if (playersMap?.size === 0) rooms.delete(roomId);
     }
