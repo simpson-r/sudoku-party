@@ -117,10 +117,15 @@ export const GameView = ({
 
   const handleDigitInput = (digit: SudokuDigit) => {
     if (!selectedPos) return;
+    if (selectedCell?.value === selectedCell?.actual) return; // lock correct values
 
     const payload = { ...selectedPos, value: digit };
-    if (fillMode === 'digit') onFillCell(payload);
-    else onAddCandidate(payload);
+    if (fillMode === 'digit') {
+      digit === selectedCell?.value
+        ? onClearCell(selectedPos)
+        : onFillCell(payload);
+      return;
+    } else onAddCandidate(payload);
   };
 
   const handleDigitRemoval = (digit: SudokuDigit | null) => {

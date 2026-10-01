@@ -1,6 +1,5 @@
 import { useMemo, useReducer, useState } from 'react';
 
-import { updateRemainingCounts } from '@/components/SudokuGrid/helpers';
 import { CellPayload } from '@/components/SudokuGrid/types';
 import { buildRemainingCounts, updateBoard } from '@sudokuparty/shared/helpers';
 import {
@@ -69,11 +68,7 @@ export function reducer(state: SudokuState, action: Action): SudokuState {
         ...state,
         board,
         errors: state.errors + (value !== cell.actual ? 1 : 0),
-        remaining: updateRemainingCounts(
-          state.remaining,
-          prevCell.value,
-          cell.value,
-        ),
+        remaining: buildRemainingCounts(board),
         completed: isPuzzleComplete(board),
         score: state.score + (cell.value === cell.actual ? 10 : -10),
       };
@@ -88,7 +83,7 @@ export function reducer(state: SudokuState, action: Action): SudokuState {
       return {
         ...state,
         board,
-        remaining: updateRemainingCounts(state.remaining, prevCell.value, null),
+        remaining: buildRemainingCounts(board),
       };
     }
     case 'PAUSE':

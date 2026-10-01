@@ -104,7 +104,12 @@ wss.on('connection', (ws) => {
           }); // send player joined event
 
           ws.send(
-            JSON.stringify({ type: 'game_state', game: room.game, players }),
+            JSON.stringify({
+              type: 'game_state',
+              game: room.game,
+              players,
+              remaining: buildRemainingCounts(room.game.board),
+            }),
           ); // send game state to user
 
           break;
@@ -122,8 +127,10 @@ wss.on('connection', (ws) => {
 
           if (!cell || cell.value === cell.actual) return; // return so that correct cells remain locked-in
 
-          const remaining = buildRemainingCounts(room.game.board);
-          if (!remaining[value as SudokuDigit]) return; // ignore digits that have already been fully placed
+          if (value !== null) {
+            const remaining = buildRemainingCounts(room.game.board); // ignore digits that have already been fully placed
+            if (!remaining[value]) return;
+          }
 
           const player = getPlayer(playerId, room);
           if (!player) return; // return if player not found
@@ -231,6 +238,7 @@ wss.on('connection', (ws) => {
             type: 'game_state',
             game: room.game,
             players: [...room.players.values()],
+            remaining: buildRemainingCounts(room.game.board),
           });
         }
       }

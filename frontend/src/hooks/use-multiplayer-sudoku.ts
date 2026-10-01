@@ -1,6 +1,5 @@
-import { useCallback, useEffect, useReducer, useState } from 'react';
+import { useCallback, useEffect, useReducer } from 'react';
 
-import { updateRemainingCounts } from '@/components/SudokuGrid/helpers';
 import { MultiplayerConfig } from '@/components/SudokuGrid/types';
 import { useWebSocket } from '@/context/WebSocketContext';
 import { INITIAL_REMAINING } from '@sudokuparty/shared/constants';
@@ -96,7 +95,7 @@ export function reducer(state: SudokuState, action: Action): SudokuState {
       return {
         ...state,
         board,
-        remaining: updateRemainingCounts(state.remaining, prevCell.value, null),
+        remaining: buildRemainingCounts(board),
       };
     }
     case 'FILL_DIGIT': {
@@ -107,28 +106,29 @@ export function reducer(state: SudokuState, action: Action): SudokuState {
       const prevCell = state.board?.[row][col];
 
       if (prevCell.actual === prevCell.value || !state.remaining[value])
-        return state;
+        return state; // correct cells/exhausted digits are locked.
 
-      const { board, cell } = updateBoard(state.board, row, col, { value });
+      const { board } = updateBoard(state.board, row, col, { value });
 
       return {
         ...state,
         board,
-        remaining: updateRemainingCounts(
-          state.remaining,
-          prevCell.value,
-          cell.value,
-        ),
+        remaining: buildRemainingCounts(board),
       };
     }
     case 'ADD_CANDIDATE': {
       if (!state.board) return state;
 
       const { row, col, value: candidate } = action.payload;
-
-      if (!state.remaining[candidate]) return state; // don't add if exhausted
-
       const prevCell = state.board[row][col];
+
+      if (
+        prevCell.value === prevCell.actual ||
+        prevCell.value !== null ||
+        !state.remaining[candidate]
+      )
+        return state; // don't add if exhausted
+
       const curCandidates = prevCell.candidates ?? [];
       if (curCandidates.includes(candidate)) return state;
 
@@ -225,9 +225,8 @@ export const useMultiplayerSudoku = (config: MultiplayerConfig) => {
   const { isConnected, send, subscribe } = useWebSocket();
   const [state, dispatch] = useReducer(reducer, {
     ...INITIAL_STATE,
-      playerId: getPlayerId(),
+    playerId: getPlayerId(),
   });
-
 
   // handlers
   const handleMessage = useCallback(

@@ -49,8 +49,8 @@ export const updateBoard = (
 export const buildRemainingCounts = (puzzle: Cell[][]) => {
   const remaining = { ...INITIAL_REMAINING };
   for (const row of puzzle) {
-    for (const { actual, given } of row) {
-      if (given) remaining[actual]--;
+    for (const { actual, value,given } of row) {
+      if (given || value === actual) remaining[actual]--;
     }
   }
 
