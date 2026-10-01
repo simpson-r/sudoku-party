@@ -1,6 +1,6 @@
 'use client';
 
-import { SetupConfig } from '@/components/SudokuGrid/types';
+import { MultiplayerConfig, SetupConfig } from '@/components/SudokuGrid/types';
 import { SinglePlayerGame } from '@/components/Game/SinglePlayerGame';
 import { MultiplayerGame } from '@/components/Game/MultiplayerGame';
 import { WebSocketProvider } from '@/context/WebSocketContext';
@@ -15,9 +15,11 @@ export const GamePage = ({ config }: { config: SetupConfig }) => {
       {config.mode === 'single' && <SinglePlayerGame config={config} />}
       {config.mode === 'multi' && (
         <WebSocketProvider>
-          <MultiplayerGame config={config} />
+          <MultiplayerGame config={config as MultiplayerConfig} />
         </WebSocketProvider>
       )}
     </>
   );
 };
+
+export default GamePage;

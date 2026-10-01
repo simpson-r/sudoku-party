@@ -1,4 +1,4 @@
-import { SudokuDigit } from "./types";
+import type { SudokuDigit } from './types';
 
 // grid
 export const GRID_SIZE = 9;

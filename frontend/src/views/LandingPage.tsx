@@ -6,7 +6,7 @@ import { useDisclosure } from '@chakra-ui/react';
 
 import { SetupConfig } from '@/components/SudokuGrid/types';
 import { GameSetupModal } from '@/components/modals/GameSetupModal';
-import { Difficulty } from '@shared/types';
+import { Difficulty } from '@sudokuparty/shared/types';
 
 const createRoomId = (difficulty: Difficulty) => {
   const difficultyCode = difficulty[0];
@@ -45,3 +45,5 @@ export const LandingPage = () => {
     </>
   );
 };
+
+export default LandingPage;

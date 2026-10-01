@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useRef, useState } from 'react';
 
-import { ClientMessage, ServerMessage } from '@shared/types';
+import { ClientMessage, ServerMessage } from '@sudokuparty/shared/types';
 
 // types
 type MessageHandler = (message: ServerMessage) => void;
@@ -14,6 +14,9 @@ type WebSocketContextValue = {
 };
 
 // constants
+const WS_URL = process.env.NEXT_PUBLIC_WS_URL ?? 'ws://localhost:8080';
+
+// context
 const WebSocketContext = createContext<WebSocketContextValue | null>(null);
 
 /**
@@ -25,7 +28,7 @@ export const WebSocketProvider = ({ children }: React.PropsWithChildren) => {
   const ws = useRef<WebSocket>(null);
 
   useEffect(() => {
-    const socket = new WebSocket('ws://localhost:8080');
+    const socket = new WebSocket(WS_URL);
     socket.onopen = () => setIsConnected(true);
     socket.onclose = () => setIsConnected(false);
     socket.onmessage = (event) => {

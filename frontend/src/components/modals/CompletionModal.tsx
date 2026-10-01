@@ -10,7 +10,7 @@ import {
   TextProps,
   VStack,
 } from '@chakra-ui/react';
-import { Difficulty, PlayerInfo } from '@shared/types';
+import { Difficulty, PlayerInfo } from '@sudokuparty/shared/types';
 
 // types
 type CompletionStats = {

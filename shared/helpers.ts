@@ -1,6 +1,7 @@
 
 import { DIFFICULTY_MAP, INITIAL_REMAINING } from './constants';
-import { Cell } from './types';
+import type { Cell } from './types';
+
 
 /**
  * Parses the difficulty encoded in the room ID prefix.

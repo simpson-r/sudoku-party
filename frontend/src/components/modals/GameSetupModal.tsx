@@ -10,7 +10,7 @@ import {
   Text,
   VStack,
 } from '@chakra-ui/react';
-import { Difficulty } from '@shared/types';
+import { Difficulty } from '@sudokuparty/shared/types';
 import { PlayerMode, SetupConfig, SetupForm } from '../SudokuGrid/types';
 import { useState } from 'react';
 

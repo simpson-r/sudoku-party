@@ -1,6 +1,6 @@
 import { Header } from '@/components/layout/Header';
 import { Page } from '@/components/layout/Page';
-import { GamePage } from '@/pages/GamePage';
+import { GamePage } from '@/views/GamePage';
 import { notFound } from 'next/navigation';
 import { schema } from './schema';
 

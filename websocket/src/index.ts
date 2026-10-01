@@ -1,3 +1,4 @@
+import { createServer } from 'http';
 import { randomUUID } from 'node:crypto';
 import { WebSocketServer } from 'ws';
 
@@ -25,13 +26,27 @@ import {
 } from '../../shared/sudoku-generator.js';
 
 // constants
-const PORT = 8080;
+const PORT = Number(process.env.PORT) || 8080;
 const MAX_PLAYERS = 3;
 
-// setup
-const wss = new WebSocketServer({ port: PORT });
+// http server
+const server = createServer((req, res) => {
+  if (req.url === '/health') {
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    res.end('ok');
+    return;
+  }
+
+  res.writeHead(404);
+  res.end();
+});
+// ws server
+const wss = new WebSocketServer({ server });
+
+// state
 const rooms = new Map<string, Room>();
 
+// websocket handling
 wss.on('connection', (ws) => {
   const playerId = randomUUID();
   let roomId: string | null = null;
@@ -48,7 +63,7 @@ wss.on('connection', (ws) => {
           roomId = msg.roomId;
           difficulty = parseDifficulty(roomId);
 
-          const room = createOrGetRoom(rooms, roomId, difficulty);
+          const room = createOrGetRoom(rooms, roomId, difficulty || 'medium');
 
           if (room.players.size >= MAX_PLAYERS) {
             ws.send(JSON.stringify({ type: 'error', code: 'ROOM_FULL' })); // send room to user
@@ -93,8 +108,6 @@ wss.on('connection', (ws) => {
           const cell = getCell(room.game.board, msg);
 
           if (!cell || cell.value === cell.actual) return; // return so that correct cells remain locked-in
-
-          if (cell.value === cell.actual) return;
 
           const remaining = buildRemainingCounts(room.game.board);
           if (!remaining[value as SudokuDigit]) return; // ignore digits that have already been fully placed
@@ -237,4 +250,7 @@ wss.on('connection', (ws) => {
   });
 });
 
-console.log(`WebSocket server listening on port ${PORT}`);
+// start server
+server.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server listening on ${PORT}`);
+});

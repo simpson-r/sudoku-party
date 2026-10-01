@@ -20,7 +20,7 @@ import {
   PlayerInfo,
   RemainingCounts,
   SudokuDigit,
-} from '@shared/types';
+} from '@sudokuparty/shared/types';
 import { Players } from '../Players';
 import { InviteLink } from '../InviteLink';
 import { ActivityLog } from '../ActivityLog';

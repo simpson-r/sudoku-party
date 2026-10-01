@@ -3,8 +3,8 @@ import { useCallback, useEffect, useReducer, useState } from 'react';
 import { updateRemainingCounts } from '@/components/SudokuGrid/helpers';
 import { MultiplayerConfig } from '@/components/SudokuGrid/types';
 import { useWebSocket } from '@/context/WebSocketContext';
-import { INITIAL_REMAINING } from '@shared/constants';
-import { buildRemainingCounts, updateBoard } from '@shared/helpers';
+import { INITIAL_REMAINING } from '@sudokuparty/shared/constants';
+import { buildRemainingCounts, updateBoard } from '@sudokuparty/shared/helpers';
 import {
   CandidateUpdate,
   Cell,
@@ -14,7 +14,7 @@ import {
   PlayerInfo,
   RemainingCounts,
   ServerMessage,
-} from '@shared/types';
+} from '@sudokuparty/shared/types';
 
 // helpers
 const getCellActivityMessage = (

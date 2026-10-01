@@ -2,8 +2,8 @@ import { notFound } from 'next/navigation';
 
 import { Header } from '@/components/layout/Header';
 import { Page } from '@/components/layout/Page';
-import { GamePage } from '@/pages/GamePage';
-import { parseDifficulty } from '@shared/helpers';
+import { GamePage } from '@/views/GamePage';
+import { parseDifficulty } from '@sudokuparty/shared/helpers';
 
 type PageProps = { params: Promise<{ roomId: string }> };
 

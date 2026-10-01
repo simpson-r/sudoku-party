@@ -1,6 +1,6 @@
 import { useBreakpoints } from '@/hooks/use-device-breakpoints';
-import { Difficulty } from '@shared/types';
-import { INITIAL_REMAINING } from '@shared/constants';
+import { Difficulty } from '@sudokuparty/shared/types';
+import { INITIAL_REMAINING } from '@sudokuparty/shared/constants';
 
 import { ActivityLog } from '../ActivityLog';
 import { Controls } from '../Controls';

@@ -1,6 +1,6 @@
 import { BOX_SIZE, GRID_SIZE, REMOVALS } from './constants';
 import { shuffle } from './helpers';
-import { Cell, Difficulty, SudokuDigit, SudokuGame } from './types';
+import type { Cell, Difficulty, SudokuDigit } from './types';
 
 // constants
 const VALUES = Array.from({ length: GRID_SIZE }, (_, index) => index + 1);

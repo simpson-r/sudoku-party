@@ -2,18 +2,18 @@ import { useMemo, useReducer, useState } from 'react';
 
 import { updateRemainingCounts } from '@/components/SudokuGrid/helpers';
 import { CellPayload } from '@/components/SudokuGrid/types';
-import { buildRemainingCounts, updateBoard } from '@shared/helpers';
+import { buildRemainingCounts, updateBoard } from '@sudokuparty/shared/helpers';
 import {
   generateSudokuGame,
   isPuzzleComplete,
-} from '@shared/sudoku-generator';
+} from '@sudokuparty/shared/sudoku-generator';
 import {
   CandidateUpdate,
   Cell,
   CellPosition,
   Difficulty,
   RemainingCounts,
-} from '@shared/types';
+} from '@sudokuparty/shared/types';
 
 // types & interfaces
 interface SudokuState {

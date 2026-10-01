@@ -2,7 +2,7 @@ import { Icon, Tabs, VStack } from '@chakra-ui/react';
 
 import { DigitsGrid } from '@/components/DigitsGrid';
 import { CellFill } from '@/components/SudokuGrid/types';
-import { SudokuDigit } from '@shared/types';
+import { SudokuDigit } from '@sudokuparty/shared/types';
 import { LuNotebookPen, LuPencil } from 'react-icons/lu';
 import { Tooltip } from './ui/tooltip';
 import { useBreakpoints } from '@/hooks/use-device-breakpoints';

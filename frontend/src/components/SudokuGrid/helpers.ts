@@ -1,5 +1,5 @@
-import { BOX_SIZE, GRID_SIZE } from '@shared/constants';
-import { Cell, SudokuDigit } from '@shared/types';
+import { BOX_SIZE, GRID_SIZE } from '@sudokuparty/shared/constants';
+import { Cell, SudokuDigit } from '@sudokuparty/shared/types';
 
 const getCandidatePlacements = (x?: number, y?: number) => ({
   1: { top: y, left: x },

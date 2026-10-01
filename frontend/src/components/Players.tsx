@@ -1,6 +1,6 @@
 import { Box, HStack, Skeleton, Table, Text } from '@chakra-ui/react';
 
-import { PlayerInfo } from '@shared/types';
+import { PlayerInfo } from '@sudokuparty/shared/types';
 
 /**
  * This component displays the players currently in the room.

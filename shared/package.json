@@ -1,0 +1,12 @@
+{
+  "name": "@sudokuparty/shared",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./constants": "./constants.ts",
+    "./helpers": "./helpers.ts",
+    "./sudoku-generator": "./sudoku-generator.ts",
+    "./types": "./types.ts"
+  }
+}

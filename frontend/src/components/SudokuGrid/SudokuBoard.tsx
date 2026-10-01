@@ -11,8 +11,8 @@ import {
   createEmptyBoard,
   generateCellsPerBox,
 } from '@/components/SudokuGrid/helpers';
-import { Cell, CellPosition, SudokuDigit } from '@shared/types';
-import { GRID_SIZE } from '@shared/constants';
+import { Cell, CellPosition, SudokuDigit } from '@sudokuparty/shared/types';
+import { GRID_SIZE } from '@sudokuparty/shared/constants';
 
 // types
 type Direction = { dr: number; dc: number };

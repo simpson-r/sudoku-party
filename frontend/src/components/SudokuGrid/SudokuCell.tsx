@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo } from 'react';
 import { BoxProps, Center, Text } from '@chakra-ui/react';
 
 import { getCandidatePlacement } from '@/components/SudokuGrid/helpers';
-import { Cell, SudokuDigit } from '@shared/types';
+import { Cell, SudokuDigit } from '@sudokuparty/shared/types';
 
 interface SudokuCellProps {
   cell: Cell;

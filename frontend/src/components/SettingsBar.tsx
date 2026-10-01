@@ -1,7 +1,7 @@
 import { IoPause, IoPlay } from 'react-icons/io5';
 
 import { HStack, Icon, Text } from '@chakra-ui/react';
-import { Difficulty } from '@shared/types';
+import { Difficulty } from '@sudokuparty/shared/types';
 import { formatSeconds, getElapsedTime } from '@/utils/helpers';
 import { useEffect, useState } from 'react';
 import { ONE_SEC } from './SudokuGrid/constants';

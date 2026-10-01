@@ -1,4 +1,4 @@
-import { Difficulty, SudokuDigit } from '@shared/types';
+import { Difficulty, SudokuDigit } from '@sudokuparty/shared/types';
 /**
  * cell types
  */

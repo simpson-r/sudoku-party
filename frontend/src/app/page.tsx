@@ -1,5 +1,5 @@
 import { Header } from '../components/layout/Header';
-import { LandingPage } from '../pages/LandingPage';
+import { LandingPage } from '../views/LandingPage';
 import { Page } from '@/components/layout/Page';
 
 export default function Home() {
