@@ -9,15 +9,11 @@ interface CTAConfig {
   confirmText?: string;
 }
 
-const defaultCTA = {
-  cancelText: 'Cancel',
-  confirmText: 'Proceed',
-};
 /**
  * This component displays a modal that confirms whether the user wants to proceed with a specific action
  */
 export const ConfirmationModal = ({
-  ctaConfig,
+  ctaConfig: config,
   isOpen,
   isLoading = false,
   onClose,
@@ -29,7 +25,6 @@ export const ConfirmationModal = ({
   onClose: VoidFunction;
   onConfirm: VoidFunction;
 }) => {
-  const config = { ...defaultCTA, ...ctaConfig };
   const { heading, body, cancelText, confirmText } = config;
   return (
     <Dialog.Root
@@ -39,17 +34,21 @@ export const ConfirmationModal = ({
       unmountOnExit
       onEscapeKeyDown={onClose}
     >
-      <Dialog.Backdrop />
+      <Dialog.Backdrop
+        bg={{ base: 'blackAlpha.300', _dark: 'whiteAlpha.200' }}
+      />
       <Dialog.Positioner>
         <Dialog.Content
-          rounded="2xl"
           justifyContent="center"
           alignItems="center"
-          bgColor="bg.subtle"
           maxW={350}
+          bgColor="bg.subtle"
+          border="2px solid"
+          borderColor="border.inverted"
+          borderRadius="none"
         >
           <Dialog.Header>
-            <Dialog.Title fontSize="xl" textAlign="center">
+            <Dialog.Title fontFamily="heading" fontSize="xl" textAlign="center">
               {heading}
             </Dialog.Title>
           </Dialog.Header>
@@ -62,11 +61,14 @@ export const ConfirmationModal = ({
 
           <Dialog.Footer>
             <HStack gap={4}>
-              <Button color="fg.inverted" onClick={onClose}>
-                {cancelText}
-              </Button>
+              {cancelText && (
+                <Button color="fg.inverted" onClick={onClose}>
+                  {cancelText}
+                </Button>
+              )}
               <Button
-                variant='outline'
+                variant="outline"
+                borderRadius="none"
                 onClick={onConfirm}
                 loading={isLoading}
               >

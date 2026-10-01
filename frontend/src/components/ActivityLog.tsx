@@ -21,7 +21,9 @@ export const ActivityLog = ({
       <Table.Body>
         {isLoading ? (
           <Table.Row>
-            <Skeleton width="full" h={4} borderRadius="none" />
+            <Table.Cell colSpan={2} p={0}>
+              <Skeleton width="full" h={4} borderRadius="none" />
+            </Table.Cell>
           </Table.Row>
         ) : (
           activityLog?.map((activity, id) => (

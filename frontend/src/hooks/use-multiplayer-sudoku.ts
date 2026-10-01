@@ -11,6 +11,7 @@ import {
   Cell,
   CellUpdate,
   CellPosition,
+  GameErrorCode,
   PlayerInfo,
   RemainingCounts,
   ServerMessage,
@@ -36,6 +37,7 @@ const INITIAL_STATE = {
   completed: false,
   startedAt: 0,
   completedAt: null,
+  error: null,
 };
 
 // types & interfaces
@@ -53,6 +55,7 @@ type SudokuState = {
   completed: boolean;
   startedAt: number;
   completedAt: number | null;
+  error: GameErrorCode | null;
 };
 
 type Action =
@@ -65,7 +68,8 @@ type Action =
   | { type: 'SET_PLAYERS'; payload: PlayerInfo[] }
   | { type: 'ADD_ACTIVITY'; payload: string }
   | { type: 'COMPLETE'; payload: number }
-  | { type: 'RESET' };
+  | { type: 'RESET' }
+  | { type: 'ERROR'; payload: GameErrorCode };
 
 // reducer
 export function reducer(state: SudokuState, action: Action): SudokuState {
@@ -192,6 +196,12 @@ export function reducer(state: SudokuState, action: Action): SudokuState {
         completedAt: null,
       };
     }
+    case 'ERROR': {
+      return {
+        ...state,
+        error: action.payload,
+      };
+    }
     default:
       return state;
   }
@@ -275,6 +285,10 @@ export const useMultiplayerSudoku = (config: MultiplayerConfig) => {
           type: 'ADD_ACTIVITY',
           payload: `${message.playerName} left`,
         });
+        break;
+      }
+      case 'error': {
+        dispatch({ type: 'ERROR', payload: message.code });
         break;
       }
       default:

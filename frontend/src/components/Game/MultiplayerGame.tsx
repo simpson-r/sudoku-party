@@ -1,15 +1,49 @@
 'use client';
 
+import { useRouter } from 'next/navigation'
+import { useEffect } from 'react';
+
+import { useDisclosure } from '@chakra-ui/react';
+
 import { useMultiplayerSudoku } from '@/hooks/use-multiplayer-sudoku';
 import { MultiplayerConfig } from '@/components/SudokuGrid/types';
 import { GameLoadingView } from './GameLoadingView';
 import { GameView } from './GameView';
+import { ConfirmationModal } from '../modals/ConfirmationModal';
+
+
 
 export const MultiplayerGame = ({ config }: { config: MultiplayerConfig }) => {
+  const router = useRouter();
   const { actions, playerId, state } = useMultiplayerSudoku(config);
+  const roomCapacityModal = useDisclosure();
+
+  useEffect(() => {
+    if (state.error === 'ROOM_FULL') roomCapacityModal.onOpen();
+  }, [state.error]);
+
+  const handleRoomFull = () => {
+    roomCapacityModal.onClose();
+    router.push('/');
+  };
 
   // render non-interactive board for loading state
-  if (!state.board) return <GameLoadingView difficulty={config.difficulty} />;
+  if (!state.board)
+    return (
+      <>
+        <GameLoadingView difficulty={config.difficulty} />
+        <ConfirmationModal
+          ctaConfig={{
+            heading: 'Game is at capacity',
+            body: 'This game already has the maximum of 3 players.',
+            confirmText: 'Go back',
+          }}
+          isOpen={roomCapacityModal.open}
+          onClose={handleRoomFull}
+          onConfirm={handleRoomFull}
+        />
+      </>
+    );
 
   return (
     <GameView

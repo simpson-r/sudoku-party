@@ -37,11 +37,7 @@ export type CandidateUpdate = {
   col: number;
   candidates: SudokuDigit[];
 };
-export type GameErrorCode =
-  | 'ROOM_FULL'
-  | 'ROOM_NOT_FOUND'
-  | 'CONNECTION_FAILED'
-  | 'CONNECTION_LOST';
+export type GameErrorCode = 'ROOM_FULL' | 'ROOM_NOT_FOUND';
 
 /**
  * player types
@@ -79,7 +75,7 @@ export type ServerMessage =
   | { type: 'player_joined'; player: PlayerInfo }
   | { type: 'player_left'; playerName: string }
   | { type: 'error'; code: GameErrorCode }
-  | { type: 'game_state'; game: SudokuGame, players: PlayerInfo[] }
+  | { type: 'game_state'; game: SudokuGame; players: PlayerInfo[] }
   | { type: 'game_complete'; completedAt: number }
   | {
       type: 'cell_updated';
