@@ -1,6 +1,9 @@
 import { DIFFICULTY_MAP } from './constants';
 import { Cell } from './types';
 
+/**
+ * Parses the difficulty encoded in the room ID prefix.
+ */
 export const parseDifficulty = (roomId: string) =>
   DIFFICULTY_MAP[roomId[0] as keyof typeof DIFFICULTY_MAP];
 

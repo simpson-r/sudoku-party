@@ -15,43 +15,41 @@ export const Players = ({
   isLoading?: boolean;
 }) => {
   return (
-    <Box borderRadius="none">
-      <Table.Root variant="outline">
-        <Table.Caption />
-        <Table.Header>
-          <Table.Row>
-            <Table.ColumnHeader py={1}>Player</Table.ColumnHeader>
-            <Table.ColumnHeader py={1} textAlign="end">
-              Score
-            </Table.ColumnHeader>
-          </Table.Row>
-        </Table.Header>
-        <Table.Body>
-          {isLoading ? (
-            <Table.Cell colSpan={2} p={0}>
-              <Skeleton w="full" h={8} borderRadius="none" />
-            </Table.Cell>
-          ) : (
-            players.map(({ id, name, score }) => (
-              <Table.Row key={id} _last={{ borderBottom: 'none' }}>
-                <Table.Cell py={1}>
-                  <HStack>
-                    {name}
-                    {playerId === id && (
-                      <Text fontSize="xs" color="fg.subtle">
-                        {'(you)'}
-                      </Text>
-                    )}
-                  </HStack>
-                </Table.Cell>
-                <Table.Cell py={1} textAlign="end">
-                  {score}
-                </Table.Cell>
-              </Table.Row>
-            ))
-          )}
-        </Table.Body>
-      </Table.Root>
-    </Box>
+    <Table.Root variant="outline">
+      <Table.Caption />
+      <Table.Header>
+        <Table.Row>
+          <Table.ColumnHeader py={1}>Player</Table.ColumnHeader>
+          <Table.ColumnHeader py={1} textAlign="end">
+            Score
+          </Table.ColumnHeader>
+        </Table.Row>
+      </Table.Header>
+      <Table.Body>
+        {isLoading ? (
+          <Table.Cell colSpan={2} p={0}>
+            <Skeleton w="full" h={8} borderRadius="none" />
+          </Table.Cell>
+        ) : (
+          players.map(({ id, name, score }) => (
+            <Table.Row key={id} _last={{ borderBottom: 'none' }}>
+              <Table.Cell py={1}>
+                <HStack>
+                  {name}
+                  {playerId === id && (
+                    <Text fontSize="xs" color="fg.subtle">
+                      {'(you)'}
+                    </Text>
+                  )}
+                </HStack>
+              </Table.Cell>
+              <Table.Cell py={1} textAlign="end">
+                {score}
+              </Table.Cell>
+            </Table.Row>
+          ))
+        )}
+      </Table.Body>
+    </Table.Root>
   );
 };

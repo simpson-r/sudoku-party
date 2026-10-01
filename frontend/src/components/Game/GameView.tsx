@@ -105,7 +105,7 @@ export const GameView = ({
   }, [isGameComplete, completionModal]);
 
   // handlers
-  const handleCompletion = () => {
+  const handleNewGame = () => {
     completionModal.onClose();
     onNewGame();
   };
@@ -198,9 +198,11 @@ export const GameView = ({
         difficulty={difficulty}
         errors={errors}
         isOpen={completionModal.open}
+        playerId={playerId}
+        players={players}
         time={time}
         onClose={completionModal.onClose}
-        onNewGame={handleCompletion}
+        onNewGame={handleNewGame}
       />
       {/* <ConfirmationModal
         ctaConfig={CONFIRM_CONFIG[confirmationMode]}

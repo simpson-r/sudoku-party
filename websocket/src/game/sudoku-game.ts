@@ -1,9 +1,4 @@
-import type {
-  Cell,
-  ClientMessage,
-  ServerMessage,
-  SudokuDigit,
-} from '../../../shared/types.js';
+import type { Cell, SudokuDigit } from '../../../shared/types.js';
 import type { Player, Room } from '../types.js';
 
 /**

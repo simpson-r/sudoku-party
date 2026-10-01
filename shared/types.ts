@@ -53,6 +53,7 @@ export type PlayerInfo = { id: string; name: string; score: number };
  */
 export type ClientMessage =
   | { type: 'join'; roomId: string }
+  | { type: 'new_game' }
   | {
       type: 'cell_update';
       row: number;
@@ -75,10 +76,11 @@ export type ClientMessage =
 export type ServerMessage =
   | { type: 'identity'; playerId: string }
   | { type: 'players'; players: PlayerInfo[] }
-  | { type: 'error'; code: GameErrorCode }
-  | { type: 'game_state'; game: SudokuGame }
   | { type: 'player_joined'; player: PlayerInfo }
   | { type: 'player_left'; playerId: string }
+  | { type: 'error'; code: GameErrorCode }
+  | { type: 'game_state'; game: SudokuGame, players: PlayerInfo[] }
+  | { type: 'game_complete'; completedAt: number }
   | {
       type: 'cell_updated';
       row: number;

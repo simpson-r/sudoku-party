@@ -1,7 +1,7 @@
 import { WebSocket } from 'ws';
 
 import { generateSudokuGame } from '../../../shared/sudoku-generator.js';
-import type { ServerMessage } from '../../../shared/types.js';
+import type { Difficulty, ServerMessage } from '../../../shared/types.js';
 import type { Player, Room } from '../types.js';
 
 // constants
@@ -15,13 +15,17 @@ export const isValidRoomId = (roomId: string) => ROOM_ID_REGEX.test(roomId);
 /**
  * Returns an existing room or creates a new room with an initialized game.
  */
-export const createOrGetRoom = (rooms: Map<string, Room>, roomId: string) => {
+export const createOrGetRoom = (
+  rooms: Map<string, Room>,
+  roomId: string,
+  difficulty: Difficulty
+) => {
   const existingRoom = rooms.get(roomId);
   if (existingRoom) return existingRoom;
 
   const room: Room = {
     players: new Map(),
-    game: { board: generateSudokuGame(), startedAt: Date.now() },
+    game: { board: generateSudokuGame(difficulty), startedAt: Date.now() },
     nextPlayerIndex: 1,
   };
   rooms.set(roomId, room);

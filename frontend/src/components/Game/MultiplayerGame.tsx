@@ -17,7 +17,7 @@ export const MultiplayerGame = ({ config }: { config: MultiplayerConfig }) => {
       board={state.board}
       errors={0}
       difficulty={config.difficulty}
-      isGameComplete={false}
+      isGameComplete={state.completed}
       isPaused={false}
       players={state.players}
       playerId={playerId}
@@ -28,7 +28,7 @@ export const MultiplayerGame = ({ config }: { config: MultiplayerConfig }) => {
       onClearCell={actions.clearCell}
       onAddCandidate={actions.addCandidate}
       onRemoveCandidate={actions.removeCandidate}
-      onNewGame={() => {}}
+      onNewGame={actions.newGame}
     />
   );
 };

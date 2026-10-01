@@ -1,8 +1,8 @@
 import { randomUUID } from 'node:crypto';
 import { WebSocketServer } from 'ws';
 
-import { updateBoard } from '../../shared/helpers.js';
-import type { ClientMessage } from '../../shared/types.js';
+import { parseDifficulty, updateBoard } from '../../shared/helpers.js';
+import type { ClientMessage, Difficulty } from '../../shared/types.js';
 import { broadcastToRoom, createOrGetRoom } from './game/room.js';
 import {
   applyScoreUpdate,
@@ -11,6 +11,10 @@ import {
   isValidPosition,
 } from './game/sudoku-game.js';
 import type { Room } from './types.js';
+import {
+  generateSudokuGame,
+  isPuzzleComplete,
+} from '../../shared/sudoku-generator.js';
 
 // constants
 const PORT = 8080;
@@ -24,6 +28,7 @@ wss.on('connection', (ws) => {
   const playerId = randomUUID();
   let roomId: string | null = null;
   let name: string | null = null;
+  let difficulty: Difficulty | null = null;
 
   // message handling
   ws.on('message', (message) => {
@@ -33,7 +38,9 @@ wss.on('connection', (ws) => {
       switch (msg.type) {
         case 'join': {
           roomId = msg.roomId;
-          const room = createOrGetRoom(rooms, roomId);
+          difficulty = parseDifficulty(roomId);
+
+          const room = createOrGetRoom(rooms, roomId, difficulty);
 
           if (room.players.size >= MAX_PLAYERS) {
             ws.send(JSON.stringify({ type: 'error', code: 'ROOM_FULL' })); // send room to user
@@ -51,17 +58,18 @@ wss.on('connection', (ws) => {
             score: 0,
           });
 
-          ws.send(JSON.stringify({ type: 'game_state', game: room.game })); // send game state to user
-
           const players = Array.from(room.players.values()).map(
             ({ name, id, score }) => ({ name, id, score }),
           );
 
-          broadcastToRoom(room, { type: 'players', players }); // send player list to room
+          ws.send(
+            JSON.stringify({ type: 'game_state', game: room.game, players }),
+          ); // send game state to user
+
           break;
         }
         case 'cell_update': {
-          if (!roomId || rooms.get(roomId)) return;
+          if (!roomId) return;
 
           const room = rooms.get(roomId);
           if (!room) return;
@@ -92,6 +100,13 @@ wss.on('connection', (ws) => {
             value,
             player,
           }); // send cell update
+
+          const completed = isPuzzleComplete(room.game.board);
+          if (completed)
+            broadcastToRoom(room, {
+              type: 'game_complete',
+              completedAt: Date.now(),
+            }); // send completion status to room
 
           break;
         }
@@ -153,6 +168,27 @@ wss.on('connection', (ws) => {
             ws,
           );
           break;
+        }
+        case 'new_game': {
+          if (!roomId) return;
+          const room = rooms.get(roomId);
+          if (!room) return;
+
+          room.game = {
+            board: generateSudokuGame(difficulty || 'medium'),
+            startedAt: Date.now(),
+          };
+
+          // reset scores
+          for (const player of room.players.values()) {
+            player.score = 0;
+          }
+
+          broadcastToRoom(room, {
+            type: 'game_state',
+            game: room.game,
+            players: [...room.players.values()],
+          });
         }
       }
     } catch (err) {

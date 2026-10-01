@@ -17,8 +17,8 @@ export const formatSeconds = (secs: number) => {
 /**
  * Returns the elapsed time in seconds since the game started
  */
-export const getElapsedTime = (startedAt: number) =>
-  Math.floor((Date.now() - startedAt) / 1000);
+export const getElapsedTime = (startedAt: number, completedAt?: number) =>
+  Math.floor(((completedAt || Date.now()) - startedAt) / 1000);
 
 export const buildRemainingCounts = (puzzle: Cell[][]) => {
   const remaining = { ...INITIAL_REMAINING };

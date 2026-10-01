@@ -1,14 +1,20 @@
 'use client';
 
-import { Button, Dialog, HStack, Stat, Text, VStack } from '@chakra-ui/react';
-import { Difficulty } from '@shared/types';
+import {
+  Button,
+  DataList,
+  Dialog,
+  Stat,
+  Text,
+  TextProps,
+  VStack,
+} from '@chakra-ui/react';
+import { Difficulty, PlayerInfo } from '@shared/types';
 
-type CompletionStats = {
-  difficulty: Difficulty;
-  errors: number;
-  time: string;
-};
+// types
+type CompletionStats = { difficulty: Difficulty; errors: number; time: string };
 
+// constants
 const COMPLETION_STATS: {
   label: string;
   key: keyof CompletionStats;
@@ -24,43 +30,24 @@ const COMPLETION_STATS: {
 export const CompletionModal = ({
   errors,
   difficulty,
-  time,
   isOpen,
+  playerId,
+  players,
+  time,
   onClose,
   onNewGame,
 }: {
   errors: number;
   difficulty: Difficulty;
-  time: string;
   isOpen: boolean;
+  playerId?: string;
+  players?: PlayerInfo[];
+  time: string;
   onClose: VoidFunction;
   onNewGame: VoidFunction;
 }) => {
   const stats: CompletionStats = { difficulty, errors, time };
 
-  // callbacks
-  const renderDuration = () => {
-    const timeParts = time.split(':');
-    const [hours, mins, secs] =
-      timeParts.length === 3 ? timeParts : [undefined, ...timeParts];
-
-    return (
-      <>
-        {hours && (
-          <>
-            {hours}
-            <Stat.ValueUnit>hr</Stat.ValueUnit>
-          </>
-        )}
-        {mins}
-        <Stat.ValueUnit>min</Stat.ValueUnit>
-        {secs}
-        <Stat.ValueUnit>sec</Stat.ValueUnit>
-      </>
-    );
-  };
-
-  // render
   return (
     <Dialog.Root
       placement="center"
@@ -69,13 +56,15 @@ export const CompletionModal = ({
       unmountOnExit
       onEscapeKeyDown={onClose}
     >
-      <Dialog.Backdrop />
+      <Dialog.Backdrop bg="blackAlpha.800" />
       <Dialog.Positioner>
         <Dialog.Content
-          rounded="2xl"
           justifyContent="center"
           alignItems="center"
           bgColor="bg.subtle"
+          borderRadius="none"
+          border="2px solid"
+          borderColor="border.inverted"
           maxW={400}
         >
           {/* header */}
@@ -85,22 +74,38 @@ export const CompletionModal = ({
                 Congratulations!
               </Dialog.Title>
               <Text fontSize="sm">
-                Puzzle complete. Here&#39;s how you did.
+                Puzzle complete. Here&#39;s are the results
               </Text>
             </VStack>
           </Dialog.Header>
           {/* stats */}
           <Dialog.Body w="9/12">
-            <HStack justify="space-between">
-              {COMPLETION_STATS.map(({ key, label }) => (
-                <Stat.Root key={key} w="10" justifyContent="center">
-                  <Stat.Label>{label}</Stat.Label>
-                  <Stat.ValueText alignItems="baseline">
-                    {key === 'time' ? renderDuration() : stats[key]}
-                  </Stat.ValueText>
-                </Stat.Root>
+            <StatsLabel>Stats</StatsLabel>
+            <DataList.Root orientation="horizontal" gap={1} py={2}>
+              {COMPLETION_STATS.map(({ label, key }) => (
+                <DataList.Item key={key}>
+                  <DataList.ItemLabel>{label}</DataList.ItemLabel>
+                  <DataList.ItemValue>{stats[key]}</DataList.ItemValue>
+                </DataList.Item>
               ))}
-            </HStack>
+            </DataList.Root>
+
+            <StatsLabel>Final Score</StatsLabel>
+            <DataList.Root orientation="horizontal" gap={1} py={2}>
+              {players?.map(({ id, name, score }) => (
+                <DataList.Item key={id}>
+                  <DataList.ItemLabel display="inline-flex" alignItems="center">
+                    {name}
+                    {playerId === id && (
+                      <Text fontSize="2xs" color="fg.subtle">
+                        {'(you)'}
+                      </Text>
+                    )}
+                  </DataList.ItemLabel>
+                  <DataList.ItemValue>{score}</DataList.ItemValue>
+                </DataList.Item>
+              ))}
+            </DataList.Root>
           </Dialog.Body>
           {/* modal footer */}
           <Dialog.Footer>
@@ -112,4 +117,8 @@ export const CompletionModal = ({
       </Dialog.Positioner>
     </Dialog.Root>
   );
+};
+
+const StatsLabel = ({ children }: React.PropsWithChildren<TextProps>) => {
+  return <Text textStyle="label">{children}</Text>;
 };

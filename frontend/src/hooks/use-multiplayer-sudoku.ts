@@ -42,6 +42,7 @@ type SudokuState = {
   players: PlayerInfo[];
   remaining: RemainingCounts;
   log: string[];
+  completed: boolean;
 };
 
 type Action =
@@ -52,7 +53,8 @@ type Action =
   | { type: 'REMOVE_CANDIDATE'; payload: CandidateUpdate }
   | { type: 'SET_CANDIDATES'; payload: CandidateUpdate }
   | { type: 'SET_PLAYERS'; payload: PlayerInfo[] }
-  | { type: 'ADD_ACTIVITY'; payload: string };
+  | { type: 'ADD_ACTIVITY'; payload: string }
+  | { type: 'COMPLETE' };
 
 // reducer
 export function reducer(state: SudokuState, action: Action): SudokuState {
@@ -162,6 +164,12 @@ export function reducer(state: SudokuState, action: Action): SudokuState {
         log,
       };
     }
+    case 'COMPLETE': {
+      return {
+        ...state,
+        completed: true,
+      };
+    }
     default:
       return state;
   }
@@ -177,10 +185,12 @@ export const useMultiplayerSudoku = (config: MultiplayerConfig) => {
     players: [],
     remaining: INITIAL_REMAINING,
     log: [],
+    completed: false,
   });
 
   const [timer, setTimer] = useState(0);
   const [startedAt, setStartedAt] = useState<number | null>(null);
+  const [completedAt, setCompletedAt] = useState<number | null>(null);
   const [playerId, setPlayerId] = useState<string | undefined>(undefined);
 
   // subscribe to messages
@@ -198,14 +208,20 @@ export const useMultiplayerSudoku = (config: MultiplayerConfig) => {
   useEffect(() => {
     if (startedAt === null) return;
 
+    if (state.completed && completedAt) {
+      setTimer(getElapsedTime(startedAt, completedAt));
+      return;
+    }
+
     setTimer(getElapsedTime(startedAt));
 
-    const timerId = setInterval(() => {
-      setTimer(getElapsedTime(startedAt));
-    }, ONE_SEC);
+    const timerId = setInterval(
+      () => setTimer(getElapsedTime(startedAt)),
+      ONE_SEC,
+    );
 
     return () => clearInterval(timerId);
-  }, [startedAt]);
+  }, [completedAt, startedAt, state.completed]);
 
   // handlers
   const handleMessage = (message: ServerMessage) => {
@@ -239,7 +255,7 @@ export const useMultiplayerSudoku = (config: MultiplayerConfig) => {
         break;
       }
       case 'game_state':
-        const { game } = message;
+        const { game, players } = message;
         const { board } = game;
 
         setStartedAt(game.startedAt);
@@ -251,7 +267,7 @@ export const useMultiplayerSudoku = (config: MultiplayerConfig) => {
             remaining: buildRemainingCounts(board),
           },
         });
-
+        dispatch({ type: 'SET_PLAYERS', payload: players });
         break;
       case 'identity':
         setPlayerId(message.playerId);
@@ -259,6 +275,10 @@ export const useMultiplayerSudoku = (config: MultiplayerConfig) => {
         break;
       case 'players':
         dispatch({ type: 'SET_PLAYERS', payload: message.players });
+        break;
+      case 'game_complete':
+        setCompletedAt(message.completedAt);
+        dispatch({ type: 'COMPLETE' });
         break;
       default:
         break;
@@ -291,6 +311,8 @@ export const useMultiplayerSudoku = (config: MultiplayerConfig) => {
     send({ type: 'candidate_remove', ...payload });
   };
 
+  const newGame = () => send({ type: 'new_game' });
+
   return {
     state,
     playerId,
@@ -300,6 +322,7 @@ export const useMultiplayerSudoku = (config: MultiplayerConfig) => {
       fillCell,
       addCandidate,
       removeCandidate,
+      newGame,
     },
   };
 };
