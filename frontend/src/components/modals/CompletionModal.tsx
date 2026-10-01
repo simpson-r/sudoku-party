@@ -4,6 +4,7 @@ import {
   Button,
   DataList,
   Dialog,
+  Separator,
   Stat,
   Text,
   TextProps,
@@ -120,5 +121,10 @@ export const CompletionModal = ({
 };
 
 const StatsLabel = ({ children }: React.PropsWithChildren<TextProps>) => {
-  return <Text textStyle="label">{children}</Text>;
+  return (
+    <>
+      <Text textStyle="label">{children}</Text>
+      <Separator w="full" borderColor='border'/>
+    </>
+  );
 };

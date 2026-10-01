@@ -30,6 +30,14 @@ const getCellActivityMessage = (
     ? `${player.name} filled ${value} at ${position}`
     : `${player.name} cleared ${position}`;
 };
+// constants
+const INITIAL_STATE = {
+  board: undefined,
+  players: [],
+  remaining: INITIAL_REMAINING,
+  log: [],
+  completed: false,
+};
 
 // types & interfaces
 type BoardPayload = {
@@ -54,7 +62,8 @@ type Action =
   | { type: 'SET_CANDIDATES'; payload: CandidateUpdate }
   | { type: 'SET_PLAYERS'; payload: PlayerInfo[] }
   | { type: 'ADD_ACTIVITY'; payload: string }
-  | { type: 'COMPLETE' };
+  | { type: 'COMPLETE' }
+  | { type: 'RESET' };
 
 // reducer
 export function reducer(state: SudokuState, action: Action): SudokuState {
@@ -170,6 +179,13 @@ export function reducer(state: SudokuState, action: Action): SudokuState {
         completed: true,
       };
     }
+
+    case 'RESET': {
+      return {
+        ...state,
+        ...INITIAL_STATE,
+      };
+    }
     default:
       return state;
   }
@@ -181,11 +197,7 @@ export function reducer(state: SudokuState, action: Action): SudokuState {
 export const useMultiplayerSudoku = (config: MultiplayerConfig) => {
   const { isConnected, send, subscribe } = useWebSocket();
   const [state, dispatch] = useReducer(reducer, {
-    board: undefined,
-    players: [],
-    remaining: INITIAL_REMAINING,
-    log: [],
-    completed: false,
+    ...INITIAL_STATE,
   });
 
   const [timer, setTimer] = useState(0);
@@ -311,7 +323,11 @@ export const useMultiplayerSudoku = (config: MultiplayerConfig) => {
     send({ type: 'candidate_remove', ...payload });
   };
 
-  const newGame = () => send({ type: 'new_game' });
+  const newGame = () => {
+    setTimer(0);
+    dispatch({ type: 'RESET' });
+    send({ type: 'new_game' });
+  };
 
   return {
     state,
