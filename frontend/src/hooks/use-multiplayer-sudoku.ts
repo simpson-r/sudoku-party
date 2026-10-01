@@ -19,6 +19,18 @@ import {
 } from '@shared/types';
 import { useEffect, useReducer, useState } from 'react';
 
+// helpers
+const getCellActivityMessage = (
+  event: Extract<ServerMessage, { type: 'cell_updated' }>,
+) => {
+  const { row, col, value, player } = event;
+  const position = `r${row + 1}c${col + 1}`;
+
+  return value
+    ? `${player.name} filled ${value} at ${position}`
+    : `${player.name} cleared ${position}`;
+};
+
 // types & interfaces
 type BoardPayload = {
   board: Cell[][];
@@ -29,6 +41,7 @@ type SudokuState = {
   board?: Cell[][];
   players: PlayerInfo[];
   remaining: RemainingCounts;
+  log: string[];
 };
 
 type Action =
@@ -38,7 +51,8 @@ type Action =
   | { type: 'ADD_CANDIDATE'; payload: CellUpdate }
   | { type: 'REMOVE_CANDIDATE'; payload: CandidateUpdate }
   | { type: 'SET_CANDIDATES'; payload: CandidateUpdate }
-  | { type: 'SET_PLAYERS'; payload: PlayerInfo[] };
+  | { type: 'SET_PLAYERS'; payload: PlayerInfo[] }
+  | { type: 'ADD_ACTIVITY'; payload: string };
 
 // reducer
 export function reducer(state: SudokuState, action: Action): SudokuState {
@@ -134,12 +148,20 @@ export function reducer(state: SudokuState, action: Action): SudokuState {
         board,
         remaining,
       };
-    case 'SET_PLAYERS':
+    case 'SET_PLAYERS': {
       const players = action.payload;
       return {
         ...state,
         players,
       };
+    }
+    case 'ADD_ACTIVITY': {
+      const log = [...state.log, action.payload].slice(-3);
+      return {
+        ...state,
+        log,
+      };
+    }
     default:
       return state;
   }
@@ -154,6 +176,7 @@ export const useMultiplayerSudoku = (config: MultiplayerConfig) => {
     board: undefined,
     players: [],
     remaining: INITIAL_REMAINING,
+    log: [],
   });
 
   const [timer, setTimer] = useState(0);
@@ -198,6 +221,9 @@ export const useMultiplayerSudoku = (config: MultiplayerConfig) => {
       }
       case 'cell_updated': {
         const { col, row, value } = message;
+        const activity = getCellActivityMessage(message);
+
+        dispatch({ type: 'ADD_ACTIVITY', payload: activity });
 
         if (value !== null) {
           dispatch({

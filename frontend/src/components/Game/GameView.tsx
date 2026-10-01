@@ -23,9 +23,12 @@ import {
 } from '@shared/types';
 import { Players } from '../Players';
 import { InviteLink } from '../InviteLink';
+import { ActivityLog } from '../ActivityLog';
+import { useBreakpoints } from '@/hooks/use-device-breakpoints';
 
 // types
 interface GameViewProps {
+  activityLog?: string[];
   board?: Cell[][];
   errors: number;
   difficulty: Difficulty;
@@ -62,6 +65,7 @@ const CONFIRM_CONFIG = {
  * This component coordinates the Sudoku game, including gameplay controls, board interactions, and game lifecycle modals.
  */
 export const GameView = ({
+  activityLog,
   board,
   errors,
   difficulty,
@@ -86,7 +90,7 @@ export const GameView = ({
   const [selectedPos, setSelectedPos] = useState<CellPosition | null>(null);
   const [fillMode, setFillMode] = useState<CellFill>('digit');
   const previousCompleted = useRef(isGameComplete);
-  const isMobile = useBreakpointValue({ base: true, md: false });
+  const { isMobile } = useBreakpoints();
 
   const isMulti = !!roomId;
   const selectedCell = selectedPos
@@ -151,6 +155,7 @@ export const GameView = ({
       <Game.Content>
         {/* main */}
         <Game.Main>
+          {isMobile && isMulti && <InviteLink roomId={roomId} />}
           <Game.Status w="full">
             <SettingsBar
               enablePause={!players}
@@ -176,11 +181,8 @@ export const GameView = ({
 
         {/* sidebar */}
         <Game.Sidebar>
-          {!isMobile && !isMulti ? (
-            <Game.Status />
-          ) : (
-            isMulti && <InviteLink roomId={roomId} />
-          )}
+          {!isMobile &&
+            (isMulti ? <InviteLink roomId={roomId} /> : <Game.Status />)}
           <Controls
             fillMode={fillMode}
             remaining={remainingCounts}
@@ -188,6 +190,7 @@ export const GameView = ({
             handleValueClick={handleValueClick}
           />
           {players && <Players players={players} playerId={playerId || ''} />}
+          <ActivityLog activityLog={activityLog} />
         </Game.Sidebar>
       </Game.Content>
       {/* modals*/}

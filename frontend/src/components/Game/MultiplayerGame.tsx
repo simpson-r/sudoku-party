@@ -13,6 +13,7 @@ export const MultiplayerGame = ({ config }: { config: MultiplayerConfig }) => {
 
   return (
     <GameView
+      activityLog={state.log}
       board={state.board}
       errors={0}
       difficulty={config.difficulty}

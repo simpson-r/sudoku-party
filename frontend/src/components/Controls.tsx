@@ -1,10 +1,11 @@
-import { Icon, Tabs, useBreakpointValue, VStack } from '@chakra-ui/react';
+import { Icon, Tabs, VStack } from '@chakra-ui/react';
 
 import { DigitsGrid } from '@/components/DigitsGrid';
 import { CellFill } from '@/components/SudokuGrid/types';
 import { SudokuDigit } from '@shared/types';
 import { LuNotebookPen, LuPencil } from 'react-icons/lu';
 import { Tooltip } from './ui/tooltip';
+import { useBreakpoints } from '@/hooks/use-device-breakpoints';
 
 // constants
 const TAB_ITEMS = [
@@ -31,7 +32,7 @@ export const Controls = ({
   handleTabChange?: (mode: CellFill) => void;
   handleValueClick?: (digit: SudokuDigit) => void;
 }) => {
-  const isMobile = useBreakpointValue({ base: true, md: false });
+  const { isMobile } = useBreakpoints();
   return (
     <VStack
       w="full"

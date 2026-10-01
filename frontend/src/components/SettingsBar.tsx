@@ -63,8 +63,8 @@ const StatusItem = ({
   label: string;
   children: React.ReactNode;
 }) => (
-  <Text fontSize="sm" fontVariantNumeric="tabular-nums">
-    <Text as="span" color="gray.fg">
+  <Text fontSize="sm" fontVariantNumeric="tabular-nums" fontWeight='400'>
+    <Text as="span" fontWeight='medium'>
       {label}:{' '}
     </Text>
     {children}

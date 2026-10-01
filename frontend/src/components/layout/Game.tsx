@@ -5,7 +5,7 @@ import { Box, Flex, VStack } from '@chakra-ui/react';
  * Provides shared spacing and alignment for game content.
  */
 const Root = (props: React.ComponentProps<typeof VStack>) => (
-  <VStack w="full" px={8} py={10} {...props} />
+  <VStack w="full" px={8} py={8} {...props} />
 );
 
 /**
@@ -18,7 +18,7 @@ const Content = (props: React.ComponentProps<typeof Flex>) => (
     w="full"
     justify="center"
     align={{ base: 'center', md: 'flex-start' }}
-    gap={6}
+    gap={8}
     {...props}
   />
 );

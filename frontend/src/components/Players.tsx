@@ -16,10 +16,10 @@ export const Players = ({
     <Box borderRadius="none">
       <Table.Root variant="outline">
         <Table.Caption />
-        <Table.Header bgColor="bg.inverted">
+        <Table.Header>
           <Table.Row>
-            <Table.ColumnHeader color="fg.inverted">Players</Table.ColumnHeader>
-            <Table.ColumnHeader color="fg.inverted" textAlign="end">
+            <Table.ColumnHeader py={1}>Players</Table.ColumnHeader>
+            <Table.ColumnHeader py={1} textAlign="end">
               Score
             </Table.ColumnHeader>
           </Table.Row>
@@ -27,7 +27,7 @@ export const Players = ({
         <Table.Body>
           {players.map(({ id, name, score }) => (
             <Table.Row key={id} _last={{ borderBottom: 'none' }}>
-              <Table.Cell>
+              <Table.Cell py={1}>
                 <HStack>
                   {name}
                   {playerId === id && (
@@ -37,7 +37,9 @@ export const Players = ({
                   )}
                 </HStack>
               </Table.Cell>
-              <Table.Cell textAlign="end">{score}</Table.Cell>
+              <Table.Cell py={1} textAlign="end">
+                {score}
+              </Table.Cell>
             </Table.Row>
           ))}
         </Table.Body>

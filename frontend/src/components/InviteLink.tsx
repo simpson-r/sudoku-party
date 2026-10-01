@@ -1,46 +1,60 @@
 import {
   Box,
+  Center,
   Clipboard,
   IconButton,
+  IconButtonProps,
   Input,
   InputGroup,
+  Link,
+  useClipboard,
 } from '@chakra-ui/react';
-import { Game } from './layout/Game';
+
+import { useBreakpoints } from '@/hooks/use-device-breakpoints';
 
 /**
- * This component displays the players currently in the room.
+ * Displays a shareable invite link for the multiplayer room.
  */
 export const InviteLink = ({ roomId }: { roomId: string }) => {
   const roomUrl = `${window.location.origin}/game/${roomId}`;
-  return (
-    <Clipboard.Root value={roomUrl}>
-      <Clipboard.Label textStyle="label">Invite link</Clipboard.Label>
+  const clipboard = useClipboard({ value: roomUrl });
+  const { isMobile } = useBreakpoints();
 
-      <InputGroup endElement={<ClipboardIconButton />}>
-        <Clipboard.Input asChild>
-          <Input
-            mt={0.5}
-            overflow="hidden"
-            textOverflow="ellipsis"
-            borderRadius="none"
-          />
-        </Clipboard.Input>
-      </InputGroup>
+  return (
+    <Clipboard.Root value={roomUrl} justifyContent="flex-start">
+      <Clipboard.Label textStyle="label">Invite link: </Clipboard.Label>
+      {isMobile ? (
+        <Link as="span" textStyle="sm" onClick={clipboard.copy}>
+          <Clipboard.ValueText />
+          <Clipboard.Indicator />
+        </Link>
+      ) : (
+        <InputGroup
+          endElement={<ClipboardIconButton onClick={clipboard.copy} />}
+        >
+          <Clipboard.Input asChild>
+            <Input
+              mt={0.5}
+              overflow="hidden"
+              textOverflow="ellipsis"
+              borderRadius="none"
+            />
+          </Clipboard.Input>
+        </InputGroup>
+      )}
     </Clipboard.Root>
   );
 };
 
-const ClipboardIconButton = () => {
+const ClipboardIconButton = ({ onClick }: IconButtonProps) => {
   return (
     <Clipboard.Trigger asChild>
       <IconButton
         aria-label="copy link"
         variant="surface"
         size="xs"
-        bgColor="bg.inverted"
-        color="fg.inverted"
-        borderRadius="none"
         me="-2"
+        onClick={onClick}
       >
         <Clipboard.Indicator />
       </IconButton>

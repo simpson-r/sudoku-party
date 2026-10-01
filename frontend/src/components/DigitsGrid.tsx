@@ -1,10 +1,11 @@
 'use client';
 
-import { Flex, SimpleGrid, Text, useBreakpointValue } from '@chakra-ui/react';
+import { Flex, SimpleGrid, Text } from '@chakra-ui/react';
 
 import { CellFill } from './SudokuGrid/types';
 import { getCandidatePlacement } from './SudokuGrid/helpers';
 import { SudokuDigit } from '@shared/types';
+import { useBreakpoints } from '@/hooks/use-device-breakpoints';
 
 // types
 type DigitsGridProps = {
@@ -23,7 +24,7 @@ export const DigitsGrid = ({
   fillMode,
   onValueClick,
 }: React.PropsWithChildren<DigitsGridProps>) => {
-  const isMobile = useBreakpointValue({ base: true, md: false });
+  const { isMobile } = useBreakpoints();
 
   return (
     <SimpleGrid
