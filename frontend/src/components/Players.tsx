@@ -1,4 +1,4 @@
-import { Box, HStack, Table, Text } from '@chakra-ui/react';
+import { Box, HStack, Skeleton, Table, Text } from '@chakra-ui/react';
 
 import { PlayerInfo } from '@shared/types';
 
@@ -8,9 +8,11 @@ import { PlayerInfo } from '@shared/types';
 export const Players = ({
   playerId,
   players,
+  isLoading = false,
 }: {
   playerId?: string;
   players: PlayerInfo[];
+  isLoading?: boolean;
 }) => {
   return (
     <Box borderRadius="none">
@@ -18,30 +20,36 @@ export const Players = ({
         <Table.Caption />
         <Table.Header>
           <Table.Row>
-            <Table.ColumnHeader py={1}>Players</Table.ColumnHeader>
+            <Table.ColumnHeader py={1}>Player</Table.ColumnHeader>
             <Table.ColumnHeader py={1} textAlign="end">
               Score
             </Table.ColumnHeader>
           </Table.Row>
         </Table.Header>
         <Table.Body>
-          {players.map(({ id, name, score }) => (
-            <Table.Row key={id} _last={{ borderBottom: 'none' }}>
-              <Table.Cell py={1}>
-                <HStack>
-                  {name}
-                  {playerId === id && (
-                    <Text fontSize="xs" color="fg.subtle">
-                      {'(you)'}
-                    </Text>
-                  )}
-                </HStack>
-              </Table.Cell>
-              <Table.Cell py={1} textAlign="end">
-                {score}
-              </Table.Cell>
-            </Table.Row>
-          ))}
+          {isLoading ? (
+            <Table.Cell colSpan={2} p={0}>
+              <Skeleton w="full" h={8} borderRadius="none" />
+            </Table.Cell>
+          ) : (
+            players.map(({ id, name, score }) => (
+              <Table.Row key={id} _last={{ borderBottom: 'none' }}>
+                <Table.Cell py={1}>
+                  <HStack>
+                    {name}
+                    {playerId === id && (
+                      <Text fontSize="xs" color="fg.subtle">
+                        {'(you)'}
+                      </Text>
+                    )}
+                  </HStack>
+                </Table.Cell>
+                <Table.Cell py={1} textAlign="end">
+                  {score}
+                </Table.Cell>
+              </Table.Row>
+            ))
+          )}
         </Table.Body>
       </Table.Root>
     </Box>

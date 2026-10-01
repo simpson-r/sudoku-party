@@ -11,17 +11,18 @@ export const SettingsBar = ({
   errors = 0,
   difficulty,
   hidePauseToggle = false,
-  isPaused,
+  isPaused = false,
   time,
   pause,
   resume,
 }: {
   enablePause?: boolean;
-  difficulty: Difficulty;
-  isPaused: boolean;
-  hidePauseToggle?: boolean;
-  time: string;
   errors: number;
+  difficulty: Difficulty;
+  hidePauseToggle?: boolean;
+  isPaused?: boolean;
+  time: string;
+
   pause?: VoidFunction;
   resume?: VoidFunction;
 }) => {
@@ -63,8 +64,8 @@ const StatusItem = ({
   label: string;
   children: React.ReactNode;
 }) => (
-  <Text fontSize="sm" fontVariantNumeric="tabular-nums" fontWeight='400'>
-    <Text as="span" fontWeight='medium'>
+  <Text fontSize="sm" fontVariantNumeric="tabular-nums" fontWeight="400">
+    <Text as="span" fontWeight="medium">
       {label}:{' '}
     </Text>
     {children}

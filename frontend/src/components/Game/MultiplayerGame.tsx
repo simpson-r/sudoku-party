@@ -9,7 +9,7 @@ export const MultiplayerGame = ({ config }: { config: MultiplayerConfig }) => {
   const { actions, playerId, state, time } = useMultiplayerSudoku(config);
 
   // render non-interactive board for loading state
-  if (!state.board) return <GameLoadingView />;
+  if (!state.board) return <GameLoadingView difficulty={config.difficulty} />;
 
   return (
     <GameView

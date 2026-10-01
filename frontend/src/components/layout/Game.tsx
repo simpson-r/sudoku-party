@@ -18,7 +18,7 @@ const Content = (props: React.ComponentProps<typeof Flex>) => (
     w="full"
     justify="center"
     align={{ base: 'center', md: 'flex-start' }}
-    gap={8}
+    gap={{ base: 4, md: 8}}
     {...props}
   />
 );
@@ -27,7 +27,7 @@ const Content = (props: React.ComponentProps<typeof Flex>) => (
  * Contains the board and its game status.
  */
 const Main = (props: React.ComponentProps<typeof VStack>) => (
-  <VStack flexShrink={0} gap={1} {...props} />
+  <VStack flexShrink={0} gap={3} {...props} />
 );
 
 /**
@@ -48,7 +48,7 @@ const Sidebar = (props: React.ComponentProps<typeof VStack>) => (
  * to prevent the board from shifting between game states.
  */
 const Status = (props: React.ComponentProps<typeof Box>) => (
-  <Box minH={6} {...props} />
+  <Box minH={6} mb={-2} {...props} />
 );
 
 export const Game = {

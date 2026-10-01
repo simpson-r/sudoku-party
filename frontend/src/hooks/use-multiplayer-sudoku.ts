@@ -255,6 +255,7 @@ export const useMultiplayerSudoku = (config: MultiplayerConfig) => {
         break;
       case 'identity':
         setPlayerId(message.playerId);
+
         break;
       case 'players':
         dispatch({ type: 'SET_PLAYERS', payload: message.players });
