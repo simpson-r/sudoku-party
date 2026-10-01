@@ -190,7 +190,7 @@ export const GameView = ({
             handleValueClick={handleValueClick}
           />
           {players && <Players players={players} playerId={playerId || ''} />}
-          <ActivityLog activityLog={activityLog} />
+          {isMulti && <ActivityLog activityLog={activityLog} />}
         </Game.Sidebar>
       </Game.Content>
       {/* modals*/}

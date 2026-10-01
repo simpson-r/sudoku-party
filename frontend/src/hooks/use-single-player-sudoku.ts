@@ -12,6 +12,7 @@ import {
   Cell,
   CellPosition,
   Difficulty,
+  PlayerInfo,
   RemainingCounts,
 } from '@shared/types';
 import { updateBoard } from '@shared/helpers';
@@ -24,6 +25,7 @@ interface SudokuState {
   completed: boolean;
   paused: boolean;
   remaining: RemainingCounts;
+  score: number;
 }
 
 type ResetPayload = { board: Cell[][]; remaining: RemainingCounts };
@@ -47,6 +49,7 @@ const createInitialState = (
   errors: 0,
   completed: false,
   paused: false,
+  score: 0,
 });
 
 // reducer
@@ -56,6 +59,9 @@ export function reducer(state: SudokuState, action: Action): SudokuState {
       const { row, col, value } = action.payload;
       const prevCell = state.board[row][col];
       const { board, cell } = updateBoard(state.board, row, col, { value });
+
+      const isCorrect = cell.value === cell.actual;
+
       return {
         ...state,
         board,
@@ -66,6 +72,7 @@ export function reducer(state: SudokuState, action: Action): SudokuState {
           cell.value,
         ),
         completed: isPuzzleComplete(board),
+        score: state.score + (isCorrect ? 10 : -10),
       };
     }
     case 'CLEAR_DIGIT': {
