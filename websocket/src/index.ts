@@ -1,5 +1,4 @@
 import { createServer } from 'http';
-import { randomUUID } from 'node:crypto';
 import { WebSocketServer } from 'ws';
 
 import {
@@ -48,10 +47,10 @@ const rooms = new Map<string, Room>();
 
 // websocket handling
 wss.on('connection', (ws) => {
-  const playerId = randomUUID();
   let roomId: string | null = null;
   let name: string | null = null;
   let difficulty: Difficulty | null = null;
+  let playerId: string | null = null;
 
   // message handling
   ws.on('message', (message) => {
@@ -61,25 +60,39 @@ wss.on('connection', (ws) => {
       switch (msg.type) {
         case 'join': {
           roomId = msg.roomId;
+          playerId = msg.playerId;
+
           difficulty = parseDifficulty(roomId);
 
           const room = createOrGetRoom(rooms, roomId, difficulty || 'medium');
-
           if (room.players.size >= MAX_PLAYERS) {
             ws.send(JSON.stringify({ type: 'error', code: 'ROOM_FULL' })); // send room to user
             return;
           }
 
-          ws.send(JSON.stringify({ type: 'identity', playerId })); // send identity to user
+          const player = room.players.get(msg.playerId);
 
-          name = `Player ${room.nextPlayerIndex}`;
-          room.nextPlayerIndex++;
-          room.players.set(playerId, {
-            id: playerId,
-            name,
-            socket: ws,
-            score: 0,
-          });
+          if (player) {
+            player.socket = ws;
+            player.connected = true;
+            if (player.disconnectTimer) {
+              clearTimeout(player.disconnectTimer);
+              player.disconnectTimer = undefined;
+            }
+          } else {
+            // create new player
+            name = `Player ${room.nextPlayerIndex}`;
+            room.nextPlayerIndex++;
+            room.players.set(playerId, {
+              id: msg.playerId,
+              name,
+              socket: ws,
+              score: 0,
+              connected: true,
+            });
+          }
+
+          playerId = msg.playerId;
 
           const players = Array.from(room.players.values()).map(
             ({ name, id, score }) => ({ name, id, score }),
@@ -97,7 +110,7 @@ wss.on('connection', (ws) => {
           break;
         }
         case 'cell_update': {
-          if (!roomId) return;
+          if (!roomId || !playerId) return;
 
           const room = rooms.get(roomId);
           if (!room) return;
@@ -226,27 +239,42 @@ wss.on('connection', (ws) => {
     }
   });
 
-  // close handling
   ws.on('close', () => {
-    if (!roomId) return;
-    const room = rooms.get(roomId);
+    if (!roomId || !playerId) return;
 
+    const room = rooms.get(roomId);
     if (!room) return;
 
-    broadcastToRoom(room, {
-      type: 'player_left',
-      playerName: room.players.get(playerId)?.name || '',
-    }); // send player left to room
+    const player = room.players.get(playerId);
+    if (!player) return;
+    if (player.socket !== ws) return; // ignore close events from stale/replaced connections
 
-    room.players.delete(playerId);
+    player.connected = false;
 
-    const players = Array.from(room.players?.values() ?? []).map(
-      ({ name, id, score }) => ({ name, id, score }),
-    );
+    const disconnectedPlayerId = playerId;
+    const disconnectedRoomId = roomId;
 
-    broadcastToRoom(room, { type: 'players', players }); // updated player list to room
+    player.disconnectTimer = setTimeout(() => {
+      const currentPlayer = room.players.get(disconnectedPlayerId);
+      if (!currentPlayer || currentPlayer.connected) return; // player may have reconnected during the grace period
 
-    if (room.players?.size === 0) rooms.delete(roomId); // room cleanup
+      room.players.delete(disconnectedPlayerId);
+
+      broadcastToRoom(room, {
+        type: 'player_left',
+        playerName: currentPlayer.name,
+      });
+
+      const players = [...room.players.values()].map(({ name, id, score }) => ({
+        name,
+        id,
+        score,
+      }));
+
+      broadcastToRoom(room, { type: 'players', players });
+
+      if (room.players.size === 0) rooms.delete(disconnectedRoomId);
+    }, 30_000);
   });
 });
 

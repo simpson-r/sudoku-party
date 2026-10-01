@@ -28,19 +28,40 @@ export const WebSocketProvider = ({ children }: React.PropsWithChildren) => {
   const ws = useRef<WebSocket>(null);
 
   useEffect(() => {
-    const socket = new WebSocket(WS_URL);
-    socket.onopen = () => setIsConnected(true);
-    socket.onclose = () => setIsConnected(false);
-    socket.onmessage = (event) => {
-      const message = JSON.parse(event.data) as ServerMessage;
-      const subscribers = subscriberRef.current;
-      subscribers.forEach((subscriber) => subscriber(message));
+    let reconnectTimer: ReturnType<typeof setTimeout>;
+    let shouldReconnect = true;
+
+    const connect = () => {
+      const socket = new WebSocket(WS_URL);
+      ws.current = socket;
+
+      socket.onopen = () => setIsConnected(true);
+
+      socket.onmessage = (event) => {
+        const message = JSON.parse(event.data) as ServerMessage;
+
+        subscriberRef.current.forEach((subscriber) => {
+          subscriber(message);
+        });
+      };
+
+      socket.onclose = () => {
+        setIsConnected(false);
+
+        if (shouldReconnect) {
+          reconnectTimer = setTimeout(connect, 1000);
+        }
+      };
     };
-    ws.current = socket;
 
-    return () => socket.close();
+    connect();
+
+    return () => {
+      shouldReconnect = false;
+      clearTimeout(reconnectTimer);
+      ws.current?.close();
+    };
   }, []);
-
   const subscribe = (subscriber: MessageHandler) => {
     subscriberRef.current.add(subscriber);
 

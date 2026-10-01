@@ -27,6 +27,15 @@ const getCellActivityMessage = (
     ? `${player.name} filled ${value} at ${position}`
     : `${player.name} cleared ${position}`;
 };
+
+const getPlayerId = () => {
+  const existing = localStorage.getItem('sudoku-player-id');
+  if (existing) return existing;
+
+  const id = crypto.randomUUID();
+  localStorage.setItem('sudoku-player-id', id);
+  return id;
+};
 // constants
 const INITIAL_STATE = {
   board: undefined,
@@ -55,6 +64,7 @@ type SudokuState = {
   startedAt: number;
   completedAt: number | null;
   error: GameErrorCode | null;
+  playerId: string;
 };
 
 type Action =
@@ -215,87 +225,87 @@ export const useMultiplayerSudoku = (config: MultiplayerConfig) => {
   const { isConnected, send, subscribe } = useWebSocket();
   const [state, dispatch] = useReducer(reducer, {
     ...INITIAL_STATE,
+      playerId: getPlayerId(),
   });
 
-  const [playerId, setPlayerId] = useState<string | undefined>(undefined);
 
   // handlers
-  const handleMessage = useCallback((message: ServerMessage) => {
-    switch (message?.type) {
-      case 'candidates_updated': {
-        const { col, row, candidates } = message;
+  const handleMessage = useCallback(
+    (message: ServerMessage) => {
+      switch (message?.type) {
+        case 'game_state':
+          const { game, players } = message;
+          const { board } = game;
 
-        dispatch({
-          type: 'SET_CANDIDATES',
-          payload: { row, col, candidates },
-        });
-        break;
-      }
-      case 'cell_updated': {
-        const { col, row, value } = message;
-        const activity = getCellActivityMessage(message);
-
-        dispatch({ type: 'ADD_ACTIVITY', payload: activity });
-
-        if (value !== null) {
           dispatch({
-            type: 'FILL_DIGIT',
-            payload: { row, col, value },
+            type: 'INIT_BOARD',
+            payload: {
+              board,
+              remaining: buildRemainingCounts(board),
+              startedAt: game.startedAt,
+            },
           });
-        } else {
-          dispatch({
-            type: 'CLEAR_DIGIT',
-            payload: { row, col },
-          });
+          dispatch({ type: 'SET_PLAYERS', payload: players });
+          break;
+        case 'cell_updated': {
+          const { col, row, value } = message;
+          const activity = getCellActivityMessage(message);
+
+          dispatch({ type: 'ADD_ACTIVITY', payload: activity });
+
+          if (value !== null) {
+            dispatch({
+              type: 'FILL_DIGIT',
+              payload: { row, col, value },
+            });
+          } else {
+            dispatch({
+              type: 'CLEAR_DIGIT',
+              payload: { row, col },
+            });
+          }
+          break;
         }
-        break;
-      }
-      case 'game_state':
-        const { game, players } = message;
-        const { board } = game;
+        case 'candidates_updated': {
+          const { col, row, candidates } = message;
 
-        dispatch({
-          type: 'INIT_BOARD',
-          payload: {
-            board,
-            remaining: buildRemainingCounts(board),
-            startedAt: game.startedAt,
-          },
-        });
-        dispatch({ type: 'SET_PLAYERS', payload: players });
-        break;
-      case 'identity':
-        setPlayerId(message.playerId);
+          dispatch({
+            type: 'SET_CANDIDATES',
+            payload: { row, col, candidates },
+          });
+          break;
+        }
 
-        break;
-      case 'players':
-        dispatch({ type: 'SET_PLAYERS', payload: message.players });
-        break;
-      case 'game_complete':
-        dispatch({ type: 'COMPLETE', payload: message.completedAt });
-        break;
-      case 'player_joined': {
-        dispatch({
-          type: 'ADD_ACTIVITY',
-          payload: `${message.player.name} joined`,
-        });
-        break;
+        case 'players':
+          dispatch({ type: 'SET_PLAYERS', payload: message.players });
+          break;
+        case 'game_complete':
+          dispatch({ type: 'COMPLETE', payload: message.completedAt });
+          break;
+        case 'player_joined': {
+          dispatch({
+            type: 'ADD_ACTIVITY',
+            payload: `${message.player.name} joined`,
+          });
+          break;
+        }
+        case 'player_left': {
+          dispatch({
+            type: 'ADD_ACTIVITY',
+            payload: `${message.playerName} left`,
+          });
+          break;
+        }
+        case 'error': {
+          dispatch({ type: 'ERROR', payload: message.code });
+          break;
+        }
+        default:
+          break;
       }
-      case 'player_left': {
-        dispatch({
-          type: 'ADD_ACTIVITY',
-          payload: `${message.playerName} left`,
-        });
-        break;
-      }
-      case 'error': {
-        dispatch({ type: 'ERROR', payload: message.code });
-        break;
-      }
-      default:
-        break;
-    }
-  }, []);
+    },
+    [dispatch],
+  );
   // subscribe to messages
   useEffect(() => {
     const unsubscribe = subscribe(handleMessage);
@@ -306,7 +316,7 @@ export const useMultiplayerSudoku = (config: MultiplayerConfig) => {
   // join room
   useEffect(() => {
     if (isConnected) {
-      send({ type: 'join', roomId: config.roomId });
+      send({ type: 'join', roomId: config.roomId, playerId: getPlayerId() });
     }
   }, [isConnected, config.roomId, send]);
 
@@ -340,7 +350,6 @@ export const useMultiplayerSudoku = (config: MultiplayerConfig) => {
 
   return {
     state,
-    playerId,
     actions: {
       clearCell,
       fillCell,

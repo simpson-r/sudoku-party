@@ -48,7 +48,7 @@ export type PlayerInfo = { id: string; name: string; score: number };
  * websocket types
  */
 export type ClientMessage =
-  | { type: 'join'; roomId: string }
+  | { type: 'join'; roomId: string, playerId: string }
   | { type: 'new_game' }
   | {
       type: 'cell_update';
@@ -70,7 +70,6 @@ export type ClientMessage =
     };
 
 export type ServerMessage =
-  | { type: 'identity'; playerId: string }
   | { type: 'players'; players: PlayerInfo[] }
   | { type: 'player_joined'; player: PlayerInfo }
   | { type: 'player_left'; playerName: string }

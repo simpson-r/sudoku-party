@@ -15,7 +15,7 @@ import { ConfirmationModal } from '../modals/ConfirmationModal';
 
 export const MultiplayerGame = ({ config }: { config: MultiplayerConfig }) => {
   const router = useRouter();
-  const { actions, playerId, state } = useMultiplayerSudoku(config);
+  const { actions, state } = useMultiplayerSudoku(config);
   const roomCapacityModal = useDisclosure();
 
   useEffect(() => {
@@ -54,7 +54,7 @@ export const MultiplayerGame = ({ config }: { config: MultiplayerConfig }) => {
       isGameComplete={state.completed}
       isPaused={false}
       players={state.players}
-      playerId={playerId}
+      playerId={state.playerId}
       remainingCounts={state.remaining}
       roomId={config.roomId}
       startedAt={state.startedAt}

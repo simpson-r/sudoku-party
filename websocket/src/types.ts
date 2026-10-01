@@ -2,10 +2,21 @@ import { WebSocket } from 'ws';
 import type { SudokuDigit, SudokuGame } from '../../shared/types.js';
 
 // player
-export type Player = { id: string; name: string; socket: WebSocket, score: 0 };
+export type Player = {
+  id: string;
+  name: string;
+  socket: WebSocket;
+  score: 0;
+  connected: boolean;
+  disconnectTimer?: ReturnType<typeof setTimeout> | undefined;
+};
 
 // room
-export type Room = { players: Map<string, Player>; game: SudokuGame, nextPlayerIndex: number };
+export type Room = {
+  players: Map<string, Player>;
+  game: SudokuGame;
+  nextPlayerIndex: number;
+};
 
 // messages
 export type CellUpdate =
