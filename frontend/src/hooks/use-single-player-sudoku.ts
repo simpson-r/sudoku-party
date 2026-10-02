@@ -70,6 +70,7 @@ export function reducer(state: SudokuState, action: Action): SudokuState {
         errors: state.errors + (value !== cell.actual ? 1 : 0),
         remaining: buildRemainingCounts(board),
         completed: isPuzzleComplete(board),
+        completedAt: Date.now(),
         score: state.score + (cell.value === cell.actual ? 10 : -10),
       };
     }
@@ -168,7 +169,7 @@ export const useSinglePlayerSudoku = (difficulty: Difficulty) => {
   const resume = () => dispatch({ type: 'RESUME' });
 
   const newGame = () => {
-    const newPuzzle = generateSudokuGame();
+    const newPuzzle = generateSudokuGame(difficulty);
     const newRemaining = buildRemainingCounts(newPuzzle);
 
     setInitialBoard(newPuzzle);

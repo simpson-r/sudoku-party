@@ -89,7 +89,7 @@ export const CompletionModal = ({
               >
                 Congratulations!
               </Dialog.Title>
-              <Text fontSize="sm">Puzzle complete. Here are the results.</Text>
+              <Text fontSize="sm">Puzzle complete. Here are the results:</Text>
             </VStack>
           </Dialog.Header>
           {/* stats */}

@@ -29,7 +29,7 @@ export const Controls = ({
   handleTabChange?: (mode: CellFill) => void;
   handleValueClick?: (digit: SudokuDigit) => void;
 }) => {
-  const { isTablet } = useBreakpoints();
+  const { isCompactLayout } = useBreakpoints();
   return (
     <VStack
       w="full"
@@ -49,7 +49,7 @@ export const Controls = ({
               key={value}
               content={label}
               positioning={{ placement: 'top' }}
-              disabled={isTablet}
+              disabled={isCompactLayout}
             >
               <Tabs.Trigger
                 value={value}
@@ -61,7 +61,7 @@ export const Controls = ({
                 disabled={disabled}
                 _selected={{ color: 'bg', bgColor: 'gray.solid' }}
               >
-                {isTablet ? label : <Icon size="md">{icon}</Icon>}
+                {isCompactLayout ? label : <Icon size="md">{icon}</Icon>}
               </Tabs.Trigger>
             </Tooltip>
           ))}

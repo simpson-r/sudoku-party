@@ -23,7 +23,7 @@ export const SinglePlayerGame = ({ config }: { config: SetupConfig }) => {
       onClearCell={actions.clearCell}
       onAddCandidate={actions.addCandidate}
       onRemoveCandidate={actions.removeCandidate}
-      onNewGame={() => {}}
+      onNewGame={actions.newGame}
       onPause={actions.pause}
       onResume={actions.resume}
     />

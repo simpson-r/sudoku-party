@@ -24,7 +24,7 @@ export const DigitsGrid = ({
   fillMode,
   onValueClick,
 }: React.PropsWithChildren<DigitsGridProps>) => {
-  const { isTablet } = useBreakpoints();
+  const { isCompactLayout } = useBreakpoints();
 
   return (
     <SimpleGrid
@@ -61,7 +61,7 @@ export const DigitsGrid = ({
               </Text>
               {Boolean(remaining) && (
                 <Text
-                  fontSize={{ base: '2xs', md: 'xs', lg: 'sm' }}
+                  fontSize={{ base: '2xs', lg: 'sm' }}
                   color="fg.muted"
                   position={{ base: 'relative', md: 'absolute' }}
                   top={{ base: 'auto', md: 0 }}
@@ -75,9 +75,9 @@ export const DigitsGrid = ({
             // candidate
             <Text
               position="absolute"
-              fontSize={{ base: 'xs', lg: 'sm' }}
+              fontSize={{ base: 'xs', md: 'sm' }}
               color={!!remaining ? 'fg' : 'fg.subtle'}
-              {...(!isTablet
+              {...(!isCompactLayout
                 ? getCandidatePlacement(num as unknown as SudokuDigit, 3, 1)
                 : {})}
             >
