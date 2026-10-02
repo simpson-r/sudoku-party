@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
 import { useDisclosure } from '@chakra-ui/react';
@@ -10,8 +10,6 @@ import { MultiplayerConfig } from '@/components/SudokuGrid/types';
 import { GameLoadingView } from './GameLoadingView';
 import { GameView } from './GameView';
 import { ConfirmationModal } from '../modals/ConfirmationModal';
-
-
 
 export const MultiplayerGame = ({ config }: { config: MultiplayerConfig }) => {
   const router = useRouter();
@@ -55,6 +53,8 @@ export const MultiplayerGame = ({ config }: { config: MultiplayerConfig }) => {
       isPaused={false}
       players={state.players}
       playerId={state.playerId}
+      totalPausedMs={0}
+      pausedAt={null}
       remainingCounts={state.remaining}
       roomId={config.roomId}
       startedAt={state.startedAt}

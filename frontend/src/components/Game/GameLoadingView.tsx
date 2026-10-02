@@ -1,4 +1,3 @@
-import { useBreakpoints } from '@/hooks/use-device-breakpoints';
 import { Difficulty } from '@sudokuparty/shared/types';
 import { INITIAL_REMAINING } from '@sudokuparty/shared/constants';
 
@@ -9,22 +8,27 @@ import { Players } from '../Players';
 import { SudokuBoard } from '../SudokuGrid/SudokuBoard';
 import { InviteLink } from '../InviteLink';
 import { SettingsBar } from '../SettingsBar';
+import { Box } from '@chakra-ui/react';
 
 /**
  * This component renders multiplayer sudoku game loading state by board is undefined
  */
 export const GameLoadingView = ({ difficulty }: { difficulty: Difficulty }) => {
-  const { isCompactLayout } = useBreakpoints();
   return (
     <Game.Root>
-      {isCompactLayout && <InviteLink roomId="" isLoading />}
+      <Box display={{ base: 'block', lg: 'none' }} w="full">
+        <InviteLink roomId="" isLoading />
+      </Box>
+
       <Game.Content>
         {/* main */}
         <Game.Main>
           <Game.Status>
             <SettingsBar
               difficulty={difficulty}
+              pausedAt={null}
               startedAt={null}
+              totalPausedMs={0}
               hidePauseToggle
             />
           </Game.Status>
@@ -33,7 +37,9 @@ export const GameLoadingView = ({ difficulty }: { difficulty: Difficulty }) => {
         </Game.Main>
         {/*  sidebar */}
         <Game.Sidebar>
-          {!isCompactLayout && <InviteLink roomId="" isLoading />}
+          <Box display={{ base: 'none', lg: 'block' }}>
+            <InviteLink roomId="" isLoading />
+          </Box>
           <Controls fillMode="digit" remaining={INITIAL_REMAINING} disabled />
           <Players players={[]} isLoading />
           <ActivityLog isLoading />

@@ -16,6 +16,8 @@ export const SinglePlayerGame = ({ config }: { config: SetupConfig }) => {
       isGameComplete={state.completed}
       isPaused={state.paused}
       players={players}
+      totalPausedMs={state.totalPausedMs}
+      pausedAt={state.pausedAt}
       startedAt={state.startedAt}
       completedAt={state.completedAt}
       remainingCounts={state.remaining}

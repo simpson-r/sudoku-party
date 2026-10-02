@@ -24,6 +24,8 @@ interface SudokuState {
   score: number;
   startedAt: number;
   completedAt: number | null;
+  pausedAt: number | null;
+  totalPausedMs: number;
 }
 
 type ResetPayload = { board: Cell[][]; remaining: RemainingCounts };
@@ -50,6 +52,8 @@ const createInitialState = (
   score: 0,
   startedAt: Date.now(),
   completedAt: null,
+  pausedAt: null,
+  totalPausedMs: 0,
 });
 
 // reducer
@@ -64,14 +68,17 @@ export function reducer(state: SudokuState, action: Action): SudokuState {
 
       const { board, cell } = updateBoard(state.board, row, col, { value });
 
+      const isCorrect = value === cell.actual;
+      const isComplete = isPuzzleComplete(board);
+
       return {
         ...state,
         board,
         errors: state.errors + (value !== cell.actual ? 1 : 0),
         remaining: buildRemainingCounts(board),
         completed: isPuzzleComplete(board),
-        completedAt: Date.now(),
-        score: state.score + (cell.value === cell.actual ? 10 : -10),
+        completedAt: isComplete ? Date.now() : state.completedAt,
+        score: state.score + (isCorrect ? 10 : -10),
       };
     }
     case 'CLEAR_DIGIT': {
@@ -87,16 +94,26 @@ export function reducer(state: SudokuState, action: Action): SudokuState {
         remaining: buildRemainingCounts(board),
       };
     }
-    case 'PAUSE':
+    case 'PAUSE': {
+      if (state.paused) return state;
+
       return {
         ...state,
         paused: true,
+        pausedAt: Date.now(),
       };
-    case 'RESUME':
+    }
+
+    case 'RESUME': {
+      if (!state.paused || state.pausedAt === null) return state;
+
       return {
         ...state,
         paused: false,
+        totalPausedMs: state.totalPausedMs + (Date.now() - state.pausedAt),
+        pausedAt: null,
       };
+    }
     case 'RESET': {
       const { board, remaining } = action.payload;
       return createInitialState(board, remaining);

@@ -1,6 +1,6 @@
 'use client';
 
-import { formatSeconds, getElapsedTime } from '@/utils/helpers';
+import { formatSeconds, getGameElapsedTime } from '@/utils/helpers';
 import {
   Button,
   DataList,
@@ -39,6 +39,7 @@ export const CompletionModal = ({
   playerId,
   players,
   startedAt,
+  totalPausedMs,
   completedAt,
   onClose,
   onNewGame,
@@ -50,10 +51,13 @@ export const CompletionModal = ({
   players?: PlayerInfo[];
   startedAt: number;
   completedAt: number | null;
+  totalPausedMs: number;
   onClose: VoidFunction;
   onNewGame: VoidFunction;
 }) => {
-  const time = formatSeconds(getElapsedTime(startedAt, completedAt));
+  const time = formatSeconds(
+    getGameElapsedTime(startedAt, totalPausedMs, completedAt || undefined),
+  );
   const stats: CompletionStats = {
     difficulty,
     time,

@@ -2,7 +2,7 @@ import { IoPause, IoPlay } from 'react-icons/io5';
 
 import { HStack, Icon, Text } from '@chakra-ui/react';
 import { Difficulty } from '@sudokuparty/shared/types';
-import { formatSeconds, getElapsedTime } from '@/utils/helpers';
+import { formatSeconds, getGameElapsedTime } from '@/utils/helpers';
 import { useEffect, useState } from 'react';
 import { ONE_SEC } from './SudokuGrid/constants';
 
@@ -15,6 +15,8 @@ export const SettingsBar = ({
   difficulty,
   hidePauseToggle = false,
   isPaused = false,
+  totalPausedMs,
+  pausedAt,
   startedAt,
   completedAt,
   pause,
@@ -25,6 +27,8 @@ export const SettingsBar = ({
   difficulty: Difficulty;
   hidePauseToggle?: boolean;
   isPaused?: boolean;
+  pausedAt: number | null;
+  totalPausedMs: number;
   startedAt: number | null;
   completedAt?: number | null;
   pause?: VoidFunction;
@@ -35,20 +39,26 @@ export const SettingsBar = ({
   useEffect(() => {
     if (startedAt === null) return;
 
-    if (completedAt !== null) {
-      setTimer(getElapsedTime(startedAt, completedAt));
+    if (isPaused && pausedAt !== null) {
+      setTimer(getGameElapsedTime(startedAt, totalPausedMs, pausedAt));
       return;
     }
 
-    setTimer(getElapsedTime(startedAt));
+    if (completedAt !== null) {
+      setTimer(getGameElapsedTime(startedAt, totalPausedMs, completedAt));
+      return;
+    }
 
-    const timerId = setInterval(
-      () => setTimer(getElapsedTime(startedAt)),
-      ONE_SEC,
-    );
+    const updateTimer = () => {
+      setTimer(getGameElapsedTime(startedAt, totalPausedMs));
+    };
+
+    updateTimer();
+
+    const timerId = setInterval(updateTimer, ONE_SEC);
 
     return () => clearInterval(timerId);
-  }, [completedAt, startedAt]);
+  }, [startedAt, completedAt, isPaused, pausedAt, totalPausedMs]);
   // callbacks
   const toggleGame = () => (isPaused ? resume?.() : pause?.());
 

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 
-import { useDisclosure } from '@chakra-ui/react';
+import { Box, useDisclosure } from '@chakra-ui/react';
 
 import { Game } from '@/components/layout/Game';
 import { CompletionModal } from '@/components/modals/CompletionModal';
@@ -37,6 +37,8 @@ interface GameViewProps {
   players?: PlayerInfo[];
   remainingCounts: RemainingCounts;
   roomId?: string;
+  pausedAt: number | null;
+  totalPausedMs: number;
   startedAt: number;
   completedAt: number | null;
   onAddCandidate: (update: CellPayload) => void;
@@ -75,6 +77,8 @@ export const GameView = ({
   players,
   remainingCounts,
   roomId,
+  totalPausedMs,
+  pausedAt,
   startedAt,
   completedAt,
   onFillCell,
@@ -159,14 +163,20 @@ export const GameView = ({
       <Game.Content>
         {/* main */}
         <Game.Main>
-          {isCompactLayout && isMulti && <InviteLink roomId={roomId} />}
+          {isMulti && (
+            <Box display={{ base: 'block', lg: 'none' }} w="full">
+              <InviteLink roomId={roomId} />
+            </Box>
+          )}
           <Game.Status w="full">
             <SettingsBar
-              enablePause={!players}
+              enablePause={!isMulti}
               errors={errors}
               difficulty={difficulty}
               isPaused={isPaused}
               hidePauseToggle={isMulti}
+              totalPausedMs={totalPausedMs}
+              pausedAt={pausedAt}
               startedAt={startedAt}
               completedAt={completedAt}
               pause={onPause}
@@ -186,8 +196,13 @@ export const GameView = ({
 
         {/* sidebar */}
         <Game.Sidebar>
-          {!isCompactLayout &&
-            (isMulti ? <InviteLink roomId={roomId} /> : <Game.Status />)}
+          {isMulti ? (
+            <Box display={{ base: 'none', lg: 'block' }} w="full">
+              <InviteLink roomId={roomId} />
+            </Box>
+          ) : (
+            <Game.Status />
+          )}
           <Controls
             fillMode={fillMode}
             remaining={remainingCounts}
@@ -207,6 +222,7 @@ export const GameView = ({
         players={players}
         startedAt={startedAt}
         completedAt={completedAt}
+        totalPausedMs={totalPausedMs}
         onClose={completionModal.onClose}
         onNewGame={handleNewGame}
       />

@@ -14,6 +14,8 @@ export const formatSeconds = (secs: number) => {
 /**
  * Returns the elapsed time in seconds since the game started
  */
-export const getElapsedTime = (startedAt: number, completedAt?: number | null) =>
-  Math.floor(((completedAt ?? Date.now()) - startedAt) / 1000);
-
+export const getGameElapsedTime = (
+  startedAt: number,
+  totalPausedMs: number,
+  completedAt = Date.now(),
+) => Math.floor((completedAt - startedAt - totalPausedMs) / 1000);
