@@ -3,7 +3,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import { IoPlayCircle } from 'react-icons/io5';
 
-import { Center, Icon, SimpleGridProps, Spinner } from '@chakra-ui/react';
+import { Box, Center, Icon, SimpleGridProps, Spinner } from '@chakra-ui/react';
 
 import { SudokuBox } from '@/components/SudokuGrid/SudokuBox';
 import { SudokuGrid } from '@/components/SudokuGrid/SudokuGrid';

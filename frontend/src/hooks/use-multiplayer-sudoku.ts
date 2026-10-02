@@ -274,7 +274,6 @@ export const useMultiplayerSudoku = (config: MultiplayerConfig) => {
           });
           break;
         }
-
         case 'players':
           dispatch({ type: 'SET_PLAYERS', payload: message.players });
           break;

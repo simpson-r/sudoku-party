@@ -12,10 +12,7 @@ const TAB_ITEMS = [
   { icon: <LuPencil />, label: 'Digits', value: 'digit' },
   { icon: <LuNotebookPen />, label: 'Candidates', value: 'candidate' },
 ];
-const BUTTON_ITEMS = [
-  { variant: 'surface', label: 'Restart', type: 'restart' },
-  { variant: 'outline', label: 'New Game', type: 'newGame' },
-];
+
 /**
  * This component renders controls panel for game actions, fill mode selection, and digit input.
  */
@@ -32,7 +29,7 @@ export const Controls = ({
   handleTabChange?: (mode: CellFill) => void;
   handleValueClick?: (digit: SudokuDigit) => void;
 }) => {
-  const { isMobile } = useBreakpoints();
+  const { isTablet } = useBreakpoints();
   return (
     <VStack
       w="full"
@@ -52,7 +49,7 @@ export const Controls = ({
               key={value}
               content={label}
               positioning={{ placement: 'top' }}
-              disabled={isMobile}
+              disabled={isTablet}
             >
               <Tabs.Trigger
                 value={value}
@@ -64,7 +61,7 @@ export const Controls = ({
                 disabled={disabled}
                 _selected={{ color: 'bg', bgColor: 'gray.solid' }}
               >
-                {isMobile ? label : <Icon size="md">{icon}</Icon>}
+                {isTablet ? label : <Icon size="md">{icon}</Icon>}
               </Tabs.Trigger>
             </Tooltip>
           ))}
@@ -80,18 +77,3 @@ export const Controls = ({
     </VStack>
   );
 };
-
-/* <HStack justify="center" gap="2">
-          {BUTTON_ITEMS.map(({ label, type, variant }) => (
-            <Button
-              key={type}
-              aria-label={label}
-              flex="1"
-              size="sm"
-              variant={variant as ButtonProps['variant']}
-              onClick={() => handleGameAction(type as GameAction)}
-            >
-              {label}
-            </Button>
-          ))}
-        </HStack> */

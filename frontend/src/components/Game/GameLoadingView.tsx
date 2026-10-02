@@ -14,10 +14,10 @@ import { SettingsBar } from '../SettingsBar';
  * This component renders multiplayer sudoku game loading state by board is undefined
  */
 export const GameLoadingView = ({ difficulty }: { difficulty: Difficulty }) => {
-  const { isMobile } = useBreakpoints();
+  const { isCompactLayout } = useBreakpoints();
   return (
     <Game.Root>
-      {isMobile && <InviteLink roomId="" isLoading />}
+      {isCompactLayout && <InviteLink roomId="" isLoading />}
       <Game.Content>
         {/* main */}
         <Game.Main>
@@ -33,7 +33,7 @@ export const GameLoadingView = ({ difficulty }: { difficulty: Difficulty }) => {
         </Game.Main>
         {/*  sidebar */}
         <Game.Sidebar>
-          {!isMobile && <InviteLink roomId="" isLoading />}
+          {!isCompactLayout && <InviteLink roomId="" isLoading />}
           <Controls fillMode="digit" remaining={INITIAL_REMAINING} disabled />
           <Players players={[]} isLoading />
           <ActivityLog isLoading />

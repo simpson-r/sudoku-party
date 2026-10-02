@@ -6,11 +6,7 @@ import {
   parseDifficulty,
   updateBoard,
 } from '../../shared/helpers.js';
-import type {
-  ClientMessage,
-  Difficulty,
-  SudokuDigit,
-} from '../../shared/types.js';
+import type { ClientMessage, Difficulty } from '../../shared/types.js';
 import { broadcastToRoom, createOrGetRoom } from './game/room.js';
 import {
   applyScoreUpdate,
@@ -61,7 +57,6 @@ wss.on('connection', (ws) => {
         case 'join': {
           roomId = msg.roomId;
           playerId = msg.playerId;
-
           difficulty = parseDifficulty(roomId);
 
           const room = createOrGetRoom(rooms, roomId, difficulty || 'medium');
@@ -70,7 +65,7 @@ wss.on('connection', (ws) => {
             return;
           }
 
-          const player = room.players.get(msg.playerId);
+          let player = room.players.get(msg.playerId);
 
           if (player) {
             player.socket = ws;
@@ -81,15 +76,16 @@ wss.on('connection', (ws) => {
             }
           } else {
             // create new player
-            name = `Player ${room.nextPlayerIndex}`;
-            room.nextPlayerIndex++;
-            room.players.set(playerId, {
+            player = {
               id: msg.playerId,
-              name,
+              name: `Player ${room.nextPlayerIndex}`,
               socket: ws,
               score: 0,
               connected: true,
-            });
+            };
+
+            room.nextPlayerIndex++;
+            room.players.set(msg.playerId, player);
           }
 
           playerId = msg.playerId;
@@ -97,11 +93,6 @@ wss.on('connection', (ws) => {
           const players = Array.from(room.players.values()).map(
             ({ name, id, score }) => ({ name, id, score }),
           );
-
-          broadcastToRoom(room, {
-            type: 'player_joined',
-            player: room.players.get(playerId)!,
-          }); // send player joined event
 
           ws.send(
             JSON.stringify({
@@ -111,6 +102,17 @@ wss.on('connection', (ws) => {
               remaining: buildRemainingCounts(room.game.board),
             }),
           ); // send game state to user
+
+         
+            broadcastToRoom(room, {
+              type: 'player_joined',
+              player: {
+                id: player.id,
+                name: player.name,
+                score: player.score,
+              },
+            }); // send player joined event
+          
 
           break;
         }

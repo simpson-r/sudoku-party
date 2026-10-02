@@ -6,7 +6,6 @@ import { useDisclosure } from '@chakra-ui/react';
 
 import { Game } from '@/components/layout/Game';
 import { CompletionModal } from '@/components/modals/CompletionModal';
-import { ConfirmationModal } from '@/components/modals/ConfirmationModal';
 import { SettingsBar } from '@/components/SettingsBar';
 import { SudokuBoard } from '@/components/SudokuGrid/SudokuBoard';
 import { CellFill, CellPayload } from '@/components/SudokuGrid/types';
@@ -90,10 +89,7 @@ export const GameView = ({
   const [selectedPos, setSelectedPos] = useState<CellPosition | null>(null);
   const [fillMode, setFillMode] = useState<CellFill>('digit');
   const previousCompleted = useRef(isGameComplete);
-  const { isMobile } = useBreakpoints();
-
-  //  const confirmationModal = useDisclosure();
-  //const [confirmationMode, setConfirmationMode] =  useState<GameAction>('newGame');
+  const { isCompactLayout } = useBreakpoints();
 
   const isMulti = !!roomId;
   const selectedCell = selectedPos
@@ -163,7 +159,7 @@ export const GameView = ({
       <Game.Content>
         {/* main */}
         <Game.Main>
-          {isMobile && isMulti && <InviteLink roomId={roomId} />}
+          {isCompactLayout && isMulti && <InviteLink roomId={roomId} />}
           <Game.Status w="full">
             <SettingsBar
               enablePause={!players}
@@ -190,7 +186,7 @@ export const GameView = ({
 
         {/* sidebar */}
         <Game.Sidebar>
-          {!isMobile &&
+          {!isCompactLayout &&
             (isMulti ? <InviteLink roomId={roomId} /> : <Game.Status />)}
           <Controls
             fillMode={fillMode}
@@ -214,12 +210,6 @@ export const GameView = ({
         onClose={completionModal.onClose}
         onNewGame={handleNewGame}
       />
-      {/* <ConfirmationModal
-        ctaConfig={CONFIRM_CONFIG[confirmationMode]}
-        isOpen={confirmationModal.open}
-        onClose={confirmationModal.onClose}
-        onConfirm={handleConfirm}
-      /> */}
     </Game.Root>
   );
 };

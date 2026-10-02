@@ -14,11 +14,11 @@ const Root = (props: React.ComponentProps<typeof VStack>) => (
  */
 const Content = (props: React.ComponentProps<typeof Flex>) => (
   <Flex
-    direction={{ base: 'column', md: 'row' }}
+    direction={{ base: 'column', lg: 'row' }}
     w="full"
     justify="center"
-    align={{ base: 'center', md: 'flex-start' }}
-    gap={{ base: 4, md: 8 }}
+    align={{ base: 'center', lg: 'flex-start' }}
+    gap={{ base: 4, lg: 8 }}
     {...props}
   />
 );
@@ -27,7 +27,17 @@ const Content = (props: React.ComponentProps<typeof Flex>) => (
  * Contains the board and its game status.
  */
 const Main = (props: React.ComponentProps<typeof VStack>) => (
-  <VStack flexShrink={0} gap={3} {...props} />
+  <VStack
+    w="full"
+    maxW={{
+      base: '32rem',
+      md: '33rem',
+      lg: '36rem',
+    }}
+    flexShrink={0}
+    gap={3}
+    {...props}
+  />
 );
 
 /**
@@ -36,7 +46,7 @@ const Main = (props: React.ComponentProps<typeof VStack>) => (
 const Sidebar = (props: React.ComponentProps<typeof VStack>) => (
   <VStack
     w="full"
-    maxW={{ base: 'md', md: '2xs' }}
+    maxW={{ base: 'lg', lg: '2xs' }}
     align="stretch"
     gap={4}
     {...props}

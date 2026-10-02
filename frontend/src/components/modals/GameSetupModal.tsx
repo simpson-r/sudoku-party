@@ -76,7 +76,7 @@ export const GameSetupModal = ({
           >
             <Dialog.Title asChild>
               <Heading
-                fontSize={{ base: 'lg', md: '1.75rem' }}
+                fontSize={{ base: 'lg', sm: '2xl', md: '1.75rem' }}
                 letterSpacing="-0.03em"
               >
                 welcome to sudokuparty!

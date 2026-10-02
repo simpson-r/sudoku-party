@@ -28,7 +28,7 @@ export const InviteLink = ({
     <Clipboard.Root value={roomUrl} opacity={isLoading ? 0.5 : 1} gap={1}>
       {/* mobile */}
       <Flex
-        display={{ base: 'inline-flex', md: 'none' }}
+        display={{ base: 'inline-flex', lg: 'none' }}
         align="center"
         justify="center"
         gap={1}
@@ -53,7 +53,7 @@ export const InviteLink = ({
       </Flex>
 
       {/* desktop */}
-      <Box display={{ base: 'none', md: 'block' }}>
+      <Box display={{ base: 'none', lg: 'block' }}>
         <Clipboard.Label textStyle="label">Invite link:</Clipboard.Label>
 
         {isLoading ? (

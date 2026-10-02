@@ -24,13 +24,13 @@ export const DigitsGrid = ({
   fillMode,
   onValueClick,
 }: React.PropsWithChildren<DigitsGridProps>) => {
-  const { isMobile } = useBreakpoints();
+  const { isTablet } = useBreakpoints();
 
   return (
     <SimpleGrid
       w="full"
-      columns={{ base: 9, md: 3 }}
-      gap={{ base: 1, md: 3 }}
+      columns={{ base: 9, lg: 3 }}
+      gap={{ base: 1, lg: 3 }}
       alignItems="center"
       justifyContent="center"
     >
@@ -75,9 +75,9 @@ export const DigitsGrid = ({
             // candidate
             <Text
               position="absolute"
-              fontSize={{ base: 'xs', md: 'sm' }}
+              fontSize={{ base: 'xs', lg: 'sm' }}
               color={!!remaining ? 'fg' : 'fg.subtle'}
-              {...(!isMobile
+              {...(!isTablet
                 ? getCandidatePlacement(num as unknown as SudokuDigit, 3, 1)
                 : {})}
             >
