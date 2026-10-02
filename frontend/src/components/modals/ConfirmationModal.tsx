@@ -35,7 +35,7 @@ export const ConfirmationModal = ({
       onEscapeKeyDown={onClose}
     >
       <Dialog.Backdrop
-        bg={{ base: 'blackAlpha.300', _dark: 'whiteAlpha.200' }}
+        bg={{ base: 'blackAlpha.500', _dark: 'whiteAlpha.200' }}
       />
       <Dialog.Positioner>
         <Dialog.Content

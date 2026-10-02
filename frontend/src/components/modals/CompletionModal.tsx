@@ -80,6 +80,7 @@ export const CompletionModal = ({
           bgColor="bg.subtle"
           border="2px solid"
           borderColor="border.inverted"
+          borderRadius={0}
           maxW={400}
         >
           {/* header */}
@@ -92,7 +93,7 @@ export const CompletionModal = ({
               >
                 Congratulations!
               </Dialog.Title>
-              <Text fontSize="sm">Puzzle complete. Here are the results:</Text>
+              <Text fontSize="sm">Puzzle complete. Here are the results.</Text>
             </VStack>
           </Dialog.Header>
           {/* stats */}
@@ -110,22 +111,29 @@ export const CompletionModal = ({
               )}
             </DataList.Root>
 
-            <StatsLabel>Final Score</StatsLabel>
-            <DataList.Root orientation="horizontal" gap={1} py={2}>
-              {players?.map(({ id, name, score }) => (
-                <DataList.Item key={id}>
-                  <DataList.ItemLabel display="inline-flex" alignItems="center">
-                    {name}
-                    {playerId === id && (
-                      <Text fontSize="2xs" color="fg.subtle">
-                        {'(you)'}
-                      </Text>
-                    )}
-                  </DataList.ItemLabel>
-                  <DataList.ItemValue>{score}</DataList.ItemValue>
-                </DataList.Item>
-              ))}
-            </DataList.Root>
+            {players && (
+              <>
+                <StatsLabel>Final Score</StatsLabel>
+                <DataList.Root orientation="horizontal" gap={1} py={2}>
+                  {players.map(({ id, name, score }) => (
+                    <DataList.Item key={id}>
+                      <DataList.ItemLabel
+                        display="inline-flex"
+                        alignItems="center"
+                      >
+                        {name}
+                        {playerId === id && (
+                          <Text fontSize="2xs" color="fg.subtle">
+                            {'(you)'}
+                          </Text>
+                        )}
+                      </DataList.ItemLabel>
+                      <DataList.ItemValue>{score}</DataList.ItemValue>
+                    </DataList.Item>
+                  ))}
+                </DataList.Root>
+              </>
+            )}
           </Dialog.Body>
           {/* modal footer */}
           <Dialog.Footer>

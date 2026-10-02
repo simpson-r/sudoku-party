@@ -49,7 +49,7 @@ export const DigitsGrid = ({
             justify="center"
             align="center"
             bgColor="bg.subtle"
-            border="2px solid"
+            border="1.5px solid"
             borderRadius="none"
             borderColor="border"
             _hover={disabled ? undefined : { borderColor: 'border.inverted' }}
@@ -67,7 +67,7 @@ export const DigitsGrid = ({
 
                 {(!exhausted || isNarrowLayout) && (
                   <Text
-                    fontSize={{ base: '2xs', lg: 'sm' }}
+                    fontSize={{ base: '2xs', sm: 'xs', md: 'sm' }}
                     color={exhausted ? 'fg.subtle' : 'fg.muted'}
                     position={{ base: 'relative', md: 'absolute' }}
                     top={{ base: 'auto', md: 0 }}
@@ -80,7 +80,7 @@ export const DigitsGrid = ({
             ) : (
               <Text
                 position="absolute"
-                fontSize={{ base: 'xs', md: 'sm' }}
+                fontSize={{ base: 'xs', sm: 'sm' }}
                 color={color}
                 {...(!isCompactLayout
                   ? getCandidatePlacement(value, 3, 1)

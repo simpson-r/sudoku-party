@@ -44,11 +44,11 @@ export const Header = () => {
       w="full"
       justifyContent="space-between"
       alignItems="center"
-      borderBottom="0.125rem solid"
-      borderColor="fg"
+      borderBottom="1.5px solid"
+      borderColor="bg.inverted"
       minH={14}
       gap={8}
-      px={6}
+      px={{ base: 9, md: 16 }}
     >
       {/* left-aligned nav */}
       <Link href="/" textDecoration="none" cursor="pointer">

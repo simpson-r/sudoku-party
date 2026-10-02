@@ -8,7 +8,6 @@ import { useBreakpoints } from '@/hooks/use-device-breakpoints';
 import { SudokuDigit } from '@sudokuparty/shared/types';
 import { Tooltip } from './ui/tooltip';
 
-
 // constants
 const TAB_ITEMS = [
   { icon: <LuPencil />, label: 'Digits', value: 'digit' },
@@ -35,7 +34,7 @@ export const Controls = ({
   return (
     <VStack
       w="full"
-      opacity={disabled ? 0.5 : 1}
+      opacity={disabled ? 0.7 : 1}
       pointerEvents={disabled ? 'none' : undefined}
     >
       {/* tabs */}
@@ -43,13 +42,13 @@ export const Controls = ({
         w="full"
         value={fillMode}
         variant="subtle"
-        deselectable
         onValueChange={(e) => {
           const value =
             e.value ?? (fillMode === 'candidate' ? 'digit' : 'candidate');
 
           handleTabChange?.(value as CellFill);
         }}
+        deselectable
       >
         <Tabs.List w="full">
           {TAB_ITEMS.map(({ label, value, icon }) => (
@@ -67,7 +66,7 @@ export const Controls = ({
                 borderRadius="none"
                 textTransform="lowercase"
                 disabled={disabled}
-                _selected={{ color: 'bg', bgColor: 'gray.solid' }}
+                _selected={{ color: 'fg' }}
               >
                 {isCompactLayout ? label : <Icon size="md">{icon}</Icon>}
               </Tabs.Trigger>

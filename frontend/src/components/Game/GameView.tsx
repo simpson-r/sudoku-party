@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 
-import { Box, useDisclosure } from '@chakra-ui/react';
+import { Box, Button, useDisclosure } from '@chakra-ui/react';
 
 import { Game } from '@/components/layout/Game';
 import { CompletionModal } from '@/components/modals/CompletionModal';
@@ -23,6 +23,7 @@ import {
 import { Players } from '../Players';
 import { InviteLink } from '../InviteLink';
 import { ActivityLog } from '../ActivityLog';
+import { ConfirmationModal } from '../modals/ConfirmationModal';
 
 // types
 interface GameViewProps {
@@ -52,12 +53,13 @@ interface GameViewProps {
 const CONFIRM_CONFIG = {
   newGame: {
     heading: 'Start a new game?',
-    body: 'This will end the current session for everyone.',
+    body: 'This will end the current session',
     confirmText: 'New Game',
+    cancelText: 'Cancel',
   },
   restart: {
     heading: 'Restart this game?',
-    body: 'This will restart the current session for everyone.',
+    body: 'This will restart the current session.',
     confirmText: 'Restart',
   },
 };
@@ -89,6 +91,7 @@ export const GameView = ({
   onResume,
 }: GameViewProps) => {
   const completionModal = useDisclosure();
+  const confirmationModal = useDisclosure();
   const [selectedPos, setSelectedPos] = useState<CellPosition | null>(null);
   const [fillMode, setFillMode] = useState<CellFill>('digit');
   const previousCompleted = useRef(isGameComplete);
@@ -166,6 +169,7 @@ export const GameView = ({
               <InviteLink roomId={roomId} />
             </Box>
           )}
+
           <Game.Status w="full">
             <SettingsBar
               enablePause={!isMultiplayer}
@@ -202,6 +206,7 @@ export const GameView = ({
             <Game.Status />
           )}
           <Controls
+            disabled={isPaused}
             fillMode={fillMode}
             remaining={remainingCounts}
             handleTabChange={setFillMode}
@@ -215,6 +220,11 @@ export const GameView = ({
             />
           )}
           {isMultiplayer && <ActivityLog activityLog={activityLog} />}
+          {!isMultiplayer && (
+            <Button variant="surface" onClick={confirmationModal.onOpen}>
+              new game
+            </Button>
+          )}
         </Game.Sidebar>
       </Game.Content>
       {/* modals*/}
@@ -229,6 +239,12 @@ export const GameView = ({
         totalPausedMs={totalPausedMs}
         onClose={completionModal.onClose}
         onNewGame={handleNewGame}
+      />
+      <ConfirmationModal
+        ctaConfig={CONFIRM_CONFIG['newGame']}
+        isOpen={confirmationModal.open}
+        onClose={confirmationModal.onClose}
+        onConfirm={handleNewGame}
       />
     </Game.Root>
   );

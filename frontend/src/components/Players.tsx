@@ -27,7 +27,7 @@ export const Players = ({
         borderColor="border"
         fontSize="sm"
       >
-        <Text fontFamily="heading">score</Text>
+        <Text>score</Text>
         <Text>{players[0]?.score ?? 0}</Text>
       </HStack>
     );
