@@ -117,7 +117,6 @@ export const GameSetupModal = ({
               color={isSubmitDisabled ? 'fg' : 'fg.inverted'}
               variant={isSubmitDisabled ? 'outline' : 'solid'}
               border={isSubmitDisabled ? '2px solid' : undefined}
-              borderRadius={0}
               loading={isLoading}
               onClick={() => onSubmit(config as SetupConfig)}
               disabled={isSubmitDisabled}

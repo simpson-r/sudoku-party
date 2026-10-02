@@ -29,11 +29,7 @@ const Content = (props: React.ComponentProps<typeof Flex>) => (
 const Main = (props: React.ComponentProps<typeof VStack>) => (
   <VStack
     w="full"
-    maxW={{
-      base: '32rem',
-      md: '33rem',
-      lg: '36rem',
-    }}
+    maxW={{ base: '33rem', lg: '36rem' }}
     flexShrink={0}
     gap={3}
     {...props}

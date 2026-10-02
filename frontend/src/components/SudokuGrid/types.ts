@@ -13,10 +13,8 @@ export type CellPayload = {
 /**
  * game types
  */
-export type GameAction = 'newGame' | 'restart';
-
 export type CellFill = 'digit' | 'candidate';
-
+export type GameAction = 'newGame' | 'restart';
 export type PlayerMode = 'single' | 'multi';
 
 export type SetupConfig =

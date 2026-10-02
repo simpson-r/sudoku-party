@@ -11,7 +11,7 @@ import { SettingsBar } from '../SettingsBar';
 import { Box } from '@chakra-ui/react';
 
 /**
- * This component renders multiplayer sudoku game loading state by board is undefined
+ * This component renders the multiplayer game loading state while the board is unavailable
  */
 export const GameLoadingView = ({ difficulty }: { difficulty: Difficulty }) => {
   return (

@@ -2,10 +2,10 @@
 
 import { Flex, SimpleGrid, Stack, Text } from '@chakra-ui/react';
 
-import { CellFill } from './SudokuGrid/types';
-import { getCandidatePlacement } from './SudokuGrid/helpers';
 import { RemainingCounts, SudokuDigit } from '@sudokuparty/shared/types';
 import { useBreakpoints } from '@/hooks/use-device-breakpoints';
+import { CellFill } from './SudokuGrid/types';
+import { getCandidatePlacement } from './SudokuGrid/helpers';
 
 // types
 type DigitsGridProps = {

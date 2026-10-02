@@ -23,7 +23,6 @@ import {
 import { Players } from '../Players';
 import { InviteLink } from '../InviteLink';
 import { ActivityLog } from '../ActivityLog';
-import { useBreakpoints } from '@/hooks/use-device-breakpoints';
 
 // types
 interface GameViewProps {
@@ -64,7 +63,7 @@ const CONFIRM_CONFIG = {
 };
 
 /**
- * This component coordinates the Sudoku game, including gameplay controls, board interactions, and game lifecycle modals.
+ * This component coordinates the sudoku game, including gameplay controls, board interactions, and game lifecycle modals
  */
 export const GameView = ({
   activityLog,
@@ -93,9 +92,8 @@ export const GameView = ({
   const [selectedPos, setSelectedPos] = useState<CellPosition | null>(null);
   const [fillMode, setFillMode] = useState<CellFill>('digit');
   const previousCompleted = useRef(isGameComplete);
-  const { isCompactLayout } = useBreakpoints();
 
-  const isMulti = !!roomId;
+  const isMultiplayer = !!roomId;
   const selectedCell = selectedPos
     ? board?.[selectedPos.row]?.[selectedPos.col]
     : null;
@@ -163,18 +161,18 @@ export const GameView = ({
       <Game.Content>
         {/* main */}
         <Game.Main>
-          {isMulti && (
+          {isMultiplayer && (
             <Box display={{ base: 'block', lg: 'none' }} w="full">
               <InviteLink roomId={roomId} />
             </Box>
           )}
           <Game.Status w="full">
             <SettingsBar
-              enablePause={!isMulti}
+              enablePause={!isMultiplayer}
               errors={errors}
               difficulty={difficulty}
               isPaused={isPaused}
-              hidePauseToggle={isMulti}
+              hidePauseToggle={isMultiplayer}
               totalPausedMs={totalPausedMs}
               pausedAt={pausedAt}
               startedAt={startedAt}
@@ -196,7 +194,7 @@ export const GameView = ({
 
         {/* sidebar */}
         <Game.Sidebar>
-          {isMulti ? (
+          {isMultiplayer ? (
             <Box display={{ base: 'none', lg: 'block' }} w="full">
               <InviteLink roomId={roomId} />
             </Box>
@@ -209,8 +207,14 @@ export const GameView = ({
             handleTabChange={setFillMode}
             handleValueClick={handleValueClick}
           />
-          {players && <Players players={players} playerId={playerId || ''} />}
-          {isMulti && <ActivityLog activityLog={activityLog} />}
+          {players && (
+            <Players
+              players={players}
+              playerId={playerId || ''}
+              isMultiplayer={isMultiplayer}
+            />
+          )}
+          {isMultiplayer && <ActivityLog activityLog={activityLog} />}
         </Game.Sidebar>
       </Game.Content>
       {/* modals*/}

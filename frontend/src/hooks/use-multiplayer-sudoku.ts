@@ -3,7 +3,11 @@ import { useCallback, useEffect, useReducer } from 'react';
 import { MultiplayerConfig } from '@/components/SudokuGrid/types';
 import { useWebSocket } from '@/context/WebSocketContext';
 import { INITIAL_REMAINING } from '@sudokuparty/shared/constants';
-import { buildRemainingCounts, cleanupCandidates, updateBoard } from '@sudokuparty/shared/helpers';
+import {
+  buildRemainingCounts,
+  cleanupCandidates,
+  updateBoard,
+} from '@sudokuparty/shared/helpers';
 import {
   CandidateUpdate,
   Cell,
@@ -35,16 +39,17 @@ const getPlayerId = () => {
   localStorage.setItem('sudoku-player-id', id);
   return id;
 };
+
 // constants
 const INITIAL_STATE = {
   board: undefined,
-  players: [],
-  remaining: INITIAL_REMAINING,
-  log: [],
   completed: false,
-  startedAt: 0,
   completedAt: null,
   error: null,
+  log: [],
+  players: [],
+  remaining: INITIAL_REMAINING,
+  startedAt: 0,
 };
 
 // types & interfaces
@@ -56,14 +61,14 @@ type BoardPayload = {
 
 type SudokuState = {
   board?: Cell[][];
-  players: PlayerInfo[];
-  remaining: RemainingCounts;
-  log: string[];
   completed: boolean;
-  startedAt: number;
   completedAt: number | null;
   error: GameErrorCode | null;
+  log: string[];
   playerId: string;
+  players: PlayerInfo[];
+  remaining: RemainingCounts;
+  startedAt: number;
 };
 
 type Action =

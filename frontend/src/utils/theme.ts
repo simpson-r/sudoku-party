@@ -1,6 +1,11 @@
 'use client';
 
-import { createSystem, defaultConfig, defineConfig } from '@chakra-ui/react';
+import {
+  createSystem,
+  defaultConfig,
+  defineConfig,
+  defineRecipe,
+} from '@chakra-ui/react';
 import { Inter, Fragment_Mono } from 'next/font/google';
 
 /**
@@ -28,6 +33,9 @@ export const theme = defineConfig({
     },
   },
   theme: {
+    recipes: {
+      button: defineRecipe({ base: { borderRadius: 'none' } }),
+    },
     tokens: {
       fonts: {
         heading: { value: fragmentMono.style.fontFamily },

@@ -84,7 +84,6 @@ const ClipboardIconButton = ({ onClick }: IconButtonProps) => {
         aria-label="copy link"
         variant="surface"
         size="xs"
-        borderRadius="none"
         me="-2"
         onClick={onClick}
       >

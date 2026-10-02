@@ -1,6 +1,9 @@
 import { BOX_SIZE, GRID_SIZE } from '@sudokuparty/shared/constants';
 import { Cell, SudokuDigit } from '@sudokuparty/shared/types';
 
+/**
+ * Calculates the grid position for a candidate within a sudoku cell
+ */
 const getCandidatePlacements = (x?: number, y?: number) => ({
   1: { top: y, left: x },
   2: { top: y, left: '50%', transform: 'translateX(-50%)' },
@@ -21,6 +24,7 @@ const getCandidatePlacements = (x?: number, y?: number) => ({
  */
 export const getCandidatePlacement = (digit: SudokuDigit, x = 2, y = 1) =>
   getCandidatePlacements(x, y)[digit];
+
 
 /**
  * Groups the cells of a sudoku grid into its 9 boxes

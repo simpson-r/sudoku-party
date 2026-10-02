@@ -11,15 +11,27 @@ import { GameLoadingView } from './GameLoadingView';
 import { GameView } from './GameView';
 import { ConfirmationModal } from '../modals/ConfirmationModal';
 
+// constants
+const CAPACITY_CTA = {
+  heading: 'Game is at capacity',
+  body: 'This game already has the maximum of 3 players.',
+  confirmText: 'Go back',
+};
+
+/**
+ * Manages and renders a multiplayer sudoku game session
+ */
 export const MultiplayerGame = ({ config }: { config: MultiplayerConfig }) => {
   const router = useRouter();
   const { actions, state } = useMultiplayerSudoku(config);
   const roomCapacityModal = useDisclosure();
-
+  
+  // effects
   useEffect(() => {
     if (state.error === 'ROOM_FULL') roomCapacityModal.onOpen();
   }, [state.error]);
 
+  // handlers
   const handleRoomFull = () => {
     roomCapacityModal.onClose();
     router.push('/');
@@ -31,11 +43,7 @@ export const MultiplayerGame = ({ config }: { config: MultiplayerConfig }) => {
       <>
         <GameLoadingView difficulty={config.difficulty} />
         <ConfirmationModal
-          ctaConfig={{
-            heading: 'Game is at capacity',
-            body: 'This game already has the maximum of 3 players.',
-            confirmText: 'Go back',
-          }}
+          ctaConfig={CAPACITY_CTA}
           isOpen={roomCapacityModal.open}
           onClose={handleRoomFull}
           onConfirm={handleRoomFull}

@@ -1,4 +1,4 @@
-import { Box, HStack, Skeleton, Table, Text } from '@chakra-ui/react';
+import { HStack, Skeleton, Table, Text } from '@chakra-ui/react';
 
 import { PlayerInfo } from '@sudokuparty/shared/types';
 
@@ -8,12 +8,31 @@ import { PlayerInfo } from '@sudokuparty/shared/types';
 export const Players = ({
   playerId,
   players,
+  isMultiplayer = true,
   isLoading = false,
 }: {
   playerId?: string;
   players: PlayerInfo[];
+  isMultiplayer?: boolean;
   isLoading?: boolean;
 }) => {
+  if (!isMultiplayer) {
+    return (
+      <HStack
+        w="full"
+        justify="space-between"
+        px={3}
+        py={2}
+        border="1px solid"
+        borderColor="border"
+        fontSize="sm"
+      >
+        <Text fontFamily="heading">score</Text>
+        <Text>{players[0]?.score ?? 0}</Text>
+      </HStack>
+    );
+  }
+
   return (
     <Table.Root variant="outline">
       <Table.Caption />

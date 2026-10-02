@@ -78,7 +78,6 @@ export const CompletionModal = ({
           justifyContent="center"
           alignItems="center"
           bgColor="bg.subtle"
-          borderRadius="none"
           border="2px solid"
           borderColor="border.inverted"
           maxW={400}
@@ -130,7 +129,7 @@ export const CompletionModal = ({
           </Dialog.Body>
           {/* modal footer */}
           <Dialog.Footer>
-            <Button color="fg.inverted" borderRadius="none" onClick={onNewGame}>
+            <Button color="fg.inverted" onClick={onNewGame}>
               new game
             </Button>
           </Dialog.Footer>

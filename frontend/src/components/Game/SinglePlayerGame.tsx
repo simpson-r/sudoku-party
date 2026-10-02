@@ -4,6 +4,9 @@ import { SetupConfig } from '@/components/SudokuGrid/types';
 import { useSinglePlayerSudoku } from '@/hooks/use-single-player-sudoku';
 import { GameView } from './GameView';
 
+/**
+ * Manages and renders a single player sudoku game session
+ */
 export const SinglePlayerGame = ({ config }: { config: SetupConfig }) => {
   const { state, actions } = useSinglePlayerSudoku(config.difficulty);
   const players = [{ score: state.score, name: 'you', id: '1' }];

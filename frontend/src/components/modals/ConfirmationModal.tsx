@@ -66,12 +66,7 @@ export const ConfirmationModal = ({
                   {cancelText}
                 </Button>
               )}
-              <Button
-                variant="outline"
-                borderRadius="none"
-                onClick={onConfirm}
-                loading={isLoading}
-              >
+              <Button variant="outline" onClick={onConfirm} loading={isLoading}>
                 {confirmText}
               </Button>
             </HStack>

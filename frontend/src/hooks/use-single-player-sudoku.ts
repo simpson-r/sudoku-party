@@ -131,6 +131,13 @@ export function reducer(state: SudokuState, action: Action): SudokuState {
       const { row, col, value } = action.payload;
       const prevCell = state.board[row][col];
 
+      if (
+        prevCell.value === prevCell.actual ||
+        prevCell.value !== null ||
+        !state.remaining[value]
+      )
+        return state; // don't add if exhausted
+
       const curCandidates = prevCell?.candidates ?? [];
       if (curCandidates.includes(value)) return state;
       const candidates = [...curCandidates, value];

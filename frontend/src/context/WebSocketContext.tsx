@@ -6,7 +6,6 @@ import { ClientMessage, ServerMessage } from '@sudokuparty/shared/types';
 type MessageHandler = (message: ServerMessage) => void;
 type MessageDispatch = (message: ClientMessage) => void;
 type MessageSubscriber = (handler: MessageHandler) => () => void;
-
 type WebSocketContextValue = {
   isConnected: boolean;
   send: MessageDispatch;
@@ -62,12 +61,11 @@ export const WebSocketProvider = ({ children }: React.PropsWithChildren) => {
       ws.current?.close();
     };
   }, []);
+
   const subscribe = (subscriber: MessageHandler) => {
     subscriberRef.current.add(subscriber);
 
-    return () => {
-      subscriberRef.current.delete(subscriber);
-    };
+    return () => subscriberRef.current.delete(subscriber);
   };
 
   const send = (message: ClientMessage) => {
