@@ -3,6 +3,7 @@ import { WebSocketServer } from 'ws';
 
 import {
   buildRemainingCounts,
+  cleanupCandidates,
   parseDifficulty,
   updateBoard,
 } from '../../shared/helpers.js';
@@ -103,16 +104,14 @@ wss.on('connection', (ws) => {
             }),
           ); // send game state to user
 
-         
-            broadcastToRoom(room, {
-              type: 'player_joined',
-              player: {
-                id: player.id,
-                name: player.name,
-                score: player.score,
-              },
-            }); // send player joined event
-          
+          broadcastToRoom(room, {
+            type: 'player_joined',
+            player: {
+              id: player.id,
+              name: player.name,
+              score: player.score,
+            },
+          }); // send player joined event
 
           break;
         }
@@ -130,7 +129,7 @@ wss.on('connection', (ws) => {
           if (!cell || cell.value === cell.actual) return; // return so that correct cells remain locked-in
 
           if (value !== null) {
-            const remaining = buildRemainingCounts(room.game.board); // ignore digits that have already been fully placed
+            const remaining = buildRemainingCounts(room.game.board); // maintain digits that have already been fully placed
             if (!remaining[value]) return;
           }
 
@@ -139,7 +138,12 @@ wss.on('connection', (ws) => {
 
           applyScoreUpdate(value, cell, player);
 
-          const { board } = updateBoard(room.game.board, row, col, { value });
+          let { board } = updateBoard(room.game.board, row, col, { value });
+
+          if (value === cell.actual) {
+            board = cleanupCandidates({ row, col }, value, board); // cleanup surrounding candidates after correct val placement
+          }
+
           room.game.board = board;
 
           const players = Array.from(room.players.values()).map(

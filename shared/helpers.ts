@@ -1,7 +1,10 @@
-
-import { DIFFICULTY_MAP, INITIAL_REMAINING } from './constants';
-import type { Cell } from './types';
-
+import {
+  BOX_SIZE,
+  DIFFICULTY_MAP,
+  GRID_SIZE,
+  INITIAL_REMAINING,
+} from './constants';
+import type { Cell, CellPosition, SudokuDigit } from './types';
 
 /**
  * Parses the difficulty encoded in the room ID prefix.
@@ -49,10 +52,50 @@ export const updateBoard = (
 export const buildRemainingCounts = (puzzle: Cell[][]) => {
   const remaining = { ...INITIAL_REMAINING };
   for (const row of puzzle) {
-    for (const { actual, value,given } of row) {
+    for (const { actual, value, given } of row) {
       if (given || value === actual) remaining[actual]--;
     }
   }
 
   return remaining;
+};
+
+/**
+ * Removes a candidate from all cells in the same row, column, and box
+ */
+export const cleanupCandidates = (
+  pos: CellPosition,
+  candidate: SudokuDigit,
+  prevBoard: Cell[][],
+) => {
+  // clone board before mutation
+  const board = prevBoard.map((row) =>
+    row.map((cell) => ({
+      ...cell,
+      candidates: cell.candidates ? [...cell.candidates] : [],
+    })),
+  );
+  const { row, col } = pos;
+
+  const removeCandidate = (cell: Cell) => {
+    if (cell.candidates?.includes(candidate)) {
+      cell.candidates = cell.candidates.filter((value) => value !== candidate);
+    }
+  };
+  // row
+  board[row].forEach(removeCandidate);
+  // col
+  for (let i = 0; i < GRID_SIZE; i++) removeCandidate(board[i][col]);
+
+  // box
+  const startRow = Math.floor(row / BOX_SIZE) * BOX_SIZE;
+  const startCol = Math.floor(col / BOX_SIZE) * BOX_SIZE;
+
+  for (let r = startRow; r < startRow + BOX_SIZE; r++) {
+    for (let c = startCol; c < startCol + BOX_SIZE; c++) {
+      removeCandidate(board[r][c]);
+    }
+  }
+
+  return board;
 };

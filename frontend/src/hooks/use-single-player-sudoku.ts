@@ -1,7 +1,11 @@
 import { useMemo, useReducer, useState } from 'react';
 
 import { CellPayload } from '@/components/SudokuGrid/types';
-import { buildRemainingCounts, updateBoard } from '@sudokuparty/shared/helpers';
+import {
+  buildRemainingCounts,
+  cleanupCandidates,
+  updateBoard,
+} from '@sudokuparty/shared/helpers';
 import {
   generateSudokuGame,
   isPuzzleComplete,
@@ -59,28 +63,6 @@ const createInitialState = (
 // reducer
 export function reducer(state: SudokuState, action: Action): SudokuState {
   switch (action.type) {
-    case 'FILL_DIGIT': {
-      const { row, col, value } = action.payload;
-
-      const prevCell = state.board[row][col];
-      if (prevCell.actual === prevCell.value || !state.remaining[value])
-        return state;
-
-      const { board, cell } = updateBoard(state.board, row, col, { value });
-
-      const isCorrect = value === cell.actual;
-      const isComplete = isPuzzleComplete(board);
-
-      return {
-        ...state,
-        board,
-        errors: state.errors + (value !== cell.actual ? 1 : 0),
-        remaining: buildRemainingCounts(board),
-        completed: isPuzzleComplete(board),
-        completedAt: isComplete ? Date.now() : state.completedAt,
-        score: state.score + (isCorrect ? 10 : -10),
-      };
-    }
     case 'CLEAR_DIGIT': {
       const { row, col } = action.payload;
       const prevCell = state.board[row][col];
@@ -94,6 +76,33 @@ export function reducer(state: SudokuState, action: Action): SudokuState {
         remaining: buildRemainingCounts(board),
       };
     }
+    case 'FILL_DIGIT': {
+      const { row, col, value } = action.payload;
+
+      const prevCell = state.board[row][col];
+      if (prevCell.actual === prevCell.value || !state.remaining[value])
+        return state;
+
+      let { board, cell } = updateBoard(state.board, row, col, { value });
+
+      if (value === prevCell.actual) {
+        board = cleanupCandidates({ row, col }, value, board); // cleanup surrounding candidates after correct val placement
+      }
+
+      const correct = value === cell.actual;
+      const completed = isPuzzleComplete(board);
+
+      return {
+        ...state,
+        board,
+        errors: state.errors + (value !== cell.actual ? 1 : 0),
+        remaining: buildRemainingCounts(board),
+        completed,
+        completedAt: completed ? Date.now() : state.completedAt,
+        score: state.score + (correct ? 10 : -10),
+      };
+    }
+
     case 'PAUSE': {
       if (state.paused) return state;
 

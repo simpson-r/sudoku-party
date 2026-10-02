@@ -3,7 +3,7 @@ import { useCallback, useEffect, useReducer } from 'react';
 import { MultiplayerConfig } from '@/components/SudokuGrid/types';
 import { useWebSocket } from '@/context/WebSocketContext';
 import { INITIAL_REMAINING } from '@sudokuparty/shared/constants';
-import { buildRemainingCounts, updateBoard } from '@sudokuparty/shared/helpers';
+import { buildRemainingCounts, cleanupCandidates, updateBoard } from '@sudokuparty/shared/helpers';
 import {
   CandidateUpdate,
   Cell,
@@ -103,12 +103,15 @@ export function reducer(state: SudokuState, action: Action): SudokuState {
 
       const { row, col, value } = action.payload;
 
-      const prevCell = state.board?.[row][col];
+      const prevCell = state.board[row][col];
 
       if (prevCell.actual === prevCell.value || !state.remaining[value])
         return state; // correct cells/exhausted digits are locked.
 
-      const { board } = updateBoard(state.board, row, col, { value });
+      let { board } = updateBoard(state.board, row, col, { value });
+      if (value === prevCell.actual) {
+        board = cleanupCandidates({ row, col }, value, board); // cleanup surrounding candidates after correct val placement
+      }
 
       return {
         ...state,
