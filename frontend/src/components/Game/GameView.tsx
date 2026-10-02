@@ -104,7 +104,7 @@ export const GameView = ({
   // effects
   useEffect(() => {
     if (!previousCompleted.current && isGameComplete) completionModal.onOpen();
-
+    if (previousCompleted.current && !isGameComplete) completionModal.onClose();
     previousCompleted.current = isGameComplete;
   }, [isGameComplete, completionModal]);
 
