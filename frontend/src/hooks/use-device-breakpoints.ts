@@ -12,9 +12,15 @@ export const useBreakpoints = () => {
     lg: false,
   });
 
+  const isNarrowLayout = useBreakpointValue({
+    base: true,
+    sm: false,
+  });
+
   return {
     isMobile: isMobile ?? false,
     isTablet: isTablet ?? false,
     isCompactLayout: isTablet || isMobile,
+    isNarrowLayout,
   };
 };

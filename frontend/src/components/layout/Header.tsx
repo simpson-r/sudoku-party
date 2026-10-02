@@ -69,8 +69,8 @@ export const Header = () => {
         >
           <IconButton
             aria-label="menu"
-            variant="ghost"
-            size="2xs"
+            variant="plain"
+            boxSize={4}
             onClick={menu.onOpen}
             asChild
           >

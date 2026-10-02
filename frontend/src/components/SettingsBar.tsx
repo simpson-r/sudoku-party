@@ -64,7 +64,7 @@ export const SettingsBar = ({
 
   // render
   return (
-    <HStack w="full" justify="space-between" align="center" fontWeight="medium">
+    <HStack w="full" justify="space-between" align="center">
       <StatusItem label="difficulty">{difficulty}</StatusItem>
       {/* timer + single-player pause button */}
       <HStack align="center" gap={0}>

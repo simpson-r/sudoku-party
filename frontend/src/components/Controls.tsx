@@ -41,7 +41,13 @@ export const Controls = ({
         w="full"
         value={fillMode}
         variant="subtle"
-        onValueChange={(e) => handleTabChange?.(e.value as CellFill)}
+        deselectable
+        onValueChange={(e) => {
+          const value =
+            e.value ?? (fillMode === 'candidate' ? 'digit' : 'candidate');
+
+          handleTabChange?.(value as CellFill);
+        }}
       >
         <Tabs.List w="full">
           {TAB_ITEMS.map(({ label, value, icon }) => (
