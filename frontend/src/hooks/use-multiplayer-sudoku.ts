@@ -237,87 +237,102 @@ export const useMultiplayerSudoku = (config: MultiplayerConfig) => {
   });
 
   // handlers
-  const handleMessage = useCallback(
-    (message: ServerMessage) => {
-      switch (message?.type) {
-        case 'game_state':
-          const { game, players } = message;
-          const { board } = game;
+  const gameHandler = useCallback((message: ServerMessage) => {
+    switch (message?.type) {
+      case 'game_state': {
+        const { game, players } = message;
+        const { board } = game;
 
-          dispatch({
-            type: 'INIT_BOARD',
-            payload: {
-              board,
-              remaining: buildRemainingCounts(board),
-              startedAt: game.startedAt,
-            },
-          });
-          dispatch({ type: 'SET_PLAYERS', payload: players });
-          break;
-        case 'cell_updated': {
-          const { col, row, value } = message;
-          const activity = getCellActivityMessage(message);
-
-          dispatch({ type: 'ADD_ACTIVITY', payload: activity });
-
-          if (value !== null) {
-            dispatch({
-              type: 'FILL_DIGIT',
-              payload: { row, col, value },
-            });
-          } else {
-            dispatch({
-              type: 'CLEAR_DIGIT',
-              payload: { row, col },
-            });
-          }
-          break;
-        }
-        case 'candidates_updated': {
-          const { col, row, candidates } = message;
-
-          dispatch({
-            type: 'SET_CANDIDATES',
-            payload: { row, col, candidates },
-          });
-          break;
-        }
-        case 'players':
-          dispatch({ type: 'SET_PLAYERS', payload: message.players });
-          break;
-        case 'game_complete':
-          dispatch({ type: 'COMPLETE', payload: message.completedAt });
-          break;
-        case 'player_joined': {
-          dispatch({
-            type: 'ADD_ACTIVITY',
-            payload: `${message.player.name} joined`,
-          });
-          break;
-        }
-        case 'player_left': {
-          dispatch({
-            type: 'ADD_ACTIVITY',
-            payload: `${message.playerName} left`,
-          });
-          break;
-        }
-        case 'error': {
-          dispatch({ type: 'ERROR', payload: message.code });
-          break;
-        }
-        default:
-          break;
+        dispatch({
+          type: 'INIT_BOARD',
+          payload: {
+            board,
+            remaining: buildRemainingCounts(board),
+            startedAt: game.startedAt,
+          },
+        });
+        dispatch({ type: 'SET_PLAYERS', payload: players });
+        break;
       }
-    },
-    [dispatch],
-  );
-  // subscribe to messages
-  useEffect(() => {
-    const unsubscribe = subscribe(handleMessage);
+      case 'game_complete': {
+        dispatch({ type: 'COMPLETE', payload: message.completedAt });
+        break;
+      }
+      case 'error': {
+        dispatch({ type: 'ERROR', payload: message.code });
+        break;
+      }
+    }
+  }, []);
 
-    return unsubscribe;
-  }, [subscribe, handleMessage]);
+  const playerHandler = useCallback((message: ServerMessage) => {
+    switch (message.type) {
+      case 'players':
+        dispatch({ type: 'SET_PLAYERS', payload: message.players });
+        break;
+
+      case 'player_joined': {
+        dispatch({
+          type: 'ADD_ACTIVITY',
+          payload: `${message.player.name} joined`,
+        });
+        break;
+      }
+      case 'player_left': {
+        dispatch({
+          type: 'ADD_ACTIVITY',
+          payload: `${message.playerName} left`,
+        });
+        break;
+      }
+    }
+  }, []);
+
+  const boardHandler = useCallback((message: ServerMessage) => {
+    switch (message.type) {
+      case 'cell_updated': {
+        const { col, row, value } = message;
+        const activity = getCellActivityMessage(message);
+
+        dispatch({ type: 'ADD_ACTIVITY', payload: activity });
+
+        if (value !== null) {
+          dispatch({
+            type: 'FILL_DIGIT',
+            payload: { row, col, value },
+          });
+        } else {
+          dispatch({
+            type: 'CLEAR_DIGIT',
+            payload: { row, col },
+          });
+        }
+        break;
+      }
+      case 'candidates_updated': {
+        const { col, row, candidates } = message;
+
+        dispatch({
+          type: 'SET_CANDIDATES',
+          payload: { row, col, candidates },
+        });
+        break;
+      }
+    }
+  }, []);
+
+// subscribe to messages
+useEffect(() => {
+  const unsubscribeGame = subscribe(gameHandler);
+  const unsubscribeBoard = subscribe(boardHandler);
+  const unsubscribePlayer = subscribe(playerHandler);
+
+  return () => {
+    unsubscribeGame();
+    unsubscribeBoard();
+    unsubscribePlayer();
+  };
+}, [subscribe, gameHandler, boardHandler, playerHandler]);
 
   // join room
   useEffect(() => {
