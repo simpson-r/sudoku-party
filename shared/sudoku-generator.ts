@@ -151,6 +151,3 @@ const canPlaceValue = (
   !existsInRow(grid, val, r) &&
   !existsInCol(grid, val, c) &&
   !existsInSquare(grid, val, r, c);
-
-export const isPuzzleComplete = (board: Cell[][]) =>
-  board.every((row) => row.every((cell) => cell.value === cell.actual));

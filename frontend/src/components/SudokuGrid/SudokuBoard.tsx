@@ -18,7 +18,8 @@ import { GRID_SIZE } from '@sudokuparty/shared/constants';
 type Direction = { dr: number; dc: number };
 type SudokuBoardProps =
   | {
-      puzzle?: Cell[][];
+      board?: Cell[][];
+      autoCandidates?: boolean;
       placeholder?: false;
       isPaused?: boolean;
       clearCell: (digit: SudokuDigit | null) => void;
@@ -26,7 +27,7 @@ type SudokuBoardProps =
       onCellSelect: (pos: CellPosition) => void;
       resume?: VoidFunction;
     }
-  | { puzzle: undefined };
+  | { board: undefined };
 
 // constants
 const directions: Partial<Record<string, Direction>> = {
@@ -41,22 +42,18 @@ const EMPTY_BOARD = createEmptyBoard();
  * This component renders the sudoku board and manages board-level interactions like cell selection, keyboard nav, and resume
  */
 export const SudokuBoard = (props: SudokuBoardProps & SimpleGridProps) => {
-  const puzzle = !props.puzzle ? EMPTY_BOARD : props.puzzle;
-  const cellsPerBox = useMemo(() => generateCellsPerBox(puzzle), [puzzle]);
+  const board = !props.board ? EMPTY_BOARD : props.board;
+  const cellsPerBox = useMemo(() => generateCellsPerBox(board), [board]);
 
   // render non-interactive board for loading state
-  if (!props.puzzle) {
+  if (!props.board) {
     return (
       <SudokuGrid>
         {Array.from({ length: GRID_SIZE }).map((_, boxIndex) => (
           <SudokuBox
             key={boxIndex}
             cells={cellsPerBox[boxIndex]}
-            selectedCell={undefined}
             paused={true}
-            onCellClear={undefined}
-            onCellFill={undefined}
-            onCellSelect={undefined}
           />
         ))}
         <Center position="absolute" inset="0" zIndex={1}>
@@ -66,15 +63,22 @@ export const SudokuBoard = (props: SudokuBoardProps & SimpleGridProps) => {
     );
   }
 
-  const { isPaused, clearCell, fillCell, resume, onCellSelect, ...rest } =
-    props;
+  const {
+    autoCandidates,
+    isPaused,
+    clearCell,
+    fillCell,
+    resume,
+    onCellSelect,
+    ...rest
+  } = props;
 
   const [selectedPosition, setSelectedPosition] = useState<CellPosition | null>(
     null,
   );
 
   const selectedCell = selectedPosition
-    ? puzzle[selectedPosition.row][selectedPosition.col]
+    ? board[selectedPosition.row][selectedPosition.col]
     : undefined;
 
   // handlers
@@ -100,10 +104,10 @@ export const SudokuBoard = (props: SudokuBoardProps & SimpleGridProps) => {
       const nextCol =
         (selectedPosition.col + direction.dc + GRID_SIZE) % GRID_SIZE;
 
-      const pos = puzzle[nextRow][nextCol];
+      const pos = board[nextRow][nextCol];
       handleCellSelect({ row: pos.row, col: pos.col });
     },
-    [isPaused, puzzle, selectedPosition, handleCellSelect],
+    [isPaused, board, selectedPosition, handleCellSelect],
   );
 
   // render
@@ -112,6 +116,8 @@ export const SudokuBoard = (props: SudokuBoardProps & SimpleGridProps) => {
       {Array.from({ length: GRID_SIZE }).map((_, boxIndex) => (
         <SudokuBox
           key={boxIndex}
+          board={board}
+          autoCandidates={autoCandidates}
           cells={cellsPerBox[boxIndex]}
           selectedCell={selectedCell}
           paused={isPaused}

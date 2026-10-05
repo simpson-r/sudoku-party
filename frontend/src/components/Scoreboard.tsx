@@ -3,9 +3,9 @@ import { HStack, Skeleton, Table, Text } from '@chakra-ui/react';
 import { PlayerInfo } from '@sudokuparty/shared/types';
 
 /**
- * This component displays the players currently in the room.
+ * This component displays the players currently in the room and their scores 
  */
-export const Players = ({
+export const Scoreboard = ({
   playerId,
   players,
   isMultiplayer = true,
@@ -27,7 +27,7 @@ export const Players = ({
         borderColor="border"
         fontSize="sm"
       >
-        <Text>score</Text>
+        <Text textStyle='label'>score</Text>
         <Text>{players[0]?.score ?? 0}</Text>
       </HStack>
     );

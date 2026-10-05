@@ -4,12 +4,10 @@ import { CellPayload } from '@/components/SudokuGrid/types';
 import {
   buildRemainingCounts,
   cleanupCandidates,
+  isPuzzleComplete,
   updateBoard,
 } from '@sudokuparty/shared/helpers';
-import {
-  generateSudokuGame,
-  isPuzzleComplete,
-} from '@sudokuparty/shared/sudoku-generator';
+import { generateSudokuGame } from '@sudokuparty/shared/sudoku-generator';
 import {
   CandidateUpdate,
   Cell,
@@ -20,15 +18,16 @@ import {
 
 // types & interfaces
 interface SudokuState {
+  autoCandidates?: boolean;
   board: Cell[][];
-  errors: number;
   completed: boolean;
+  completedAt: number | null;
+  errors: number;
   paused: boolean;
+  pausedAt: number | null;
   remaining: RemainingCounts;
   score: number;
   startedAt: number;
-  completedAt: number | null;
-  pausedAt: number | null;
   totalPausedMs: number;
 }
 
@@ -39,6 +38,7 @@ type Action =
   | { type: 'FILL_DIGIT'; payload: CellPayload }
   | { type: 'ADD_CANDIDATE'; payload: CellPayload }
   | { type: 'REMOVE_CANDIDATE'; payload: CandidateUpdate }
+  | { type: 'TOGGLE_AUTO_CANDIDATES' }
   | { type: 'PAUSE' }
   | { type: 'RESET'; payload: ResetPayload }
   | { type: 'RESUME' };
@@ -162,6 +162,12 @@ export function reducer(state: SudokuState, action: Action): SudokuState {
         board,
       };
     }
+    case 'TOGGLE_AUTO_CANDIDATES': {
+      return {
+        ...state,
+        autoCandidates: !state.autoCandidates,
+      };
+    }
     default:
       return state;
   }
@@ -201,6 +207,9 @@ export const useSinglePlayerSudoku = (difficulty: Difficulty) => {
 
   const resume = () => dispatch({ type: 'RESUME' });
 
+  const toggleAutoCandidates = () =>
+    dispatch({ type: 'TOGGLE_AUTO_CANDIDATES' });
+
   const newGame = () => {
     const newPuzzle = generateSudokuGame(difficulty);
     const newRemaining = buildRemainingCounts(newPuzzle);
@@ -222,6 +231,7 @@ export const useSinglePlayerSudoku = (difficulty: Difficulty) => {
       clearCell,
       addCandidate,
       removeCandidate,
+      toggleAutoCandidates,
       pause,
       resume,
       restart,

@@ -10,6 +10,7 @@ interface SudokuCellProps {
   cell: Cell;
   highlighted?: boolean;
   identical?: boolean;
+  candidates: SudokuDigit[];
   paused?: boolean;
   selected: boolean;
   onCellClear?: (digit: SudokuDigit | null) => void;
@@ -24,17 +25,18 @@ export const SudokuCell = ({
   highlighted = false,
   identical = false,
   paused = false,
+  candidates,
   selected,
   onCellClear,
   onCellFill,
   ...props
 }: SudokuCellProps & BoxProps) => {
-  const { given, actual, value, candidates } = cell;
+  const { given, actual, value } = cell;
   // cell styling
   const color = useMemo(() => {
     if (given) return 'fg';
     if (value !== null && value !== actual) return 'fg.error';
-    return 'fg.info';
+    return 'blue.fg';
   }, [given, value, actual]);
 
   const bgColor = useMemo(() => {
@@ -88,7 +90,7 @@ export const SudokuCell = ({
       cursor="pointer"
       userSelect="none"
       border="3px solid"
-      borderColor={selected && !paused ? 'border.info' : 'transparent'}
+      borderColor={selected && !paused ? 'blue.focusRing' : 'transparent'}
       color={color}
       {...props}
     >

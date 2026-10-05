@@ -4,6 +4,7 @@ import { WebSocketServer } from 'ws';
 import {
   buildRemainingCounts,
   cleanupCandidates,
+  isPuzzleComplete,
   parseDifficulty,
   updateBoard,
 } from '../../shared/helpers.js';
@@ -16,10 +17,7 @@ import {
   isValidPosition,
 } from './game/sudoku-game.js';
 import type { Room } from './types.js';
-import {
-  generateSudokuGame,
-  isPuzzleComplete,
-} from '../../shared/sudoku-generator.js';
+import { generateSudokuGame } from '../../shared/sudoku-generator.js';
 
 // constants
 const PORT = Number(process.env.PORT) || 8080;

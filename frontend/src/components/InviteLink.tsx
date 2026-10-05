@@ -33,22 +33,24 @@ export const InviteLink = ({
         justify="center"
         gap={1}
       >
-        <Clipboard.Label textStyle="label">Invite link:</Clipboard.Label>
+        <Clipboard.Label textStyle="label">Link:</Clipboard.Label>
 
         {isLoading ? (
           <Skeleton as="span" h={4} w="160px" borderRadius="none" />
         ) : (
-          <Link
-            as="span"
-            textStyle="sm"
-            display="inline-flex"
-            alignItems="center"
-            gap={1}
-            onClick={clipboard.copy}
-          >
-            <Clipboard.ValueText />
-            <Clipboard.Indicator />
-          </Link>
+          <Clipboard.Trigger asChild>
+            <Link
+              as="span"
+              textStyle="sm"
+              display="inline-flex"
+              alignItems="center"
+              gap={1}
+              onClick={clipboard.copy}
+            >
+              <Clipboard.ValueText />
+              <Clipboard.Indicator />
+            </Link>
+          </Clipboard.Trigger>
         )}
       </Flex>
 

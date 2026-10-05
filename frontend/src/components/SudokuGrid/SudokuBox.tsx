@@ -4,8 +4,11 @@ import { SimpleGrid } from '@chakra-ui/react';
 
 import { SudokuCell } from '@/components/SudokuGrid/SudokuCell';
 import { Cell, CellPosition, SudokuDigit } from '@sudokuparty/shared/types';
+import { generateAutoCandidates } from '@/utils/helpers';
 
 interface SudokuBoxProps {
+  autoCandidates?: boolean;
+  board?: Cell[][];
   cells: Cell[];
   paused?: boolean;
   selectedCell?: Cell;
@@ -43,6 +46,11 @@ export const SudokuBox = ({
           }
           identical={
             !!selectedCell?.value && cell.value === selectedCell?.value
+          }
+          candidates={
+            (props.autoCandidates
+              ? generateAutoCandidates(props?.board ?? [], cell)
+              : cell.candidates) as SudokuDigit[]
           }
           onClick={() => {
             onCellSelect?.({ row: cell.row, col: cell.col });

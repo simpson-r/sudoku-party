@@ -68,7 +68,7 @@ export const cleanupCandidates = (
   candidate: SudokuDigit,
   prevBoard: Cell[][],
 ) => {
-  // clone board before mutation
+  // clone board
   const board = prevBoard.map((row) =>
     row.map((cell) => ({
       ...cell,
@@ -86,7 +86,6 @@ export const cleanupCandidates = (
   board[row].forEach(removeCandidate);
   // col
   for (let i = 0; i < GRID_SIZE; i++) removeCandidate(board[i][col]);
-
   // box
   const startRow = Math.floor(row / BOX_SIZE) * BOX_SIZE;
   const startCol = Math.floor(col / BOX_SIZE) * BOX_SIZE;
@@ -99,3 +98,9 @@ export const cleanupCandidates = (
 
   return board;
 };
+
+/**
+ * Checks whether the puzzle is complete by verifying all cells contain a value.
+ */
+export const isPuzzleComplete = (board: Cell[][]) =>
+  board.every((row) => row.every((cell) => cell.value === cell.actual));

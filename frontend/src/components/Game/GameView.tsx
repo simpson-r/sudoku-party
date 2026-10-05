@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 
-import { Box, Button, useDisclosure } from '@chakra-ui/react';
+import { Box, Button, Checkbox, useDisclosure } from '@chakra-ui/react';
 
 import { Game } from '@/components/layout/Game';
 import { CompletionModal } from '@/components/modals/CompletionModal';
@@ -20,13 +20,14 @@ import {
   RemainingCounts,
   SudokuDigit,
 } from '@sudokuparty/shared/types';
-import { Players } from '../Players';
+import { Scoreboard } from '../Scoreboard';
 import { InviteLink } from '../InviteLink';
 import { ActivityLog } from '../ActivityLog';
 import { ConfirmationModal } from '../modals/ConfirmationModal';
 
 // types
 interface GameViewProps {
+  autoCandidates?: boolean;
   activityLog?: string[];
   board?: Cell[][];
   errors?: number;
@@ -41,6 +42,7 @@ interface GameViewProps {
   totalPausedMs: number;
   startedAt: number;
   completedAt: number | null;
+  toggleAutoCandidates?: VoidFunction;
   onAddCandidate: (update: CellPayload) => void;
   onRemoveCandidate: (update: CandidateUpdate) => void;
   onFillCell: (update: CellUpdate) => void;
@@ -51,17 +53,10 @@ interface GameViewProps {
 }
 // constants
 const CONFIRM_CONFIG = {
-  newGame: {
-    heading: 'Start a new game?',
-    body: 'This will end the current session',
-    confirmText: 'New Game',
-    cancelText: 'Cancel',
-  },
-  restart: {
-    heading: 'Restart this game?',
-    body: 'This will restart the current session.',
-    confirmText: 'Restart',
-  },
+  heading: 'Start a new game?',
+  body: 'This will end the current session',
+  confirmText: 'New Game',
+  cancelText: 'Cancel',
 };
 
 /**
@@ -69,6 +64,7 @@ const CONFIRM_CONFIG = {
  */
 export const GameView = ({
   activityLog,
+  autoCandidates,
   board,
   errors,
   difficulty,
@@ -89,6 +85,7 @@ export const GameView = ({
   onNewGame,
   onPause,
   onResume,
+  toggleAutoCandidates,
 }: GameViewProps) => {
   const completionModal = useDisclosure();
   const confirmationModal = useDisclosure();
@@ -187,7 +184,8 @@ export const GameView = ({
           </Game.Status>
           {/* board */}
           <SudokuBoard
-            puzzle={board}
+            board={board}
+            autoCandidates={autoCandidates}
             isPaused={isPaused}
             clearCell={handleDigitRemoval}
             fillCell={handleDigitInput}
@@ -213,12 +211,24 @@ export const GameView = ({
             handleValueClick={handleValueClick}
           />
           {players && (
-            <Players
+            <Scoreboard
               players={players}
               playerId={playerId || ''}
               isMultiplayer={isMultiplayer}
             />
           )}
+          {!isMultiplayer && (
+            <Checkbox.Root
+              disabled={isPaused}
+              checked={autoCandidates}
+              onCheckedChange={() => toggleAutoCandidates?.()}
+            >
+              <Checkbox.HiddenInput />
+              <Checkbox.Control />
+              <Checkbox.Label textStyle='sm' unstyled>Auto-candidate mode</Checkbox.Label>
+            </Checkbox.Root>
+          )}
+
           {isMultiplayer && <ActivityLog activityLog={activityLog} />}
           {!isMultiplayer && (
             <Button variant="surface" onClick={confirmationModal.onOpen}>
@@ -241,7 +251,7 @@ export const GameView = ({
         onNewGame={handleNewGame}
       />
       <ConfirmationModal
-        ctaConfig={CONFIRM_CONFIG['newGame']}
+        ctaConfig={CONFIRM_CONFIG}
         isOpen={confirmationModal.open}
         onClose={confirmationModal.onClose}
         onConfirm={handleNewGame}

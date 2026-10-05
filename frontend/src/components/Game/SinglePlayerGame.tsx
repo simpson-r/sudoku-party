@@ -13,6 +13,7 @@ export const SinglePlayerGame = ({ config }: { config: SetupConfig }) => {
 
   return (
     <GameView
+      autoCandidates={state.autoCandidates}
       board={state.board}
       difficulty={config.difficulty}
       errors={state.errors}
@@ -24,6 +25,7 @@ export const SinglePlayerGame = ({ config }: { config: SetupConfig }) => {
       startedAt={state.startedAt}
       completedAt={state.completedAt}
       remainingCounts={state.remaining}
+      toggleAutoCandidates={actions.toggleAutoCandidates}
       onFillCell={actions.fillCell}
       onClearCell={actions.clearCell}
       onAddCandidate={actions.addCandidate}

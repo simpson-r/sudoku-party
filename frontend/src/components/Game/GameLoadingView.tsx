@@ -4,7 +4,7 @@ import { INITIAL_REMAINING } from '@sudokuparty/shared/constants';
 import { ActivityLog } from '../ActivityLog';
 import { Controls } from '../Controls';
 import { Game } from '../layout/Game';
-import { Players } from '../Players';
+import { Scoreboard } from '../Scoreboard';
 import { SudokuBoard } from '../SudokuGrid/SudokuBoard';
 import { InviteLink } from '../InviteLink';
 import { SettingsBar } from '../SettingsBar';
@@ -32,8 +32,7 @@ export const GameLoadingView = ({ difficulty }: { difficulty: Difficulty }) => {
               hidePauseToggle
             />
           </Game.Status>
-
-          <SudokuBoard puzzle={undefined} />
+          <SudokuBoard board={undefined} />
         </Game.Main>
         {/*  sidebar */}
         <Game.Sidebar>
@@ -41,7 +40,7 @@ export const GameLoadingView = ({ difficulty }: { difficulty: Difficulty }) => {
             <InviteLink roomId="" isLoading />
           </Box>
           <Controls fillMode="digit" remaining={INITIAL_REMAINING} disabled />
-          <Players players={[]} isLoading />
+          <Scoreboard players={[]} isLoading />
           <ActivityLog isLoading />
         </Game.Sidebar>
       </Game.Content>
