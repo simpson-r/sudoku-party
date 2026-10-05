@@ -111,7 +111,7 @@ export const SudokuCell = ({
         ))
       ) : (
         // main digit
-        <Text fontSize="2xl">{value}</Text>
+        <Text fontSize={{base: 'xl', sm: "2xl"}}>{value}</Text>
       )}
     </Center>
   );

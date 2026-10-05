@@ -1,21 +1,20 @@
-import { IoPause, IoPlay } from 'react-icons/io5';
-
-import { HStack, Icon, Text } from '@chakra-ui/react';
-import { Difficulty } from '@sudokuparty/shared/types';
-import { formatSeconds, getGameElapsedTime } from '@/utils/helpers';
-import { useEffect, useState } from 'react';
-import { ONE_SEC } from './SudokuGrid/constants';
+import { useCallback, useEffect, useState } from 'react';
 import {
   MdOutlinePauseCircleOutline,
   MdOutlinePlayCircleOutline,
 } from 'react-icons/md';
+
+import { HStack, Icon, Text } from '@chakra-ui/react';
+import { Difficulty } from '@sudokuparty/shared/types';
+
+import { formatSeconds, getGameElapsedTime } from '@/utils/helpers';
+import { ONE_SEC } from './SudokuGrid/constants';
 
 /**
  * This component displays the game timer and error count, with controls for pausing and resuming the game.
  */
 export const SettingsBar = ({
   enablePause = false,
-  errors,
   difficulty,
   hidePauseToggle = false,
   isPaused = false,
@@ -27,7 +26,6 @@ export const SettingsBar = ({
   resume,
 }: {
   enablePause?: boolean;
-  errors?: number;
   difficulty: Difficulty;
   hidePauseToggle?: boolean;
   isPaused?: boolean;
@@ -40,6 +38,11 @@ export const SettingsBar = ({
 }) => {
   const [timer, setTimer] = useState(0);
   // timer
+  const updateTimer = useCallback(
+    () => setTimer(getGameElapsedTime(startedAt ?? 0, totalPausedMs)),
+    [startedAt, totalPausedMs],
+  );
+
   useEffect(() => {
     if (startedAt === null) return;
 
@@ -53,16 +56,12 @@ export const SettingsBar = ({
       return;
     }
 
-    const updateTimer = () => {
-      setTimer(getGameElapsedTime(startedAt, totalPausedMs));
-    };
-
     updateTimer();
 
     const timerId = setInterval(updateTimer, ONE_SEC);
 
     return () => clearInterval(timerId);
-  }, [startedAt, completedAt, isPaused, pausedAt, totalPausedMs]);
+  }, [startedAt, completedAt, isPaused, pausedAt, totalPausedMs, updateTimer]);
 
   // callbacks
   const toggleGame = () => (isPaused ? resume?.() : pause?.());
@@ -70,7 +69,12 @@ export const SettingsBar = ({
   // render
   return (
     <HStack w="full" justify="space-between" align="center">
-      <StatusItem label="difficulty">{difficulty}</StatusItem>
+      <Text fontSize="sm" fontVariantNumeric="tabular-nums">
+        <Text as="span" fontWeight="medium">
+          difficulty:{' '}
+        </Text>
+        {difficulty}
+      </Text>
       {/* timer + single-player pause button */}
       <HStack align="center" gap={1}>
         <Text fontSize="sm" fontVariantNumeric="tabular-nums">
@@ -96,18 +100,3 @@ export const SettingsBar = ({
     </HStack>
   );
 };
-
-const StatusItem = ({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) => (
-  <Text fontSize="sm" fontVariantNumeric="tabular-nums">
-    <Text as="span" fontWeight="medium">
-      {label}:{' '}
-    </Text>
-    {children}
-  </Text>
-);

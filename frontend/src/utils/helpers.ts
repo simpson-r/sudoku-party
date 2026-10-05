@@ -38,7 +38,7 @@ export const generateAutoCandidates = (board: Cell[][], cell: Cell) => {
   return candidates;
 };
 
-// helpers
+// local helpers
 const existsInSquare = (
   grid: Cell[][],
   num: SudokuDigit,

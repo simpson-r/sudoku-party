@@ -170,7 +170,6 @@ export const GameView = ({
           <Game.Status w="full">
             <SettingsBar
               enablePause={!isMultiplayer}
-              errors={errors}
               difficulty={difficulty}
               isPaused={isPaused}
               hidePauseToggle={isMultiplayer}
@@ -225,7 +224,9 @@ export const GameView = ({
             >
               <Checkbox.HiddenInput />
               <Checkbox.Control />
-              <Checkbox.Label textStyle='sm' unstyled>Auto-candidate mode</Checkbox.Label>
+              <Checkbox.Label textStyle="sm" unstyled>
+                Auto-candidate mode
+              </Checkbox.Label>
             </Checkbox.Root>
           )}
 

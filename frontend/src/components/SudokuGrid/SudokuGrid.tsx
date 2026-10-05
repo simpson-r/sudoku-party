@@ -18,6 +18,7 @@ export const SudokuGrid = ({
       gap={0.5}
       bg="bg.inverted"
       tabIndex={0}
+      boxShadow="sm"
       _focus={{ boxShadow: 'none', outline: 'none' }}
       {...props}
     />
